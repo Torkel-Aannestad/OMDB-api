@@ -24,6 +24,8 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data any, h
 		return err
 	}
 
+	js = append(js, '\n')
+
 	for k, v := range headers {
 		w.Header()[k] = v
 	}
