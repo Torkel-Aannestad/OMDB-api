@@ -1,4 +1,3 @@
-
 include .env
 
 ## help: print this help message
@@ -26,25 +25,24 @@ live/server:
 db/psql:
 	psql ${MOVIE_MAZE_DB_DSN}
 
-## db/migrations/new name=$1: create a new database migration
-.PHONY: db/migrations/new
-db/migrations/new:
-	@echo 'Creating migration files for ${name}...'
-	migrate create -seq -ext=.sql -dir=./migrations ${name}
-
 ## db/migrations/up: apply all up database migrations
 .PHONY: db/migrations/up
 db/migrations/up: confirm
 	@echo 'Running up migrations...'
-	migrate -path ./migrations -database ${MOVIE_MAZE_DB_DSN} up
+	@cd sql/schema && goose postgres ${MOVIE_MAZE_DB_DSN} up && cd ../..
 
-### SE OM DISSE SKAL BRUKES:
-dbinit:
-	@docker run -e POSTGRES_PASSWORD=bootdotdev --name=pg-blogator --rm -d -p 5432:5432 postgres && sleep 3
+## db/sqlc/generate: slqc generates go types from database schema and queries
+.PHONY: db/sqlc/generate
+db/sqlc/generate:
+	sqlc generate
+
+## db/init: initialize a docker postress container
+.PHONY: db/init
+db/init:
+	@docker run -e POSTGRES_PASSWORD=${DOCKER_POSTGRES_PW} --name=${DOCKER_POSTGRES_CONTAINER_NAME} --rm -d -p 5432:5432 postgres && sleep 3
 	@docker exec -u postgres -it pg-blogator psql -c "CREATE DATABASE blogator;"
-migrate:
-	@cd sql/schema && goose postgres postgres://postgres:bootdotdev@172.17.240.1:5432/blogator up && cd ../..
-### ADD SLC generate
+
+
 
 # ==================================================================================== #
 # QUALITY CONTROL

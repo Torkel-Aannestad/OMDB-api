@@ -1,2 +1,2 @@
-- migrations med goos
-- types directory med
+- migrations med goose. Set up Makefile
+-
