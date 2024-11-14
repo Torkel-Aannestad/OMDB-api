@@ -38,6 +38,14 @@ db/migrations/up: confirm
 	@echo 'Running up migrations...'
 	migrate -path ./migrations -database ${MOVIE_MAZE_DB_DSN} up
 
+### SE OM DISSE SKAL BRUKES:
+dbinit:
+	@docker run -e POSTGRES_PASSWORD=bootdotdev --name=pg-blogator --rm -d -p 5432:5432 postgres && sleep 3
+	@docker exec -u postgres -it pg-blogator psql -c "CREATE DATABASE blogator;"
+migrate:
+	@cd sql/schema && goose postgres postgres://postgres:bootdotdev@172.17.240.1:5432/blogator up && cd ../..
+### ADD SLC generate
+
 # ==================================================================================== #
 # QUALITY CONTROL
 # ==================================================================================== #
