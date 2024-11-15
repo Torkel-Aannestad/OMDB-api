@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/data"
 	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
@@ -43,8 +45,9 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
-
-	movie, err := app.model.CreateMovie(r.Context(), createMovieParams)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	movie, err := app.model.CreateMovie(ctx, createMovieParams)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -62,7 +65,9 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	movie, err := app.model.GetMovieById(r.Context(), id)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	movie, err := app.model.GetMovieById(ctx, id)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
@@ -81,7 +86,9 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	movie, err := app.model.GetMovieById(r.Context(), id)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+	movie, err := app.model.GetMovieById(ctx, id)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -132,7 +139,7 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	updatedMovie, err := app.model.UpdateMovie(r.Context(), updateMovieParams)
+	updatedMovie, err := app.model.UpdateMovie(ctx, updateMovieParams)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			//data race condition met
@@ -156,7 +163,9 @@ func (app *application) deleteMovieHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	affercedRows, err := app.model.DeleteMovie(r.Context(), id)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	affercedRows, err := app.model.DeleteMovie(ctx, id)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
