@@ -1,2 +1,2 @@
-- migrations med goose. Set up Makefile
--
+- CRØD!
+- legg til model i app struct etter sqlc

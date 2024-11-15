@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -30,6 +31,7 @@ type config struct {
 type application struct {
 	config config
 	logger *slog.Logger
+	model  *database.Queries
 }
 
 func main() {
@@ -59,9 +61,12 @@ func main() {
 	defer db.Close()
 	logger.Info("database connection pool established")
 
+	model := database.New(db)
+
 	app := &application{
 		config: cfg,
 		logger: logger,
+		model:  model,
 	}
 
 	srv := &http.Server{
