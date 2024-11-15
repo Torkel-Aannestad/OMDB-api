@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -83,7 +84,7 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 	movie, err := app.model.GetMovieById(r.Context(), id)
 	if err != nil {
 		switch {
-		case errors.Is(err, ErrRecordNotFound):
+		case errors.Is(err, sql.ErrNoRows):
 			app.notFoundResponse(w, r)
 		default:
 			app.serverErrorResponse(w, r, err)
@@ -142,21 +143,19 @@ func (app *application) deleteMovieHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = app.model.DeleteMovie(r.Context(), id)
+	affercedRows, err := app.model.DeleteMovie(r.Context(), id)
 	if err != nil {
-		switch {
-		case errors.Is(err, ErrRecordNotFound):
-			app.notFoundResponse(w, r)
-		default:
-			app.serverErrorResponse(w, r, err)
-		}
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	if affercedRows != 1 {
+		app.notFoundResponse(w, r)
 		return
 	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"movie": "movie was successfully deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
-
 	}
 
 }

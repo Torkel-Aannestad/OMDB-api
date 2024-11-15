@@ -13,6 +13,6 @@ SET title = $2, year = $3, runtime = $4, genres = $5, version = version + 1
 WHERE id = $1
 RETURNING *;
 
--- name: DeleteMovie :exec
+-- name: DeleteMovie :execrows
 DELETE FROM movies
 WHERE id = $1;
