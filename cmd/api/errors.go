@@ -1,8 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+)
+
+var (
+	ErrRecordNotFound = errors.New("record not found")
+	ErrEditConflict   = errors.New("edit conflict")
 )
 
 func (app *application) logError(r *http.Request, err error) {

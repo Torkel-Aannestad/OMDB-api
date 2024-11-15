@@ -44,6 +44,16 @@ func (q *Queries) CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie
 	return i, err
 }
 
+const deleteMovie = `-- name: DeleteMovie :exec
+DELETE FROM movies
+WHERE id = $1
+`
+
+func (q *Queries) DeleteMovie(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteMovie, id)
+	return err
+}
+
 const getMovieById = `-- name: GetMovieById :one
 SELECT id, created_at, title, year, runtime, genres, version FROM movies
 WHERE id = $1
@@ -51,6 +61,42 @@ WHERE id = $1
 
 func (q *Queries) GetMovieById(ctx context.Context, id int64) (Movie, error) {
 	row := q.db.QueryRowContext(ctx, getMovieById, id)
+	var i Movie
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.Title,
+		&i.Year,
+		&i.Runtime,
+		pq.Array(&i.Genres),
+		&i.Version,
+	)
+	return i, err
+}
+
+const updateMovie = `-- name: UpdateMovie :one
+UPDATE movies
+SET title = $2, year = $3, runtime = $4, genres = $5, version = version + 1
+WHERE id = $1
+RETURNING id, created_at, title, year, runtime, genres, version
+`
+
+type UpdateMovieParams struct {
+	ID      int64    `json:"id"`
+	Title   string   `json:"title"`
+	Year    int64    `json:"year"`
+	Runtime int64    `json:"runtime"`
+	Genres  []string `json:"genres"`
+}
+
+func (q *Queries) UpdateMovie(ctx context.Context, arg UpdateMovieParams) (Movie, error) {
+	row := q.db.QueryRowContext(ctx, updateMovie,
+		arg.ID,
+		arg.Title,
+		arg.Year,
+		arg.Runtime,
+		pq.Array(arg.Genres),
+	)
 	var i Movie
 	err := row.Scan(
 		&i.ID,
