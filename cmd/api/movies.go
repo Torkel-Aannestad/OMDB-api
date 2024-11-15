@@ -45,11 +45,16 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
 	movie, err := app.model.CreateMovie(ctx, createMovieParams)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		switch {
+		case app.isCtxTimeoutError(ctx, err):
+			return
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
@@ -65,11 +70,18 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*2)
 	defer cancel()
 	movie, err := app.model.GetMovieById(ctx, id)
 	if err != nil {
-		app.notFoundResponse(w, r)
+		switch {
+		case app.isCtxTimeoutError(ctx, err):
+			return
+		case errors.Is(err, sql.ErrNoRows):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 
@@ -86,11 +98,13 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
 	defer cancel()
 	movie, err := app.model.GetMovieById(ctx, id)
 	if err != nil {
 		switch {
+		case app.isCtxTimeoutError(ctx, err):
+			return
 		case errors.Is(err, sql.ErrNoRows):
 			app.notFoundResponse(w, r)
 		default:
@@ -141,10 +155,13 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 
 	updatedMovie, err := app.model.UpdateMovie(ctx, updateMovieParams)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		switch {
+		case app.isCtxTimeoutError(ctx, err):
+			return
+		case errors.Is(err, sql.ErrNoRows):
 			//data race condition met
 			app.editConflictResponse(w, r)
-		} else {
+		default:
 			app.serverErrorResponse(w, r, err)
 		}
 		return
@@ -163,11 +180,16 @@ func (app *application) deleteMovieHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
 	affercedRows, err := app.model.DeleteMovie(ctx, id)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		switch {
+		case app.isCtxTimeoutError(ctx, err):
+			return
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 	if affercedRows != 1 {

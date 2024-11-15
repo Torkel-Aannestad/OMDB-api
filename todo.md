@@ -1,3 +1,2 @@
-- CRØD!
-- legg til model i app struct etter sqlc
 - Hvor skal validation logikken ligge?
+- Lage abstraksjon for db call og sjekk av timeout?
