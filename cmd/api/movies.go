@@ -134,7 +134,12 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 
 	updatedMovie, err := app.model.UpdateMovie(r.Context(), updateMovieParams)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		if errors.Is(err, sql.ErrNoRows) {
+			//data race condition met
+			app.editConflictResponse(w, r)
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 

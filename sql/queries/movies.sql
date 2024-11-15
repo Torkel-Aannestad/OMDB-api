@@ -10,7 +10,7 @@ WHERE id = $1;
 -- name: UpdateMovie :one
 UPDATE movies
 SET title = $2, year = $3, runtime = $4, genres = $5, version = version + 1
-WHERE id = $1
+WHERE id = $1 and version = $6
 RETURNING *;
 
 -- name: DeleteMovie :execrows

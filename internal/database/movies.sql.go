@@ -80,7 +80,7 @@ func (q *Queries) GetMovieById(ctx context.Context, id int64) (Movie, error) {
 const updateMovie = `-- name: UpdateMovie :one
 UPDATE movies
 SET title = $2, year = $3, runtime = $4, genres = $5, version = version + 1
-WHERE id = $1
+WHERE id = $1 and version = $6
 RETURNING id, created_at, title, year, runtime, genres, version
 `
 
@@ -90,6 +90,7 @@ type UpdateMovieParams struct {
 	Year    int64    `json:"year"`
 	Runtime int64    `json:"runtime"`
 	Genres  []string `json:"genres"`
+	Version int64    `json:"version"`
 }
 
 func (q *Queries) UpdateMovie(ctx context.Context, arg UpdateMovieParams) (Movie, error) {
@@ -99,6 +100,7 @@ func (q *Queries) UpdateMovie(ctx context.Context, arg UpdateMovieParams) (Movie
 		arg.Year,
 		arg.Runtime,
 		pq.Array(arg.Genres),
+		arg.Version,
 	)
 	var i Movie
 	err := row.Scan(
