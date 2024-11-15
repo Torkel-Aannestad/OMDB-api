@@ -93,9 +93,9 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	var input struct {
-		Title   string   `json:"title"`
-		Year    int64    `json:"year"`
-		Runtime int64    `json:"runtime"`
+		Title   *string  `json:"title"`
+		Year    *int64   `json:"year"`
+		Runtime *int64   `json:"runtime"`
 		Genres  []string `json:"genres"`
 	}
 	err = app.readJSON(w, r, &input)
@@ -111,10 +111,18 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		Runtime: movie.Runtime,
 		Genres:  movie.Genres,
 	}
-	updateMovieParams.Title = input.Title
-	updateMovieParams.Year = input.Year
-	updateMovieParams.Runtime = input.Runtime
-	updateMovieParams.Genres = input.Genres
+	if input.Title != nil {
+		updateMovieParams.Title = *input.Title
+	}
+	if input.Year != nil {
+		updateMovieParams.Year = *input.Year
+	}
+	if input.Runtime != nil {
+		updateMovieParams.Runtime = *input.Runtime
+	}
+	if input.Genres != nil {
+		updateMovieParams.Genres = input.Genres
+	}
 
 	v := validator.New()
 	data.ValidateUpdateMovieParams(v, &updateMovieParams)
