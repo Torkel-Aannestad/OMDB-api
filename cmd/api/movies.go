@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/data"
+	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
 )
 
@@ -15,19 +16,20 @@ func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request
 
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Title   string       `json:"title"`
-		Year    int32        `json:"year"`
-		Runtime data.Runtime `json:"runtime"`
-		Genres  []string     `json:"genres"`
+		Title   string   `json:"title"`
+		Year    int32    `json:"year"`
+		Runtime int32    `json:"runtime"`
+		Genres  []string `json:"genres"`
 	}
 
 	err := app.readJSON(w, r, &input)
 	if err != nil {
+
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	movie := &data.Movie{
+	movieParams := database.CreateMovieParams{
 		Title:   input.Title,
 		Year:    input.Year,
 		Runtime: input.Runtime,
@@ -35,14 +37,22 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	v := validator.New()
-	data.ValidateMovie(v, movie)
+	data.ValidateMovie(v, &movieParams)
 	valid := v.Valid()
 	if !valid {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	fmt.Fprintf(w, "%+v\n", input)
+	movie, err := app.model.CreateMovie(r.Context(), movieParams)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -52,8 +62,8 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	movie := data.Movie{
-		ID:        id,
+	movie := database.Movie{
+		ID:        int32(id),
 		CreatedAt: time.Now(),
 		Title:     "Casablanca",
 		Runtime:   102,
