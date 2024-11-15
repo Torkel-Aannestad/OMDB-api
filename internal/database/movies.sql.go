@@ -19,8 +19,8 @@ RETURNING id, created_at, title, year, runtime, genres, version
 
 type CreateMovieParams struct {
 	Title   string   `json:"title"`
-	Year    int32    `json:"year"`
-	Runtime int32    `json:"runtime"`
+	Year    int64    `json:"year"`
+	Runtime int64    `json:"runtime"`
 	Genres  []string `json:"genres"`
 }
 
@@ -31,6 +31,26 @@ func (q *Queries) CreateMovie(ctx context.Context, arg CreateMovieParams) (Movie
 		arg.Runtime,
 		pq.Array(arg.Genres),
 	)
+	var i Movie
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.Title,
+		&i.Year,
+		&i.Runtime,
+		pq.Array(&i.Genres),
+		&i.Version,
+	)
+	return i, err
+}
+
+const getMovieById = `-- name: GetMovieById :one
+SELECT id, created_at, title, year, runtime, genres, version FROM movies
+WHERE id = $1
+`
+
+func (q *Queries) GetMovieById(ctx context.Context, id int64) (Movie, error) {
+	row := q.db.QueryRowContext(ctx, getMovieById, id)
 	var i Movie
 	err := row.Scan(
 		&i.ID,

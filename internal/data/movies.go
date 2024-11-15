@@ -14,7 +14,7 @@ func ValidateMovie(v *validator.Validator, movie *database.CreateMovieParams) {
 
 	v.Check(movie.Year != 0, "year", "must be provided")
 	v.Check(movie.Year >= 1888, "year", "must be after 1888")
-	v.Check(movie.Year <= int32(time.Now().Year()), "year", "must not be in the future")
+	v.Check(movie.Year <= int64(time.Now().Year()), "year", "must not be in the future")
 
 	v.Check(movie.Runtime != 0, "runtime", "must be provided")
 	v.Check(movie.Runtime > 0, "runtime", "must be a positive number")

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/data"
 	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
@@ -17,8 +16,8 @@ func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title   string   `json:"title"`
-		Year    int32    `json:"year"`
-		Runtime int32    `json:"runtime"`
+		Year    int64    `json:"year"`
+		Runtime int64    `json:"runtime"`
 		Genres  []string `json:"genres"`
 	}
 
@@ -58,22 +57,18 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
-		http.NotFound(w, r)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	movie := database.Movie{
-		ID:        int32(id),
-		CreatedAt: time.Now(),
-		Title:     "Casablanca",
-		Runtime:   102,
-		Genres:    []string{"drama", "romance", "war"},
-		Version:   1,
+	movie, err := app.model.GetMovieById(r.Context(), id)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
 	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
 	if err != nil {
-		app.logger.Error(err.Error())
 		app.serverErrorResponse(w, r, err)
 	}
 }
