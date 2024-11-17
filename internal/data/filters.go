@@ -1,12 +1,31 @@
 package data
 
-import "github.com/Torkel-Aannestad/MovieMaze/internal/validator"
+import (
+	"strings"
+
+	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
+)
 
 type Filters struct {
 	Page         int
 	PageSize     int
 	Sort         string
 	SortSafelist []string
+}
+
+func (f *Filters) sortColumn() string {
+	for _, safeValue := range f.SortSafelist {
+		if safeValue == f.Sort {
+			return strings.TrimSuffix(f.Sort, "-")
+		}
+	}
+	panic("unsafe sort parameter: " + f.Sort)
+}
+func (f *Filters) sortDirection() string {
+	if strings.Contains(f.Sort, "-") {
+		return "DESC"
+	}
+	return "ASC"
 }
 
 func ValidateFilters(v *validator.Validator, f Filters) {
