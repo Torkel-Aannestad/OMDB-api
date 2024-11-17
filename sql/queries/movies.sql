@@ -23,4 +23,4 @@ FROM movies
 -- use sqlc.arg(parameter_name) to name the paramter. Without it's called LOWER.
 WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', sqlc.arg(title)) OR sqlc.arg(title) = '')
 AND (genres @> sqlc.arg(genres) OR sqlc.arg(genres) = '{}')
-ORDER BY id;
+ORDER BY title ASC, id ASC;
