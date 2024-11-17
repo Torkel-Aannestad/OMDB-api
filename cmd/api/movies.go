@@ -37,8 +37,10 @@ func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	listMoviesParams := database.ListMoviesParams{
-		Title:  input.Title,
-		Genres: input.Genres,
+		Title:       input.Title,
+		Genres:      input.Genres,
+		OffsetValue: int32(input.Filters.Offset()),
+		LimitValue:  int32(input.Filters.Limit()),
 	}
 
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
@@ -53,7 +55,13 @@ func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request
 		}
 		return
 	}
-	err = app.writeJSON(w, http.StatusOK, envelope{"movies": movies}, nil)
+	totalRecords := 0
+	if len(movies) > 0 {
+		totalRecords = int(movies[0].Count)
+	}
+	metadata := data.NewMetadata(totalRecords, input.Filters.Page, input.Filters.PageSize)
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"movies": movies, "metadata": metadata}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

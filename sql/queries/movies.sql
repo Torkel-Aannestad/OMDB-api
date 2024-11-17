@@ -18,9 +18,9 @@ DELETE FROM movies
 WHERE id = $1;
 
 -- name: ListMovies :many
-SELECT id, created_at, title, year, runtime, genres, version
+SELECT count(*) OVER(), id, created_at, title, year, runtime, genres, version
 FROM movies
--- use sqlc.arg(parameter_name) to name the paramter. Without it's called LOWER.
 WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', sqlc.arg(title)) OR sqlc.arg(title) = '')
 AND (genres @> sqlc.arg(genres) OR sqlc.arg(genres) = '{}')
-ORDER BY title ASC, id ASC;
+ORDER BY title ASC, id ASC
+LIMIT sqlc.arg(limit_value) OFFSET sqlc.arg(offset_value);

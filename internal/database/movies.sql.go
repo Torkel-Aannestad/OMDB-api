@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/lib/pq"
 )
@@ -78,29 +79,48 @@ func (q *Queries) GetMovieById(ctx context.Context, id int64) (Movie, error) {
 }
 
 const listMovies = `-- name: ListMovies :many
-SELECT id, created_at, title, year, runtime, genres, version
+SELECT count(*) OVER(), id, created_at, title, year, runtime, genres, version
 FROM movies
 WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
 AND (genres @> $2 OR $2 = '{}')
-ORDER BY id
+ORDER BY title ASC, id ASC
+LIMIT $4 OFFSET $3
 `
 
 type ListMoviesParams struct {
-	Title  string   `json:"title"`
-	Genres []string `json:"genres"`
+	Title       string   `json:"title"`
+	Genres      []string `json:"genres"`
+	OffsetValue int32    `json:"offset_value"`
+	LimitValue  int32    `json:"limit_value"`
 }
 
-// use sqlc.arg(parameter_name) to name the paramter. Without it's called LOWER.
-func (q *Queries) ListMovies(ctx context.Context, arg ListMoviesParams) ([]Movie, error) {
-	rows, err := q.db.QueryContext(ctx, listMovies, arg.Title, pq.Array(arg.Genres))
+type ListMoviesRow struct {
+	Count     int64     `json:"count"`
+	ID        int64     `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	Title     string    `json:"title"`
+	Year      int64     `json:"year"`
+	Runtime   int64     `json:"runtime"`
+	Genres    []string  `json:"genres"`
+	Version   int64     `json:"version"`
+}
+
+func (q *Queries) ListMovies(ctx context.Context, arg ListMoviesParams) ([]ListMoviesRow, error) {
+	rows, err := q.db.QueryContext(ctx, listMovies,
+		arg.Title,
+		pq.Array(arg.Genres),
+		arg.OffsetValue,
+		arg.LimitValue,
+	)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Movie
+	var items []ListMoviesRow
 	for rows.Next() {
-		var i Movie
+		var i ListMoviesRow
 		if err := rows.Scan(
+			&i.Count,
 			&i.ID,
 			&i.CreatedAt,
 			&i.Title,
