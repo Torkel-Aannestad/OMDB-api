@@ -14,7 +14,28 @@ import (
 )
 
 func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "listMoviesHandler")
+	var input struct {
+		Title  string
+		Genres []string
+		data.Filters
+	}
+	v := validator.New()
+
+	qs := r.URL.Query()
+
+	input.Title = app.readString(qs, "title", "")
+	input.Genres = app.readCSV(qs, "genres", []string{})
+	input.Page = app.readInt(qs, "page", 0, v)
+	input.PageSize = app.readInt(qs, "pagesize", 20, v)
+	input.Sort = app.readString(qs, "sort", "id")
+
+	valid := v.Valid()
+	if !valid {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +91,7 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), time.Second*2)
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
 	movie, err := app.model.GetMovieById(ctx, id)
 	if err != nil {
