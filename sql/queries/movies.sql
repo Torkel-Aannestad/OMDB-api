@@ -16,3 +16,8 @@ RETURNING *;
 -- name: DeleteMovie :execrows
 DELETE FROM movies
 WHERE id = $1;
+
+-- name: ListMovies :many
+SELECT id, created_at, title, year, runtime, genres, version
+FROM movies
+ORDER BY id;
