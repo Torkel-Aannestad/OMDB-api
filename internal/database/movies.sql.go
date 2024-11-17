@@ -80,11 +80,19 @@ func (q *Queries) GetMovieById(ctx context.Context, id int64) (Movie, error) {
 const listMovies = `-- name: ListMovies :many
 SELECT id, created_at, title, year, runtime, genres, version
 FROM movies
+WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
+AND (genres @> $2 OR $2 = '{}')
 ORDER BY id
 `
 
-func (q *Queries) ListMovies(ctx context.Context) ([]Movie, error) {
-	rows, err := q.db.QueryContext(ctx, listMovies)
+type ListMoviesParams struct {
+	Title  string   `json:"title"`
+	Genres []string `json:"genres"`
+}
+
+// use sqlc.arg(parameter_name) to name the paramter. Without it's called LOWER.
+func (q *Queries) ListMovies(ctx context.Context, arg ListMoviesParams) ([]Movie, error) {
+	rows, err := q.db.QueryContext(ctx, listMovies, arg.Title, pq.Array(arg.Genres))
 	if err != nil {
 		return nil, err
 	}

@@ -36,9 +36,14 @@ func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	listMoviesParams := database.ListMoviesParams{
+		Title:  input.Title,
+		Genres: input.Genres,
+	}
+
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
-	movies, err := app.model.ListMovies(ctx)
+	movies, err := app.model.ListMovies(ctx, listMoviesParams)
 	if err != nil {
 		switch {
 		case app.isCtxTimeoutError(ctx, err):
