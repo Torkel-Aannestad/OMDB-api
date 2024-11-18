@@ -73,3 +73,8 @@ func (app *application) isCtxTimeoutError(ctx context.Context, err error) bool {
 	}
 	return false
 }
+
+func (app *application) rateLimitExceededResponse(w http.ResponseWriter, r *http.Request) {
+	message := "rate limit exceeded"
+	app.errorResponse(w, r, http.StatusTooManyRequests, message)
+}
