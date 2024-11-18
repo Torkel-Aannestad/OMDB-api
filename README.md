@@ -8,6 +8,12 @@
 - to start the handlers returns the generated types directly, however, set up a mapping to a seperate application type if needed. FOr example in case you don't want include some columns.
 - With SQLC is not convenient to do build dynamic SLQ queries with go code such as sort column and sort direction.
 
+## Mailer
+
+- Mailtrap
+- MailTrap for sending transational emails. Easy free setup with no requiment for adding a domain.
+- go-mail for handling SMTP. https://pkg.go.dev/github.com/go-mail/mail
+
 ## Misc
 
 - IP based rate limiting with x/time/rate package

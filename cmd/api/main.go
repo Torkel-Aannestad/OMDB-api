@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
+	"github.com/Torkel-Aannestad/MovieMaze/internal/mailer"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -31,12 +32,20 @@ type config struct {
 		burst   int
 		enabled bool
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 type application struct {
 	config config
 	logger *slog.Logger
 	model  *database.Queries
+	mailer mailer.Mailer
 }
 
 func main() {
@@ -44,6 +53,8 @@ func main() {
 
 	godotenv.Load()
 	dns := os.Getenv("MOVIE_MAZE_DB_DSN")
+	mailtrapUsername := os.Getenv("MAILTRAP_USERNAME")
+	mailtrapPassword := os.Getenv("MAILTRAP_PASSWORD")
 
 	flag.IntVar(&cfg.port, "port", 4000, "port to listen for request")
 	flag.StringVar(&cfg.env, "env", "development", "development | staging | production")
@@ -58,6 +69,13 @@ func main() {
 	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 2, "Rate limiter maximum requests per second")
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
+
+	//Mailer
+	flag.StringVar(&cfg.smtp.host, "smtp-host", "sandbox.smtp.mailtrap.io", "SMTP host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 25, "SMTP port")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", mailtrapUsername, "SMTP username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", mailtrapPassword, "SMTP password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "MovieMaze <no-reply@moviemaze.easywave.io>", "SMTP sender")
 
 	flag.Parse()
 
