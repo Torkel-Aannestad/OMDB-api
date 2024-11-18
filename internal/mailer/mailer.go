@@ -3,10 +3,10 @@ package mailer
 import (
 	"bytes"
 	"embed"
-	"text/template"
+	"html/template"
 	"time"
 
-	"gopkg.in/mail.v2"
+	"github.com/go-mail/mail/v2"
 )
 
 //go:embed "templates"
@@ -18,7 +18,6 @@ type Mailer struct {
 }
 
 func New(host string, port int, username, password, sender string) Mailer {
-
 	dialer := mail.NewDialer(host, port, username, password)
 	dialer.Timeout = 5 * time.Second
 
@@ -28,30 +27,20 @@ func New(host string, port int, username, password, sender string) Mailer {
 	}
 }
 
-func (m Mailer) Send(recipient, templateFile string, data any) error {
-
+func (m *Mailer) Send(recipient, templateFile string, data any) error {
 	tmpl, err := template.New("email").ParseFS(templateFS, "templates/"+templateFile)
 	if err != nil {
 		return err
 	}
 
 	subject := new(bytes.Buffer)
-	err = tmpl.ExecuteTemplate(subject, "subject", data)
-	if err != nil {
-		return err
-	}
+	tmpl.ExecuteTemplate(subject, "subject", data)
 
 	plainBody := new(bytes.Buffer)
-	err = tmpl.ExecuteTemplate(plainBody, "plainBody", data)
-	if err != nil {
-		return err
-	}
+	tmpl.ExecuteTemplate(plainBody, "plainBody", data)
 
 	htmlBody := new(bytes.Buffer)
-	err = tmpl.ExecuteTemplate(htmlBody, "htmlBody", data)
-	if err != nil {
-		return err
-	}
+	tmpl.ExecuteTemplate(htmlBody, "htmlBody", data)
 
 	msg := mail.NewMessage()
 	msg.SetHeader("To", recipient)

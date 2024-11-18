@@ -4,10 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
@@ -46,6 +45,7 @@ type application struct {
 	logger *slog.Logger
 	model  *database.Queries
 	mailer mailer.Mailer
+	wg     sync.WaitGroup
 }
 
 func main() {
@@ -70,12 +70,12 @@ func main() {
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
 
-	//Mailer
-	flag.StringVar(&cfg.smtp.host, "smtp-host", "sandbox.smtp.mailtrap.io", "SMTP host")
-	flag.IntVar(&cfg.smtp.port, "smtp-port", 25, "SMTP port")
-	flag.StringVar(&cfg.smtp.username, "smtp-username", mailtrapUsername, "SMTP username")
-	flag.StringVar(&cfg.smtp.password, "smtp-password", mailtrapPassword, "SMTP password")
-	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "MovieMaze <no-reply@moviemaze.easywave.io>", "SMTP sender")
+	//mailer
+	flag.StringVar(&cfg.smtp.host, "smtp-host", "sandbox.smtp.mailtrap.io", "host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 587, "port")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", mailtrapUsername, "username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", mailtrapPassword, "password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.alexedwards.net>", "sender")
 
 	flag.Parse()
 
@@ -95,19 +95,10 @@ func main() {
 		config: cfg,
 		logger: logger,
 		model:  model,
+		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 
-	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%v", cfg.port),
-		Handler:      app.routes(),
-		ReadTimeout:  time.Second * 5,
-		WriteTimeout: time.Second * 10,
-		IdleTimeout:  time.Second * 60,
-		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
-	}
-	logger.Info("starting server", "port", cfg.port)
-
-	err = srv.ListenAndServe()
+	err = app.serve()
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
