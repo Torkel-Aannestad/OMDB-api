@@ -64,9 +64,18 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		}
 		return
 	}
-
+	token, err := auth.GenerateToken(user.ID, 3*24*time.Hour, auth.ScopeActivation)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 	app.background(func() {
-		err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
+		data := map[string]any{
+			"activationToken": token.Plaintext,
+			"userID":          user.ID,
+		}
+
+		err = app.mailer.Send(user.Email, "user_welcome.tmpl", data)
 		if err != nil {
 			app.logger.Error(err.Error())
 		}
@@ -84,6 +93,27 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	err = app.writeJSON(w, http.StatusCreated, envelope{"user": userReponse}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+	}
+
+}
+
+func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		TokenPlaintext string `json:"token"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+	auth.ValidateTokenPlaintext(v, input.TokenPlaintext)
+	valid := v.Valid()
+	if !valid {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
 	}
 
 }
