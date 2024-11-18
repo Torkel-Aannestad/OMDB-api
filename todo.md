@@ -2,4 +2,4 @@
 - Lage abstraksjon for db call og sjekk av timeout?
 - Graceful shutdown
 - User model
-- bcrypt
+- bcrypt og auth package

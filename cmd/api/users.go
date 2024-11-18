@@ -18,5 +18,5 @@ func (app *application) createUserHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	fmt.Fprintf(w, "input: %v", input)
+	fmt.Fprintf(w, "input: %v\n", input)
 }
