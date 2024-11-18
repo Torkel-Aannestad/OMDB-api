@@ -13,6 +13,7 @@
 - Mailtrap
 - MailTrap for sending transational emails. Easy free setup with no requiment for adding a domain.
 - go-mail for handling SMTP. https://pkg.go.dev/github.com/go-mail/mail
+- Sending email with background Go routine
 
 ## Misc
 
