@@ -1,4 +1,5 @@
-- Hvor skal validation logikken ligge?
+- Hvor skal validation logikken ligge? LIker ikke så godt å ha den i data mappen. Egen module i internal?
 - Lage abstraksjon for db call og sjekk av timeout?
-- Rate limiter config
-- rate limiter disable option
+- Graceful shutdown
+- User model
+- bcrypt

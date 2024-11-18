@@ -13,3 +13,4 @@
 - IP based rate limiting with x/time/rate package
 - Getting user's IP with Realip package
   - github.com/tomasen/realip
+- users email. Use postgresql plugin citext to make string case insensitive. This way we don't need to worry case.
