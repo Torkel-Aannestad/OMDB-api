@@ -14,33 +14,42 @@ import (
 
 func (app *application) serve() error {
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%v", app.config.port),
+		Addr:         fmt.Sprintf(":%d", app.config.port),
 		Handler:      app.routes(),
+		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  60 * time.Second,
 		ErrorLog:     slog.NewLogLogger(app.logger.Handler(), slog.LevelError),
 	}
 
 	shutdownError := make(chan error)
+
 	go func() {
 		quit := make(chan os.Signal, 1)
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		sig := <-quit
+		s := <-quit
 
-		app.logger.Info("shutting down server", "signal", sig.String())
+		app.logger.Info("shutting down server", "signal", s.String())
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
+		// Call Shutdown() on the server like before, but now we only send on the
+		// shutdownError channel if it returns an error.
 		err := srv.Shutdown(ctx)
 		if err != nil {
 			shutdownError <- err
 		}
 
+		// Log a message to say that we're waiting for any background goroutines to
+		// complete their tasks.
 		app.logger.Info("completing background tasks", "addr", srv.Addr)
-		app.wg.Wait()
 
+		// Call Wait() to block until our WaitGroup counter is zero --- essentially
+		// blocking until the background goroutines have finished. Then we return nil on
+		// the shutdownError channel, to indicate that the shutdown completed without
+		// any issues.
+		app.wg.Wait()
 		shutdownError <- nil
 	}()
 
@@ -59,5 +68,4 @@ func (app *application) serve() error {
 	app.logger.Info("stopped server", "addr", srv.Addr)
 
 	return nil
-
 }
