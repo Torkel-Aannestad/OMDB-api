@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"sync"
+	"time"
 
+	"github.com/tomasen/realip"
 	"golang.org/x/time/rate"
 )
 
@@ -21,12 +24,33 @@ func (app *application) panicRecovery(next http.Handler) http.Handler {
 }
 
 func (app *application) rateLimit(next http.Handler) http.Handler {
-	limiter := rate.NewLimiter(2, 4)
+	type client struct {
+		limiter  rate.Limiter
+		lastSeen time.Time
+	}
+	var (
+		mu      sync.Mutex
+		clients map[string]*client
+	)
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !limiter.Allow() {
+		ip := realip.FromRequest(r)
+
+		mu.Lock()
+		if _, found := clients[ip]; !found {
+			clients[ip] = &client{
+				limiter: *rate.NewLimiter(2, 4),
+			}
+		}
+
+		clients[ip].lastSeen = time.Now()
+
+		if !clients[ip].limiter.Allow() {
 			app.rateLimitExceededResponse(w, r)
+			mu.Unlock()
 			return
 		}
+		mu.Unlock()
 		next.ServeHTTP(w, r)
 	})
 }
