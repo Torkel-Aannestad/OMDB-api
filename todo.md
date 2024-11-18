@@ -1,2 +1,4 @@
 - Hvor skal validation logikken ligge?
 - Lage abstraksjon for db call og sjekk av timeout?
+- Rate limiter config
+- rate limiter disable option

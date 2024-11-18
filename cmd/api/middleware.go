@@ -32,6 +32,20 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 	var mu sync.Mutex
 	clients := make(map[string]*client)
 
+	go func() {
+		for {
+			time.Sleep(time.Minute * 1)
+			mu.Lock()
+			for ip, client := range clients {
+				if time.Since(client.lastSeen) > time.Minute*3 {
+					delete(clients, ip)
+				}
+			}
+
+			mu.Unlock()
+		}
+	}()
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ip := realip.FromRequest(r)
 
