@@ -43,7 +43,7 @@ type config struct {
 type application struct {
 	config config
 	logger *slog.Logger
-	model  *database.Queries
+	models *database.Models
 	mailer mailer.Mailer
 	wg     sync.WaitGroup
 }
