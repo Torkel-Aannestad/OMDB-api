@@ -89,12 +89,10 @@ func main() {
 	defer db.Close()
 	logger.Info("database connection pool established")
 
-	model := database.New(db)
-
 	app := &application{
 		config: cfg,
 		logger: logger,
-		model:  model,
+		models: database.NewModels(db),
 		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 

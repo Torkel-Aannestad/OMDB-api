@@ -3,3 +3,5 @@ bin
 tmp
 todo
 todo.md
+
+sqlc_generated
