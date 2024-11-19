@@ -8,6 +8,16 @@
 - to start the handlers returns the generated types directly, however, set up a mapping to a seperate application type if needed. FOr example in case you don't want include some columns.
 - With SQLC is not convenient to do build dynamic SLQ queries with go code such as sort column and sort direction.
 
+### Refactored
+
+Refactor uten sqlc. Implementer selv, men bruk sqlc til å generere for deg. Da kan du copy pasta og endre litt. Mindre sannsynelighet for feil i mapping mellom feltene.
+
+- vi får bedre håndtering av ctx og error
+- full kontrol der vi må bruk Sprintf til å bygge opp størring.
+- vi kan legge valideringslogikk sammen med types.
+- vi kan legge til response types der vi trenger der. eks userResponse som ikke skal inneholde alle feltene.
+- vi kan nå generere kode med sqlc, men kopiere den over får full kontrol.
+
 ## Mailer
 
 - Mailtrap
