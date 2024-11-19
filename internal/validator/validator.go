@@ -36,7 +36,7 @@ func (v *Validator) Check(ok bool, key, message string) {
 	}
 }
 
-func PermitterValue[T comparable](value T, permittedValues ...T) bool {
+func PermittedValue[T comparable](value T, permittedValues ...T) bool {
 	return slices.Contains(permittedValues, value)
 }
 
