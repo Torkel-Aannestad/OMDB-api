@@ -1,5 +1,6 @@
 package data
 
+// used with listMoviesHandler
 type Metadata struct {
 	CurrentPage  int `json:"current_page,omitempty"`
 	PageSize     int `json:"page_size,omitempty"`

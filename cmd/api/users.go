@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"net/http"
 	"time"
 
@@ -116,4 +118,66 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	getForTokenParams := database.GetForTokenParams{
+		Hash:   []byte(input.TokenPlaintext),
+		Scope:  auth.ScopeActivation,
+		Expiry: time.Now(),
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
+	defer cancel()
+	user, err := app.model.GetForToken(ctx, getForTokenParams)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			v.AddError("token", "invalid or expired activation token")
+			app.failedValidationResponse(w, r, v.Errors)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	user.Activated = true
+	updateUserParams := database.UpdateUserParams{
+		Name:         user.Name,
+		Email:        user.Email,
+		PasswordHash: user.PasswordHash,
+		Activated:    user.Activated,
+		ID:           user.ID,
+	}
+	_, err = app.model.UpdateUser(ctx, updateUserParams)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	deleteAllForUserParams := database.DeleteAllForUserParams{
+		Scope:  auth.ScopeActivation,
+		UserID: user.ID,
+	}
+	err = app.model.DeleteAllForUser(ctx, deleteAllForUserParams)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	var userReponse = struct {
+		Name      string `json:"name"`
+		Email     string `json:"email"`
+		Activated bool   `json:"activated"`
+	}{
+		Name:      user.Name,
+		Email:     user.Email,
+		Activated: user.Activated,
+	}
+	err = app.writeJSON(w, http.StatusOK, envelope{"user": userReponse}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
