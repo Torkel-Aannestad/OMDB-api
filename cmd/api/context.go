@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	database "github.com/Torkel-Aannestad/MovieMaze/internal/sqlc_generated"
+	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
 )
 
 type contextKey string

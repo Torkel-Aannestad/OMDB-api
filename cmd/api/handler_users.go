@@ -105,7 +105,7 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	v := validator.New()
-	database.ValidateTokenPlaintext(*v, Input.TokenPlaintext)
+	database.ValidateTokenPlaintext(v, Input.TokenPlaintext)
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
