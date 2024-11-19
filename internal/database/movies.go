@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Torkel-Aannestad/MovieMaze/internal/data"
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
 	"github.com/lib/pq"
 )
@@ -91,7 +92,7 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	return &movie, nil
 }
 
-func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
+func (m MovieModel) GetAll(title string, genres []string, filters data.Filters) ([]*Movie, Metadata, error) {
 
 	sortColumn := filters.getSortColumn()
 	sortDirection := filters.getSortDirection()
