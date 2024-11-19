@@ -148,7 +148,7 @@ func (app *application) readCSV(qs url.Values, key string, defaultValue []string
 	return strings.Split(csv, ",")
 }
 
-func (app *application) background(fn func()) {
+func (app *application) backgroundJob(fn func()) {
 	app.wg.Add(1)
 
 	go func() {

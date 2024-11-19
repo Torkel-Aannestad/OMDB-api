@@ -1,14 +1,12 @@
 package main
 
 import (
-	"context"
-	"database/sql"
 	"errors"
+
 	"net/http"
 	"time"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/auth"
-	"github.com/Torkel-Aannestad/MovieMaze/internal/data"
 	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
 )
@@ -25,53 +23,57 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		app.badRequestResponse(w, r, err)
 		return
 	}
+
+	user := database.User{
+		Name:      input.Name,
+		Email:     input.Email,
+		Activated: false,
+	}
+
 	v := validator.New()
-	data.ValidatePasswordPlaintext(v, input.Password)
-	valid := v.Valid()
-	if !valid {
+	auth.ValidateTokenPlaintext(v, input.Password)
+	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
-
-	pw_hash, err := auth.GenerateHashFromPlaintext(input.Password)
+	hash, err := auth.GenerateHashFromPlaintext(input.Password)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+	user.PasswordHash = hash
 
-	createUserParams := database.CreateUserParams{
-		Name:         input.Name,
-		Email:        input.Email,
-		PasswordHash: pw_hash,
-		Activated:    false,
-	}
-
-	data.ValidateCreateUserParams(v, &createUserParams)
-	valid = v.Valid()
-	if !valid {
+	database.ValidateUser(v, &user)
+	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
-	defer cancel()
-	user, err := app.model.CreateUser(ctx, createUserParams)
+	err = app.models.Users.Insert(&user)
 	if err != nil {
 		switch {
-		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
+		case errors.Is(err, database.ErrDuplicateEmail):
 			v.AddError("email", "a user with this email address already exists")
 			app.failedValidationResponse(w, r, v.Errors)
+			return
 		default:
 			app.serverErrorResponse(w, r, err)
+			return
 		}
-		return
 	}
-	token, err := auth.GenerateToken(user.ID, 3*24*time.Hour, auth.ScopeActivation)
+
+	// err = app.models.PermissionModel.AddForUser(user.ID, "movies:read")
+	// if err != nil {
+	// 	app.serverErrorResponse(w, r, err)
+	// 	return
+	// }
+
+	token, err := app.models.Tokens.New(user.ID, 3*24*time.Hour, database.ScopeActivation)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
-		return
 	}
-	app.background(func() {
+
+	app.backgroundJob(func() {
 		data := map[string]any{
 			"activationToken": token.Plaintext,
 			"userID":          user.ID,
@@ -79,105 +81,68 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 		err = app.mailer.Send(user.Email, "user_welcome.tmpl", data)
 		if err != nil {
-			app.logger.Error(err.Error())
+			app.serverErrorResponse(w, r, err)
+			return
 		}
 	})
 
-	var userReponse = struct {
-		Name      string `json:"name"`
-		Email     string `json:"email"`
-		Activated bool   `json:"activated"`
-	}{
-		Name:      user.Name,
-		Email:     user.Email,
-		Activated: user.Activated,
-	}
-	err = app.writeJSON(w, http.StatusCreated, envelope{"user": userReponse}, nil)
+	err = app.writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
 	}
-
 }
 
 func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
+	var Input struct {
 		TokenPlaintext string `json:"token"`
 	}
 
-	err := app.readJSON(w, r, &input)
+	err := app.readJSON(w, r, &Input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	v := validator.New()
-	auth.ValidateTokenPlaintext(v, input.TokenPlaintext)
-	valid := v.Valid()
-	if !valid {
+	database.ValidateTokenPlaintext(*v, Input.TokenPlaintext)
+	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	getForTokenParams := database.GetForTokenParams{
-		Hash:   []byte(input.TokenPlaintext),
-		Scope:  auth.ScopeActivation,
-		Expiry: time.Now(),
-	}
-
-	ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
-	defer cancel()
-	user, err := app.model.GetForToken(ctx, getForTokenParams)
+	user, err := app.models.Users.GetForToken(database.ScopeActivation, Input.TokenPlaintext)
 	if err != nil {
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
+		if errors.Is(err, database.ErrRecordNotFound) {
 			v.AddError("token", "invalid or expired activation token")
 			app.failedValidationResponse(w, r, v.Errors)
-		default:
+		} else {
+
 			app.serverErrorResponse(w, r, err)
 		}
 		return
 	}
 
 	user.Activated = true
-	updateUserParams := database.UpdateUserParams{
-		Name:         user.Name,
-		Email:        user.Email,
-		PasswordHash: user.PasswordHash,
-		Activated:    user.Activated,
-		ID:           user.ID,
-	}
-	_, err = app.model.UpdateUser(ctx, updateUserParams)
+	err = app.models.Users.Update(user)
 	if err != nil {
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
+		if errors.Is(err, database.ErrEditConflict) {
 			app.editConflictResponse(w, r)
-		default:
+		} else {
 			app.serverErrorResponse(w, r, err)
 		}
 		return
 	}
 
-	deleteAllForUserParams := database.DeleteAllForUserParams{
-		Scope:  auth.ScopeActivation,
-		UserID: user.ID,
-	}
-	err = app.model.DeleteAllForUser(ctx, deleteAllForUserParams)
+	err = app.models.Tokens.DeleteAllForUser(database.ScopeActivation, user.ID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	var userReponse = struct {
-		Name      string `json:"name"`
-		Email     string `json:"email"`
-		Activated bool   `json:"activated"`
-	}{
-		Name:      user.Name,
-		Email:     user.Email,
-		Activated: user.Activated,
-	}
-	err = app.writeJSON(w, http.StatusOK, envelope{"user": userReponse}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+
 }
