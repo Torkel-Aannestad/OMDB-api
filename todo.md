@@ -4,3 +4,4 @@
 - Tokens med kortere kode? annen base ecoding
 - Add openID Connect https://github.com/coreos/go-oidc
 - Add MFA
+- Type for permissions fremfor string
