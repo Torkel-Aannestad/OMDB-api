@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"flag"
+	"fmt"
 	"log/slog"
 	"os"
 	"sync"
@@ -11,11 +12,14 @@ import (
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
 	"github.com/Torkel-Aannestad/MovieMaze/internal/mailer"
+	"github.com/Torkel-Aannestad/MovieMaze/internal/vcs"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
-const version = "1.0.0"
+var (
+	version = vcs.Version()
+)
 
 type config struct {
 	port int
@@ -77,7 +81,14 @@ func main() {
 	flag.StringVar(&cfg.smtp.password, "smtp-password", mailtrapPassword, "password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.alexedwards.net>", "sender")
 
+	displayVersion := flag.Bool("version", false, "Display version and exit")
+
 	flag.Parse()
+
+	if *displayVersion {
+		fmt.Printf("Version:\t%s\n", version)
+		os.Exit(0)
+	}
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil)) //change for json later
 

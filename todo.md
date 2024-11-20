@@ -1,4 +1,4 @@
--
+- Legg til tester
 - Legge til reactivateTokenHandler
 - Styling av eposter
 - Tokens med kortere kode? annen base ecoding
