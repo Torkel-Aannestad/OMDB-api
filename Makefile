@@ -78,3 +78,28 @@ build/api:
 	@echo 'Building cmd/api...'
 	go build -ldflags='-s' -o=./bin/api ./cmd/api
 	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./bin/linux_amd64/api ./cmd/api
+
+
+# ==================================================================================== #
+# PRODUCTION
+# ==================================================================================== #
+
+## production/connect: connect to the production server
+.PHONY: production/connect
+production/connect:
+	ssh moviemaze@${PRODUCTION_HOST_IP}
+
+## production/deploy/api: deploy the api to production
+.PHONY: production/deploy/app
+production/deploy/app:
+	rsync -P ./bin/linux_amd64/moviemaze-app moviemaze@${PRODUCTION_HOST_IP}:~
+	rsync -rP --delete ./migrations moviemaze@${production_host_ip}:~
+	ssh -t greenlight@${production_host_ip} 'migrate -path ~/migrations -database $$MOVIE_MAZE_DB_DSN_DB_DSN up' MAKE THIS ONE WORK
+
+	rsync -P ./remote/production/moviemaze.service moviemaze@${PRODUCTION_HOST_IP}:~
+	ssh -t moviemaze@${PRODUCTION_HOST_IP} '\
+		sudo mv ~/moviemaze.service /etc/systemd/system/ \
+		&& sudo systemctl enable moviemaze \
+		&& sudo systemctl restart moviemaze \
+	'
+	@echo "deployment complete..."
