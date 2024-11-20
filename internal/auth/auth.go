@@ -7,9 +7,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {
-	v.Check(tokenPlaintext != "", "token", "must be provided")
-	v.Check(len(tokenPlaintext) == 26, "token", "must be 26 bytes long")
+func ValidatePlaintextPassword(v *validator.Validator, password string) {
+	v.Check(password != "", "password", "can't be blank")
+	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
+	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
 }
 
 func GenerateHashFromPlaintext(plaintextPassword string) ([]byte, error) {

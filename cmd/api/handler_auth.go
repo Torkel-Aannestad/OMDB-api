@@ -24,7 +24,7 @@ func (app *application) authenticateUserHandler(w http.ResponseWriter, r *http.R
 
 	v := validator.New()
 	database.ValidateEmail(v, input.Email)
-	database.ValidatePlaintextPassword(v, input.Password)
+	auth.ValidatePlaintextPassword(v, input.Password)
 	valid := v.Valid()
 	if !valid {
 		app.failedValidationResponse(w, r, v.Errors)
