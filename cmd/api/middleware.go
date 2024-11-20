@@ -118,7 +118,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 }
 
-func (app *application) protectedRoute(next http.HandlerFunc) http.HandlerFunc {
+func (app *application) protectedRoute(permissionCode string, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := app.contextGetUser(r)
 
@@ -131,7 +131,18 @@ func (app *application) protectedRoute(next http.HandlerFunc) http.HandlerFunc {
 			app.inactiveAccountResponse(w, r)
 			return
 		}
-		fmt.Println("PROTECTEDROUTE DONE")
+
+		permissions, err := app.models.Permissions.GetAllForUser(user.ID)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		if !permissions.Include(permissionCode) {
+			app.notPermittedResponse(w, r)
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
