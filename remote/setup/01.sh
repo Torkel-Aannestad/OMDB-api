@@ -8,6 +8,10 @@ set -eu
 # Set the name of the new user to create.
 USERNAME=moviemaze
 
+# Prompt to enter a password for the PostgreSQL moviemaze user (rather than hard-coding
+# a password in this script).
+read -p "Enter password for moviemaze DB user: " DB_PASSWORD
+
 # Force all output to be presented in en_US for the duration of this script. This avoids  
 # any "setting locale failed" errors while this script is running, before we have 
 # installed support for all locales. Do not change this setting!
@@ -30,7 +34,7 @@ useradd --create-home --shell "/bin/bash" --groups sudo "${USERNAME}"
 passwd --delete "${USERNAME}"
 chage --lastday 0 "${USERNAME}"
 
-# Copy the SSH keys from the root user to the new user.
+# Copy the SSH keys from the template-user to the new user.
 rsync --archive --chown=${USERNAME}:${USERNAME} /home/ew-user/.ssh /home/${USERNAME}
 
 # Configure the firewall to allow SSH, HTTP and HTTPS traffic.
@@ -55,16 +59,17 @@ sudo -i -u postgres psql -c "CREATE DATABASE moviemaze"
 sudo -i -u postgres psql -d moviemaze -c "CREATE EXTENSION IF NOT EXISTS citext"
 sudo -i -u postgres psql -d moviemaze -c "CREATE ROLE moviemaze WITH LOGIN PASSWORD '${DB_PASSWORD}'"
 
-# Add a DSN for connecting to the moviemaze database to the system-wide environment 
-# variables in the /etc/environment file.
+# Add a DSN and mailtrap to the system-wide environment variables in the /etc/environment file.
 echo "MOVIE_MAZE_DB_DSN='postgres://moviemaze:${DB_PASSWORD}@localhost/moviemaze'" >> /etc/environment
+echo "MAILTRAP_USERNAME='${MAILTRAP_USERNAME}'" >> /etc/environment
+echo "MAILTRAP_PASSWORD='${MAILTRAP_PASSWORD}'" >> /etc/environment
 
 # Install Caddy (see https://caddyserver.com/docs/install#debian-ubuntu-raspbian).
-apt install -y debian-keyring debian-archive-keyring apt-transport-https
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
-apt update
-apt --yes install caddy
+# apt install -y debian-keyring debian-archive-keyring apt-transport-https
+# curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+# curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+# apt update
+# apt --yes install caddy
 
 # Upgrade all packages. Using the --force-confnew flag means that configuration 
 # files will be replaced if newer ones are available.
