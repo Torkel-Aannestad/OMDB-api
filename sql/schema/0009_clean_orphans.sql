@@ -1,6 +1,4 @@
 -- +goose Up
-BEGIN;
-
 UPDATE movies c SET parent_id = NULL WHERE NOT EXISTS (SELECT * FROM movies p WHERE p.id = c.parent_id);
 
 DELETE FROM people_aliases     c WHERE NOT EXISTS (SELECT * FROM people p     WHERE p.id = c.person_id);
@@ -23,4 +21,4 @@ DELETE FROM movie_abstracts_en c WHERE NOT EXISTS (SELECT * FROM movies p     WH
 DELETE FROM movie_abstracts_fr c WHERE NOT EXISTS (SELECT * FROM movies p     WHERE p.id = c.movie_id);
 DELETE FROM movie_abstracts_es c WHERE NOT EXISTS (SELECT * FROM movies p     WHERE p.id = c.movie_id);
 
-COMMIT;
+

@@ -1,6 +1,4 @@
 -- +goose Up
-BEGIN;
-
 CREATE TEMP TABLE IF NOT EXISTS all_movies      (id bigint primary key, name text, parent_id bigint, date date);
 CREATE TEMP TABLE IF NOT EXISTS all_series      (id bigint primary key, name text, parent_id bigint, date date);
 CREATE TEMP TABLE IF NOT EXISTS all_seasons     (id bigint primary key, name text, parent_id bigint, date date);
@@ -59,11 +57,8 @@ INSERT INTO jobs SELECT job_id, name FROM job_names WHERE language = 'en';
 \copy movie_abstracts_fr    FROM 'data/movie_abstracts_fr.csv'    WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy movie_abstracts_es    FROM 'data/movie_abstracts_es.csv'    WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 
-COMMIT;
 
 -- +goose Down
-BEGIN;
-
 DELETE FROM movies;
 DELETE FROM people;
 DELETE FROM people_aliases;
@@ -87,5 +82,3 @@ DELETE FROM movie_abstracts_de;
 DELETE FROM movie_abstracts_en;
 DELETE FROM movie_abstracts_fr;
 DELETE FROM movie_abstracts_es;
-
-COMMIT;

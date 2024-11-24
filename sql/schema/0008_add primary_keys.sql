@@ -1,6 +1,4 @@
 -- +goose Up
-BEGIN;
-
 ALTER TABLE movie_aliases_iso  ADD PRIMARY KEY (movie_id, name, language, official_translation);
 ALTER TABLE people             ADD PRIMARY KEY (id);
 ALTER TABLE people_aliases     ADD PRIMARY KEY (person_id, name);
@@ -25,11 +23,8 @@ ALTER TABLE movies             ADD PRIMARY KEY (id);
 ALTER TABLE trailers           ADD PRIMARY KEY (movie_id, trailer_id);
 ALTER TABLE casts              ADD PRIMARY KEY (movie_id, person_id, job_id, role, position);
 
-COMMIT;
 
 -- +goose Down
--- +goose Down
-BEGIN;
 
 ALTER TABLE movie_aliases_iso  DROP CONSTRAINT movie_aliases_iso_pkey;
 ALTER TABLE people             DROP CONSTRAINT people_pkey;
@@ -54,5 +49,3 @@ ALTER TABLE people_links       DROP CONSTRAINT people_links_pkey;
 ALTER TABLE movies             DROP CONSTRAINT movies_pkey;
 ALTER TABLE trailers           DROP CONSTRAINT trailers_pkey;
 ALTER TABLE casts              DROP CONSTRAINT casts_pkey;
-
-COMMIT;

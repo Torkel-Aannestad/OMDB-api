@@ -1,5 +1,5 @@
 -- +goose Up
-BEGIN;
+
 CREATE TEMP TABLE dirty_categories (category_id bigint PRIMARY KEY);
 INSERT INTO dirty_categories
         SELECT id FROM categories WHERE name LIKE 'Erotic%' OR name = 'Sex';
@@ -19,4 +19,4 @@ DROP INDEX t2;
 DROP INDEX t3;
 DROP INDEX t4;
 DROP INDEX t5;
-COMMIT;
+

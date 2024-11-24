@@ -42,7 +42,18 @@ db/init:
 	@docker run -e POSTGRES_PASSWORD=${DOCKER_POSTGRES_PW} --name=${DOCKER_POSTGRES_CONTAINER_NAME} --rm -d -p 5432:5432 postgres && sleep 3
 	@docker exec -u postgres -it pg-moviemaze psql -c "CREATE DATABASE moviemaze;"
 
-
+### Not done
+## db/download-omdb: downloading newest dataset from OMDB
+.PHONY: db/download-omdb
+db/download-omdb:
+	@echo "## db/download-omdb: downloading newest dataset from OMDB"
+	@for f in $(FILES); do \
+		echo "Downloading $$f.csv.bz2..."; \
+		wget --no-verbose $(BASE_URL)$$f.csv.bz2 -P www.omdb.org/data/; \
+		echo "Extracting $$f.csv.bz2..."; \
+		bunzip2 --keep --force www.omdb.org/data/$$f.csv.bz2; \
+	done
+	
 
 # ==================================================================================== #
 # QUALITY CONTROL

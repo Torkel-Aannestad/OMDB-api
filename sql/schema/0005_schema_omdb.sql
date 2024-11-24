@@ -34,8 +34,6 @@ CREATE TABLE IF NOT EXISTS movie_abstracts_es (movie_id bigint, abstract text);
 COMMIT;
 
 -- +goose Down
-BEGIN;
-
 DROP TABLE IF EXISTS movies;
 DROP TABLE IF EXISTS people;
 DROP TABLE IF EXISTS people_aliases;
@@ -59,5 +57,3 @@ DROP TABLE IF EXISTS movie_abstracts_de;
 DROP TABLE IF EXISTS movie_abstracts_en;
 DROP TABLE IF EXISTS movie_abstracts_fr;
 DROP TABLE IF EXISTS movie_abstracts_es;
-
-COMMIT;
