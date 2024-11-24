@@ -18,6 +18,11 @@ Refactor uten sqlc. Implementer selv, men bruk sqlc til å generere for deg. Da 
 - vi kan legge til response types der vi trenger der. eks userResponse som ikke skal inneholde alle feltene.
 - vi kan nå generere kode med sqlc, men kopiere den over får full kontrol.
 
+### OMDB
+
+- Adding bunzip2 to linux to extract the bz2 omdb files
+-
+
 ## Mailer
 
 - Mailtrap

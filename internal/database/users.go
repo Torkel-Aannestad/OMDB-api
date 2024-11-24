@@ -148,12 +148,6 @@ func ValidateEmail(v *validator.Validator, email string) {
 	v.Check(validator.Matches(email, validator.EmailRX), "email", "email must be valid email")
 }
 
-func ValidatePlaintextPassword(v *validator.Validator, password string) {
-	v.Check(password != "", "password", "can't be blank")
-	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
-	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
-}
-
 func ValidateUser(v *validator.Validator, user *User) {
 	v.Check(user.Name != "", "name", "can't be blank")
 	v.Check(len(user.Name) <= 500, "name", "must not be more than 500 bytes long")
