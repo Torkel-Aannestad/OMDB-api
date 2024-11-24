@@ -1,3 +1,4 @@
+-- +goose Up
 BEGIN;
 
 UPDATE movies c SET parent_id = NULL WHERE NOT EXISTS (SELECT * FROM movies p WHERE p.id = c.parent_id);

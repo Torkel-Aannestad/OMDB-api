@@ -1,6 +1,6 @@
+-- +goose Up
 BEGIN;
 CREATE TEMP TABLE dirty_categories (category_id bigint PRIMARY KEY);
--- This surely doesn't catch 'em all, but it'll remove quite a few
 INSERT INTO dirty_categories
         SELECT id FROM categories WHERE name LIKE 'Erotic%' OR name = 'Sex';
 ANALYZE dirty_categories;

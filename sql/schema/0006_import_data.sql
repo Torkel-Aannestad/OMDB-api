@@ -1,3 +1,4 @@
+-- +goose Up
 BEGIN;
 
 CREATE TEMP TABLE IF NOT EXISTS all_movies      (id bigint primary key, name text, parent_id bigint, date date);
@@ -41,7 +42,6 @@ FROM import_movies m
 \copy casts                 FROM 'data/all_casts.csv'             WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy job_names             FROM 'data/job_names.csv'             WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 INSERT INTO jobs SELECT job_id, name FROM job_names WHERE language = 'en';
---\copy characters          FROM 'data/all_characters.csv'        WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy movie_categories      FROM 'data/movie_categories.csv'      WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy movie_keywords        FROM 'data/movie_keywords.csv'        WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy category_names        FROM 'data/category_names.csv'        WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
@@ -58,5 +58,34 @@ INSERT INTO jobs SELECT job_id, name FROM job_names WHERE language = 'en';
 \copy movie_abstracts_en    FROM 'data/movie_abstracts_en.csv'    WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy movie_abstracts_fr    FROM 'data/movie_abstracts_fr.csv'    WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy movie_abstracts_es    FROM 'data/movie_abstracts_es.csv'    WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
+
+COMMIT;
+
+-- +goose Down
+BEGIN;
+
+DELETE FROM movies;
+DELETE FROM people;
+DELETE FROM people_aliases;
+DELETE FROM people_links;
+DELETE FROM casts;
+DELETE FROM job_names;
+DELETE FROM jobs;
+DELETE FROM movie_categories;
+DELETE FROM movie_keywords;
+DELETE FROM categories;
+DELETE FROM category_names;
+DELETE FROM trailers;
+DELETE FROM movie_links;
+DELETE FROM image_ids;
+DELETE FROM image_licenses;
+DELETE FROM movie_aliases_iso;
+DELETE FROM movie_languages;
+DELETE FROM movie_countries;
+DELETE FROM movie_references;
+DELETE FROM movie_abstracts_de;
+DELETE FROM movie_abstracts_en;
+DELETE FROM movie_abstracts_fr;
+DELETE FROM movie_abstracts_es;
 
 COMMIT;

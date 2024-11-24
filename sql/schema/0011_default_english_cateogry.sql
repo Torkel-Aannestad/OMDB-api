@@ -1,4 +1,4 @@
-/* Add English category name from category_names to category table for convenience */
+-- +goose Up
 
 UPDATE categories c
   SET name = n.name
