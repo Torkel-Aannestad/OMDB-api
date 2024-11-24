@@ -76,8 +76,8 @@ vendor:
 .PHONY: build/api
 build/api:
 	@echo 'Building cmd/api...'
-	go build -ldflags='-s' -o=./bin/api ./cmd/api
-	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./bin/linux_amd64/api ./cmd/api
+	go build -ldflags='-s' -o=./bin/moviemaze-app ./cmd/api
+	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./bin/linux_amd64/moviemaze-app ./cmd/api
 
 
 # ==================================================================================== #
@@ -93,13 +93,12 @@ production/connect:
 .PHONY: production/deploy/app
 production/deploy/app:
 	rsync -P ./bin/linux_amd64/moviemaze-app moviemaze@${PRODUCTION_HOST_IP}:~
-	rsync -rP --delete ./migrations moviemaze@${production_host_ip}:~
-	ssh -t greenlight@${production_host_ip} 'migrate -path ~/migrations -database $$MOVIE_MAZE_DB_DSN_DB_DSN up' MAKE THIS ONE WORK
-
+	rsync -rP --delete ./sql/schema/ moviemaze@${PRODUCTION_HOST_IP}:~/migrations
+	ssh -t moviemaze@${PRODUCTION_HOST_IP} 'cd migrations && goose postgres ${MOVIE_MAZE_DB_DSN} up && cd ..'
 	rsync -P ./remote/production/moviemaze.service moviemaze@${PRODUCTION_HOST_IP}:~
 	ssh -t moviemaze@${PRODUCTION_HOST_IP} '\
-		sudo mv ~/moviemaze.service /etc/systemd/system/ \
-		&& sudo systemctl enable moviemaze \
-		&& sudo systemctl restart moviemaze \
+	sudo mv ~/moviemaze.service /etc/systemd/system/ \
+	&& sudo systemctl enable moviemaze \
+	&& sudo systemctl restart moviemaze \
 	'
 	@echo "deployment complete..."

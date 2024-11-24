@@ -11,6 +11,8 @@ USERNAME=moviemaze
 # Prompt to enter a password for the PostgreSQL moviemaze user (rather than hard-coding
 # a password in this script).
 read -p "Enter password for moviemaze DB user: " DB_PASSWORD
+read -p "Enter mailtrap user: " MAILTRAP_USERNAME
+read -p "Enter password for mailtrap user: " MAILTRAP_PASSWORD
 
 # Force all output to be presented in en_US for the duration of this script. This avoids  
 # any "setting locale failed" errors while this script is running, before we have 
