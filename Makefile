@@ -40,7 +40,7 @@ db/sqlc/generate:
 .PHONY: db/init
 db/init:
 	@docker run -e POSTGRES_PASSWORD=${DOCKER_POSTGRES_PW} --name=${DOCKER_POSTGRES_CONTAINER_NAME} --rm -d -p 5432:5432 postgres && sleep 3
-	@docker exec -u postgres -it pg-blogator psql -c "CREATE DATABASE blogator;"
+	@docker exec -u postgres -it pg-moviemaze psql -c "CREATE DATABASE moviemaze;"
 
 
 
