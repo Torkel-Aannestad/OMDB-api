@@ -31,6 +31,20 @@ db/migrations/up: confirm
 	@echo 'Running up migrations...'
 	@cd sql/schema && goose postgres ${MOVIE_MAZE_DB_DSN} up && cd ../..
 
+## db/import-data: imports OMDB dataset
+.PHONY: db/import-data
+db/import-data: confirm, db/migrations/up
+	@echo 'Importing OMDB data...'
+	@psql -v ON_ERROR_STOP=1 ${MOVIE_MAZE_DB_DSN} <<EOF
+	\i sql/data-import/run.sql
+	EOF
+
+## db/data-download: downloads new OMDB CSV files
+.PHONY: db/data-download
+db/data-download:
+	@echo 'Downloading OMDB CSVs...'
+	@./sql/data-import/download.sh
+
 ## db/sqlc/generate: slqc generates go types from database schema and queries
 .PHONY: db/sqlc/generate
 db/sqlc/generate:
