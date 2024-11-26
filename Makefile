@@ -54,18 +54,6 @@ db/init:
 	@docker run -e POSTGRES_PASSWORD=${DOCKER_POSTGRES_PW} --name=${DOCKER_POSTGRES_CONTAINER_NAME} --rm -d -p 5432:5432 postgres && sleep 3
 	@docker exec -u postgres -it pg-moviemaze psql -c "CREATE DATABASE moviemaze;"
 
-### Not done
-## db/download-omdb: downloading newest dataset from OMDB
-.PHONY: db/download-omdb
-db/download-omdb:
-	@echo "## db/download-omdb: downloading newest dataset from OMDB"
-	@for f in $(FILES); do \
-		echo "Downloading $$f.csv.bz2..."; \
-		wget --no-verbose $(BASE_URL)$$f.csv.bz2 -P www.omdb.org/data/; \
-		echo "Extracting $$f.csv.bz2..."; \
-		bunzip2 --keep --force www.omdb.org/data/$$f.csv.bz2; \
-	done
-	
 
 # ==================================================================================== #
 # QUALITY CONTROL
@@ -116,12 +104,28 @@ production/connect:
 .PHONY: production/deploy/app
 production/deploy/app:
 	rsync -P ./bin/linux_amd64/moviemaze-app moviemaze@${PRODUCTION_HOST_IP}:~
-	rsync -rP --delete ./sql/schema/ moviemaze@${PRODUCTION_HOST_IP}:~/migrations
-	ssh -t moviemaze@${PRODUCTION_HOST_IP} 'cd migrations && goose postgres ${MOVIE_MAZE_DB_DSN} up && cd ..'
+	rsync -rP --delete ./sql/schema/ moviemaze@${PRODUCTION_HOST_IP}:~/sql/migrations
+	ssh -t moviemaze@${PRODUCTION_HOST_IP} 'cd sql/migrations && goose postgres ${MOVIE_MAZE_DB_DSN_PROD} up && cd ../..'
 	rsync -P ./remote/production/moviemaze.service moviemaze@${PRODUCTION_HOST_IP}:~
 	ssh -t moviemaze@${PRODUCTION_HOST_IP} '\
-	sudo mv ~/moviemaze.service /etc/systemd/system/ \
-	&& sudo systemctl enable moviemaze \
-	&& sudo systemctl restart moviemaze \
-	'
+		sudo mv ~/moviemaze.service /etc/systemd/system/ \
+		&& sudo systemctl enable moviemaze \
+		&& sudo systemctl restart moviemaze \
+		'
 	@echo "deployment complete..."
+
+
+## production/import-data/transfer: transfer data to prod
+.PHONY: production/import-data/transfer
+production/import-data/transfer:
+	rsync -rP --delete ./sql/data-import/ moviemaze@${PRODUCTION_HOST_IP}:~/sql/data-import
+
+## production/import-data/run: run import to prod database
+.PHONY: production/import-data/run
+production/import-data/run:
+	ssh -t moviemaze@${PRODUCTION_HOST_IP} '\
+		psql -v ON_ERROR_STOP=1 -d "${MOVIE_MAZE_DB_DSN_PROD}" -c "\i sql/data-import/run.sql"\
+		'
+	
+
+	
