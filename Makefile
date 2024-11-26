@@ -126,6 +126,6 @@ production/import-data/run:
 	ssh -t moviemaze@${PRODUCTION_HOST_IP} '\
 		psql -v ON_ERROR_STOP=1 -d "${MOVIE_MAZE_DB_DSN_PROD}" -c "\i sql/data-import/run.sql"\
 		'
-	
+	@echo "data import complete..."
 
 	
