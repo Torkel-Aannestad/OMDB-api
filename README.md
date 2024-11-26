@@ -20,8 +20,7 @@ Refactor uten sqlc. Implementer selv, men bruk sqlc til å generere for deg. Da 
 
 ### OMDB
 
-- Adding bunzip2 to linux to extract the bz2 omdb files
--
+- Added to Makefile to transfer csv data and import to DB
 
 ## Mailer
 
