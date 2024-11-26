@@ -1,4 +1,3 @@
--- +goose Up
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS movies(
@@ -31,29 +30,5 @@ CREATE TABLE IF NOT EXISTS movie_abstracts_de (movie_id bigint, abstract text);
 CREATE TABLE IF NOT EXISTS movie_abstracts_en (movie_id bigint, abstract text);
 CREATE TABLE IF NOT EXISTS movie_abstracts_fr (movie_id bigint, abstract text);
 CREATE TABLE IF NOT EXISTS movie_abstracts_es (movie_id bigint, abstract text);
-COMMIT;
 
--- +goose Down
-DROP TABLE IF EXISTS movies;
-DROP TABLE IF EXISTS people;
-DROP TABLE IF EXISTS people_aliases;
-DROP TABLE IF EXISTS people_links;
-DROP TABLE IF EXISTS casts;
-DROP TABLE IF EXISTS job_names;
-DROP TABLE IF EXISTS jobs;
-DROP TABLE IF EXISTS movie_categories;
-DROP TABLE IF EXISTS movie_keywords;
-DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS category_names;
-DROP TABLE IF EXISTS trailers;
-DROP TABLE IF EXISTS movie_links;
-DROP TABLE IF EXISTS image_ids;
-DROP TABLE IF EXISTS image_licenses;
-DROP TABLE IF EXISTS movie_aliases_iso;
-DROP TABLE IF EXISTS movie_languages;
-DROP TABLE IF EXISTS movie_countries;
-DROP TABLE IF EXISTS movie_references;
-DROP TABLE IF EXISTS movie_abstracts_de;
-DROP TABLE IF EXISTS movie_abstracts_en;
-DROP TABLE IF EXISTS movie_abstracts_fr;
-DROP TABLE IF EXISTS movie_abstracts_es;
+COMMIT;

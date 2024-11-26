@@ -33,11 +33,9 @@ db/migrations/up: confirm
 
 ## db/import-data: imports OMDB dataset
 .PHONY: db/import-data
-db/import-data: confirm, db/migrations/up
+db/import-data:
 	@echo 'Importing OMDB data...'
-	@psql -v ON_ERROR_STOP=1 ${MOVIE_MAZE_DB_DSN} <<EOF
-	\i sql/data-import/run.sql
-	EOF
+	@psql -v ON_ERROR_STOP=1 -d "${MOVIE_MAZE_DB_DSN}" -c "\i sql/data-import/run.sql"
 
 ## db/data-download: downloads new OMDB CSV files
 .PHONY: db/data-download

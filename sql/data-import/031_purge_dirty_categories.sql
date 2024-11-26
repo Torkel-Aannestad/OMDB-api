@@ -1,4 +1,4 @@
-
+BEGIN;
 
 CREATE TEMP TABLE dirty_categories (category_id bigint PRIMARY KEY);
 INSERT INTO dirty_categories
@@ -20,3 +20,4 @@ DROP INDEX t3;
 DROP INDEX t4;
 DROP INDEX t5;
 
+COMMIT;

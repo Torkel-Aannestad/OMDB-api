@@ -1,4 +1,5 @@
--- +goose Up
+BEGIN;
+
 CREATE TYPE kind AS ENUM (
 'movie',
 'series',
@@ -7,6 +8,5 @@ CREATE TYPE kind AS ENUM (
 'movieseries'
 );
 
--- +goose Down
-DROP TYPE kind;
 
+COMMIT; 
