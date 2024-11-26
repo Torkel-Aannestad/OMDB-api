@@ -1,4 +1,4 @@
--- +goose Up
+
 
 CREATE TEMP TABLE dirty_categories (category_id bigint PRIMARY KEY);
 INSERT INTO dirty_categories

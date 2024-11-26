@@ -1,4 +1,4 @@
--- +goose Up
+
 
 UPDATE categories c
   SET name = n.name

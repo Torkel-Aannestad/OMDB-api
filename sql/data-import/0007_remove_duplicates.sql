@@ -1,4 +1,4 @@
--- +goose Up
+
 WITH t as (
   select ctid, row_number() over (partition by movie_id, name, language, official_translation), * from movie_aliases_iso
   )
