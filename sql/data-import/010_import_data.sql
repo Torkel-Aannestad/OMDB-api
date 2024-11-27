@@ -56,7 +56,7 @@ UPDATE categories c
 DELETE FROM categories WHERE name = '' OR name IS NULL; -- delete if category does not have name after update
 
 
-\copy people                FROM 'sql/data-import/data/all_people.csv'            WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
+\copy people (id, name, birthday, deathday, gender) FROM 'sql/data-import/data/all_people.csv' WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy people_aliases        FROM 'sql/data-import/data/all_people_aliases.csv'    WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy people_links          FROM 'sql/data-import/data/people_links.csv'          WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy casts                 FROM 'sql/data-import/data/all_casts.csv'             WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')

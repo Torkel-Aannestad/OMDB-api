@@ -15,4 +15,7 @@ DELETE FROM movie_references   c WHERE NOT EXISTS (SELECT * FROM movies p     WH
 DELETE FROM movie_references   c WHERE NOT EXISTS (SELECT * FROM movies p     WHERE p.id = c.movie_id);
 DELETE FROM movie_references   c WHERE NOT EXISTS (SELECT * FROM movies p     WHERE p.id = c.referenced_id);
 
+DELETE FROM image_ids WHERE object_id IS NULL;
+DELETE FROM image_licenses c WHERE NOT EXISTS (SELECT * FROM image_ids p     WHERE p.id = c.image_id);
+
 COMMIT;
