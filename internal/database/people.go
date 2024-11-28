@@ -9,13 +9,13 @@ import (
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
 )
 
-type People struct {
+type Person struct {
 	ID         int64     `json:"id"`
 	Name       string    `json:"name"`
 	Birthday   time.Time `json:"birthday,omitempty"`
 	Deathday   time.Time `json:"deathday,omitempty"`
 	Gender     string    `json:"gender,omitempty"`
-	Aliases    []string  `json:"alias,omitempty"`
+	Aliases    []string  `json:"aliases,omitempty"`
 	Version    int32     `json:"version"`
 	CreatedAt  time.Time `json:"-"`
 	ModifiedAt time.Time `json:"-"`
@@ -25,47 +25,34 @@ type PeopleModel struct {
 	DB *sql.DB
 }
 
-func (m PeopleModel) Insert(movie *Movie) error {
+func (m PeopleModel) Insert(person *Person) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	query := `
 	INSERT INTO movies (
 	name, 
-	parent_id, 
-	date, 
-	series_id, 
-	kind, 
-	runtime, 
-	budget, 
-	revenue, 
-	homepage, 
-	vote_average, 
-	votes_count, 
-	abstract )
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+	birthday
+	deathday, 
+	gender, 
+	aliases, 
+	)
+	VALUES ($1, $2, $3, $4, $5, $6)
 	RETURNING id, created_at, modified_at, version`
 
 	args := []any{
-		movie.Name,
-		movie.ParentID,
-		movie.Date,
-		movie.SeriesID,
-		movie.Kind,
-		movie.Runtime,
-		movie.Budget,
-		movie.Revenue,
-		movie.Homepage,
-		movie.VoteAvarage,
-		movie.VoteCount,
-		movie.Abstract,
+		person.Name,
+		person.Birthday,
+		person.Deathday,
+		person.Gender,
+		person.Aliases,
 	}
 
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(
-		&movie.ID,
-		&movie.CreatedAt,
-		&movie.ModifiedAt,
-		&movie.Version,
+		&person.ID,
+		&person.CreatedAt,
+		&person.ModifiedAt,
+		&person.Version,
 	)
 }
 
