@@ -12,6 +12,8 @@ CREATE TEMP TABLE IF NOT EXISTS votes (movie_id bigint primary key, vote_average
 CREATE TEMP TABLE IF NOT EXISTS movie_abstracts (movie_id bigint, abstract text);
 CREATE TEMP TABLE IF NOT EXISTS job_names (job_id bigint, name text, language text);
 CREATE TEMP TABLE IF NOT EXISTS category_names (category_id bigint, name text, language text);
+CREATE TEMP TABLE IF NOT EXISTS all_people (id bigint, name text, birthday date, deathday date, gender int);
+CREATE TEMP TABLE IF NOT EXISTS all_people_aliases (person_id bigint, name text);
 
 \copy all_movies            FROM 'sql/data-import/data/all_movies.csv'            WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy all_series            FROM 'sql/data-import/data/all_series.csv'            WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
@@ -23,6 +25,9 @@ CREATE TEMP TABLE IF NOT EXISTS category_names (category_id bigint, name text, l
 \copy movie_abstracts 		FROM 'sql/data-import/data/movie_abstracts_en.csv'    WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy job_names				FROM 'sql/data-import/data/job_names.csv'    		  WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy category_names		FROM 'sql/data-import/data/category_names.csv'		  WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
+\copy category_names		FROM 'sql/data-import/data/category_names.csv'		  WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
+\copy all_people FROM 'sql/data-import/data/all_people.csv' WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
+\copy all_people_aliases	FROM 'sql/data-import/data/all_people_aliases.csv'    WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 
 --movies
 WITH import_movies AS (
@@ -57,9 +62,16 @@ UPDATE categories c
   WHERE c.id = n.category_id AND n.language = 'en';
 DELETE FROM categories WHERE name = '' OR name IS NULL; -- delete if category does not have name after update
 
+-- people and aliases
+INSERT INTO people (id, name, birthday, deathday, gender, aliases)
+SELECT p.id, p.name, p.birthday, p.deathday, p.gender, a.aliases
+FROM all_people p
+LEFT JOIN (
+    SELECT person_id, array_agg(alias) AS aliases 
+    FROM all_people_aliases 
+    GROUP BY person_id
+) a ON p.id = a.person_id;
 
-\copy people (id, name, birthday, deathday, gender) FROM 'sql/data-import/data/all_people.csv' WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
-\copy people_aliases 		FROM 'sql/data-import/data/all_people_aliases.csv'    WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy people_links          FROM 'sql/data-import/data/people_links.csv'          WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy casts           		FROM 'sql/data-import/data/all_casts.csv'             WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy movie_categories      FROM 'sql/data-import/data/movie_categories.csv'      WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
