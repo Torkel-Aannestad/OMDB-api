@@ -4,12 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
-	"github.com/lib/pq"
-	pg "github.com/lib/pq"
 )
 
 type Movie struct {
@@ -34,9 +31,6 @@ type Movie struct {
 type MovieModel struct {
 	DB *sql.DB
 }
-
-// DELETE FROM movies
-// WHERE id = $1;
 
 // -- SELECT count(*) OVER(), id, name, parent_id, date, series_id, kind, runtime, budget, revenue, homepage, vote_average, votes_count, abstract, created_at, modified_at, version
 // -- FROM movies
@@ -148,77 +142,100 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	return &movie, nil
 }
 
-func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
+// func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
 
-	sortColumn := filters.getSortColumn()
-	sortDirection := filters.getSortDirection()
+// 	sortColumn := filters.getSortColumn()
+// 	sortDirection := filters.getSortDirection()
 
-	query := fmt.Sprintf(`
-		SELECT count(*) OVER(), id, created_at, title, year, runtime, genres, version
-		FROM movies
-		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '') 
-		AND (genres @> $2 OR $2 = '{}')
-		ORDER BY %s %s, id ASC
-		LIMIT $3 OFFSET $4
-	`, sortColumn, sortDirection)
+// 	query := fmt.Sprintf(`
+// 		SELECT count(*) OVER(), id, created_at, title, year, runtime, genres, version
+// 		FROM movies
+// 		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
+// 		AND (genres @> $2 OR $2 = '{}')
+// 		ORDER BY %s %s, id ASC
+// 		LIMIT $3 OFFSET $4
+// 	`, sortColumn, sortDirection)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
+// 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+// 	defer cancel()
 
-	args := []any{title, pg.Array(genres), filters.limit(), filters.Offset()}
+// 	args := []any{title, pg.Array(genres), filters.limit(), filters.Offset()}
 
-	rows, err := m.DB.QueryContext(ctx, query, args...)
-	if err != nil {
-		return nil, Metadata{}, err
-	}
-	defer rows.Close()
+// 	rows, err := m.DB.QueryContext(ctx, query, args...)
+// 	if err != nil {
+// 		return nil, Metadata{}, err
+// 	}
+// 	defer rows.Close()
 
-	totalRecords := 0
-	movies := []*Movie{}
+// 	totalRecords := 0
+// 	movies := []*Movie{}
 
-	for rows.Next() {
-		var movie Movie
+// 	for rows.Next() {
+// 		var movie Movie
 
-		err := rows.Scan(
-			&totalRecords,
-			&movie.ID,
-			&movie.CreatedAt,
-			&movie.Title,
-			&movie.Year,
-			&movie.Runtime,
-			pg.Array(&movie.Genres),
-			&movie.Version,
-		)
-		if err != nil {
-			return nil, Metadata{}, err
-		}
-		movies = append(movies, &movie)
-	}
+// 		err := rows.Scan(
+// 			&totalRecords,
+// 			&movie.ID,
+// 			&movie.CreatedAt,
+// 			&movie.Title,
+// 			&movie.Year,
+// 			&movie.Runtime,
+// 			pg.Array(&movie.Genres),
+// 			&movie.Version,
+// 		)
+// 		if err != nil {
+// 			return nil, Metadata{}, err
+// 		}
+// 		movies = append(movies, &movie)
+// 	}
 
-	err = rows.Err()
-	if err != nil {
-		return nil, Metadata{}, err
-	}
+// 	err = rows.Err()
+// 	if err != nil {
+// 		return nil, Metadata{}, err
+// 	}
 
-	metadata := calculateMetadata(filters.Page, filters.PageSize, totalRecords)
+// 	metadata := calculateMetadata(filters.Page, filters.PageSize, totalRecords)
 
-	return movies, metadata, nil
-}
+// 	return movies, metadata, nil
+// }
 
 func (m MovieModel) Update(movie *Movie) error {
 	query := `
-	UPDATE movies 
-	SET title = $1, year = $2, runtime = $3, genres = $4, version = version + 1
-	WHERE id = $5 AND version = $6
+	UPDATE movies
+	SET 
+		name = $3,
+		parent_id = $4,
+		date = $5,
+		series_id = $6,
+		kind = $7,
+		runtime = $8,
+		budget = $9,
+		revenue = $10,
+		homepage = $11,
+		vote_average = $12,
+		votes_count = $13,
+		abstract = $14,
+		modified_at = $15,
+		version = version + 1
+	WHERE id = $1 and version = $2
 	RETURNING version`
 
 	args := []any{
-		movie.Title,
-		movie.Year,
-		movie.Runtime,
-		pq.Array(movie.Genres),
-		movie.ID,
-		movie.Version,
+		&movie.ID,
+		&movie.Version,
+		&movie.Name,
+		&movie.ParentID,
+		&movie.Date,
+		&movie.SeriesID,
+		&movie.Kind,
+		&movie.Runtime,
+		&movie.Budget,
+		&movie.Revenue,
+		&movie.Homepage,
+		&movie.VoteAvarage,
+		&movie.VoteCount,
+		&movie.Abstract,
+		&movie.ModifiedAt,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
