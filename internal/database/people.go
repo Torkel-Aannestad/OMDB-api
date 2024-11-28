@@ -165,49 +165,35 @@ func (m PeopleModel) Get(id int64) (*Person, error) {
 // 	return movies, metadata, nil
 // }
 
-func (m PeopleModel) Update(movie *Movie) error {
+func (m PeopleModel) Update(person *Person) error {
 	query := `
-	UPDATE movies
+	UPDATE people
 	SET 
 		name = $3,
-		parent_id = $4,
-		date = $5,
-		series_id = $6,
-		kind = $7,
-		runtime = $8,
-		budget = $9,
-		revenue = $10,
-		homepage = $11,
-		vote_average = $12,
-		votes_count = $13,
-		abstract = $14,
-		modified_at = $15,
+		birthday = $4,
+		deathday = $5,
+		gender = $6,
+		aliases = $7,
+		modified_at = $8,
 		version = version + 1
 	WHERE id = $1 and version = $2
 	RETURNING version`
 
 	args := []any{
-		&movie.ID,
-		&movie.Version,
-		&movie.Name,
-		&movie.ParentID,
-		&movie.Date,
-		&movie.SeriesID,
-		&movie.Kind,
-		&movie.Runtime,
-		&movie.Budget,
-		&movie.Revenue,
-		&movie.Homepage,
-		&movie.VoteAvarage,
-		&movie.VoteCount,
-		&movie.Abstract,
-		&movie.ModifiedAt,
+		&person.ID,
+		&person.Version,
+		&person.Name,
+		&person.Birthday,
+		&person.Deathday,
+		&person.Gender,
+		&person.Aliases,
+		&person.ModifiedAt,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&movie.Version)
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&person.Version)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrEditConflict
