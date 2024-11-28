@@ -35,11 +35,6 @@ type MovieModel struct {
 	DB *sql.DB
 }
 
-// UPDATE movies
-// SET name = $3, parent_id = $3, date = $4, series_id = $5, kind = $6, runtime = $7, budget = $8, revenue = $9, homepage = $10, vote_average = $11, votes_count = $12, abstract = $13, modified_at = $14, version = version + 1
-// WHERE id = $1 and version = $2
-// RETURNING *;
-
 // DELETE FROM movies
 // WHERE id = $1;
 
@@ -101,20 +96,45 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	movie := Movie{}
 
 	query := `
-	SELECT id, created_at, title, year, runtime, genres, version
+	SELECT 
+		id,
+		name,
+		parent_id,
+		date,
+		series_id,
+		kind,
+		runtime,
+		budget,
+		revenue,
+		homepage,
+		vote_average,
+		votes_count,
+		abstract,
+		created_at,
+		modified_at,
+		version
 	FROM movies
-	WHERE id = $1`
+	WHERE id = $1;`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(
 		&movie.ID,
-		&movie.CreatedAt,
-		&movie.Title,
-		&movie.Year,
+		&movie.Name,
+		&movie.ParentID,
+		&movie.Date,
+		&movie.SeriesID,
+		&movie.Kind,
 		&movie.Runtime,
-		pq.Array(&movie.Genres),
+		&movie.Budget,
+		&movie.Revenue,
+		&movie.Homepage,
+		&movie.VoteAvarage,
+		&movie.VoteCount,
+		&movie.Abstract,
+		&movie.CreatedAt,
+		&movie.ModifiedAt,
 		&movie.Version,
 	)
 	if err != nil {
