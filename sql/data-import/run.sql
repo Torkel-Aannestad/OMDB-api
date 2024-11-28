@@ -10,6 +10,10 @@ VACUUM;
 \i :base_path/021_clean_orphans.sql
 
 \i :base_path/022_add_foreign_keys.sql
+\i :base_path/023_add_null_values.sql
+\i :base_path/024_add_not_null_constraints.sql
+\i :base_path/025_add_identity_for_id.sql
+
 ANALYZE;
 \i :base_path/031_purge_dirty_categories.sql
 

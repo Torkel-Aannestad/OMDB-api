@@ -1,4 +1,6 @@
 BEGIN;
+\echo ''
+\echo '031_purge_dirty_categories'
 
 CREATE TEMP TABLE dirty_categories (category_id bigint PRIMARY KEY);
 INSERT INTO dirty_categories

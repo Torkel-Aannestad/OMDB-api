@@ -1,4 +1,6 @@
 BEGIN;
+\echo ''
+\echo '011_remove_duplicates'
 
 WITH t as (
   select ctid, row_number() over (partition by id), * from movies

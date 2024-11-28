@@ -1,5 +1,8 @@
 BEGIN;
 
+\echo ''
+\echo '022_add_foreign_keys'
+
 -- movie references
 ALTER TABLE movies             ADD FOREIGN KEY (parent_id) REFERENCES movies (id) ON DELETE cascade,
                                ADD FOREIGN KEY (series_id) REFERENCES movies (id) ON DELETE cascade;

@@ -1,4 +1,6 @@
 BEGIN;
+\echo ''
+\echo '010_import_data'
 
 CREATE TEMP TABLE IF NOT EXISTS all_movies      (id bigint primary key, name text, parent_id bigint, date date);
 CREATE TEMP TABLE IF NOT EXISTS all_series      (id bigint primary key, name text, parent_id bigint, date date);

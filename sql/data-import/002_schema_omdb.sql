@@ -1,4 +1,6 @@
 BEGIN;
+\echo ''
+\echo '002_schema_omdb'
 
 CREATE TABLE IF NOT EXISTS movies(
     id bigint, name text, parent_id bigint, date date, series_id bigint, kind kind, -- from all_*

@@ -1,4 +1,6 @@
 BEGIN;
+\echo ''
+\echo '023_add_null_values'
 
 --people
 UPDATE people
@@ -17,9 +19,9 @@ WHERE
 UPDATE movies
 SET
     name = COALESCE(name, 'Unknown'),
-    parent_id = COALESCE(parent_id, -1),
+    -- parent_id nullable
     date = COALESCE(date, '1888-01-01'),
-    series_id = COALESCE(series_id, -1),
+    -- series_id nullable
     kind = COALESCE(kind, 'movie'),
     runtime = COALESCE(runtime, -1),
     budget = COALESCE(budget, -1),
@@ -40,18 +42,23 @@ WHERE
     OR homepage IS NULL
     OR vote_average IS NULL
     OR vote_average IS NULL
-    OR abstract IS NULL
+    OR abstract IS NULL;
 
 
 UPDATE image_licenses
 SET
     source = COALESCE(source, ''),
-    license_id = COALESCE(license_id, -1),
+    license_id = COALESCE(license_id, 0),
     author = COALESCE(author, '')
 WHERE
     source IS NULL OR
     license_id IS NULL OR
     author IS NULL;
 
+UPDATE image_ids
+SET
+    image_version = COALESCE(image_version, 0)
+WHERE
+    image_version IS NULL;
 
 COMMIT;
