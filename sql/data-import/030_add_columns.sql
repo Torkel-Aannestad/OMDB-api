@@ -1,11 +1,13 @@
 BEGIN;
 \echo ''
-\echo '030_add_created_at_column'
+\echo '030_add_columns'
 
-ALTER TABLE movies             
+ALTER TABLE movies
+    ADD version integer NOT NULL DEFAULT 1,             
     ADD created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     ADD modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE people
+    ADD version integer NOT NULL DEFAULT 1,
     ADD created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     ADD modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE people_aliases 

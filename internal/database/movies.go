@@ -13,31 +13,85 @@ import (
 )
 
 type Movie struct {
-	ID        int64     `json:"id"`
-	CreatedAt time.Time `json:"-"`
-	Title     string    `json:"title"`
-	Year      int32     `json:"year,omitempty"`
-	Runtime   Runtime   `json:"runtime,omitempty"`
-	Genres    []string  `json:"genres,omitempty"`
-	Version   int32     `json:"version"`
+	ID          int64     `json:"id"`
+	ParentID    NullInt64 `json:"parent_id,omitempty"`
+	SeriesID    NullInt64 `json:"series_id,omitempty"`
+	Name        string    `json:"name"`
+	Date        time.Time `json:"date,omitempty"`
+	Kind        string    `json:"kind"`
+	Runtime     int64     `json:"runtime,omitempty"`
+	Budget      float64   `json:"budget,omitempty"`
+	Revenue     float64   `json:"revenue,omitempty"`
+	Homepage    string    `json:"homepage,omitempty"`
+	VoteAvarage float64   `json:"vote_average,omitempty"`
+	VoteCount   int64     `json:"vote_count,omitempty"`
+	Abstract    string    `json:"abstract,omitempty"`
+	Version     int32     `json:"version"`
+	CreatedAt   time.Time `json:"-"`
+	ModifiedAt  time.Time `json:"-"`
 }
 
 type MovieModel struct {
 	DB *sql.DB
 }
 
+// UPDATE movies
+// SET name = $3, parent_id = $3, date = $4, series_id = $5, kind = $6, runtime = $7, budget = $8, revenue = $9, homepage = $10, vote_average = $11, votes_count = $12, abstract = $13, modified_at = $14, version = version + 1
+// WHERE id = $1 and version = $2
+// RETURNING *;
+
+// DELETE FROM movies
+// WHERE id = $1;
+
+// -- SELECT count(*) OVER(), id, name, parent_id, date, series_id, kind, runtime, budget, revenue, homepage, vote_average, votes_count, abstract, created_at, modified_at, version
+// -- FROM movies
+// -- WHERE (to_tsvector('simple', name) @@ plainto_tsquery('simple', sqlc.arg(name)) OR sqlc.arg(name) = '')
+// -- AND (genres @> sqlc.arg(genres) OR sqlc.arg(genres) = '{}')
+// -- ORDER BY title ASC, id ASC
+// -- LIMIT sqlc.arg(limit_value) OFFSET sqlc.arg(offset_value);
+
 func (m MovieModel) Insert(movie *Movie) error {
-	query := `
-	INSERT INTO movies (title, year, runtime, genres)
-	VALUES ($1, $2, $3, $4)
-	RETURNING id, created_at, version`
-
-	args := []any{movie.Title, movie.Year, movie.Runtime, pg.Array(movie.Genres)}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	return m.DB.QueryRowContext(ctx, query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
+	query := `
+	INSERT INTO movies (
+	name, 
+	parent_id, 
+	date, 
+	series_id, 
+	kind, 
+	runtime, 
+	budget, 
+	revenue, 
+	homepage, 
+	vote_average, 
+	votes_count, 
+	abstract )
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+	RETURNING id, created_at, modified_at, version`
+
+	args := []any{
+		movie.Name,
+		movie.ParentID,
+		movie.Date,
+		movie.SeriesID,
+		movie.Kind,
+		movie.Runtime,
+		movie.Budget,
+		movie.Revenue,
+		movie.Homepage,
+		movie.VoteAvarage,
+		movie.VoteCount,
+		movie.Abstract,
+	}
+
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(
+		&movie.ID,
+		&movie.CreatedAt,
+		&movie.ModifiedAt,
+		&movie.Version,
+	)
 }
 
 func (m MovieModel) Get(id int64) (*Movie, error) {

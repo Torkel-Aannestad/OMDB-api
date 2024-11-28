@@ -4,12 +4,11 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS movies(
     id bigint, name text, parent_id bigint, date date, series_id bigint, kind kind, -- from all_*
-	runtime int, budget numeric, revenue numeric, homepage text, -- from movie_details
-	vote_average numeric, votes_count bigint, -- from votes
-    abstract text, -- from movie_abstracts_en
-    version bigint NOT NULL DEFAULT 1
+	runtime int, budget DOUBLE PRECISION, revenue DOUBLE PRECISION, homepage text, -- from movie_details
+	vote_average DOUBLE PRECISION, votes_count bigint, -- from votes
+    abstract text -- from movie_abstracts_en
 );
-CREATE TABLE IF NOT EXISTS people (id bigint, name text, birthday date, deathday date, gender int, version bigint NOT NULL DEFAULT 1);
+CREATE TABLE IF NOT EXISTS people (id bigint, name text, birthday date, deathday date, gender int );
 CREATE TABLE IF NOT EXISTS people_aliases (person_id bigint, name text);
 CREATE TABLE IF NOT EXISTS people_links (source text, key text, person_id bigint, language text);
 CREATE TABLE IF NOT EXISTS casts (movie_id bigint, person_id bigint, job_id bigint, role text, position int);
