@@ -278,19 +278,31 @@ func (m MovieModel) Delete(id int64) error {
 }
 
 func ValidateMovie(v *validator.Validator, movie *Movie) {
-	v.Check(movie.Title != "", "title", "must be provided")
-	v.Check(len(movie.Title) <= 500, "title", "must not be more than 500 bytes long")
+	v.Check(movie.Name != "", "name", "must be provided")
+	v.Check(len(movie.Name) <= 500, "name", "must not be more than 500 bytes long")
 
-	v.Check(movie.Year != 0, "year", "must be provided")
-	v.Check(movie.Year >= 1888, "year", "must be greater than 1888")
-	v.Check(movie.Year <= int32(time.Now().Year()), "year", "must not be in the future")
+	v.Check(movie.ParentID.Int64 != 0, "parent_id", "must be provided")
+	v.Check(movie.ParentID.Int64 > 0, "parent_id", "must be a positive integer")
+
+	v.Check(movie.SeriesID.Int64 != 0, "series_id", "must be provided")
+	v.Check(movie.ParentID.Int64 > 0, "series_id", "must be a positive integer")
+
+	v.Check(movie.Date.IsZero(), "date", "must be provided")
+	v.Check(movie.Date.Year() >= 1888, "date", "must be greater than year 1888")
+	v.Check(movie.Date.Compare(time.Now()) < 1, "date", "must not be in the future")
 
 	v.Check(movie.Runtime != 0, "runtime", "must be provided")
 	v.Check(movie.Runtime > 0, "runtime", "must be a positive integer")
 
-	v.Check(movie.Genres != nil, "genres", "must be provided")
-	v.Check(len(movie.Genres) >= 1, "genres", "must contain at least 1 genre")
-	v.Check(len(movie.Genres) <= 5, "genres", "must not contain more than 5 genres")
-	v.Check(validator.Unique(movie.Genres), "genres", "must not contain duplicate values")
+	v.Check(movie.Budget >= 0, "budget", "must be a positive integer")
+	v.Check(movie.Revenue >= 0, "revenue", "must be a positive integer")
+
+	v.Check(len(movie.Homepage) > 256, "homepage", "must not be longer than 256")
+
+	v.Check(movie.VoteAvarage >= 0, "vote_average", "must be a positive integer")
+	v.Check(movie.VoteAvarage <= 10, "vote_average", "must be less or equal to 10")
+	v.Check(movie.VoteCount >= 0, "votes_count", "must be a positive integer")
+
+	v.Check(len(movie.Abstract) > 4096, "abstract", "must not be longer than 4096")
 
 }
