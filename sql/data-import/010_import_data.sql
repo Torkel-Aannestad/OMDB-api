@@ -59,9 +59,9 @@ DELETE FROM categories WHERE name = '' OR name IS NULL; -- delete if category do
 
 
 \copy people (id, name, birthday, deathday, gender) FROM 'sql/data-import/data/all_people.csv' WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
-\copy people_aliases        FROM 'sql/data-import/data/all_people_aliases.csv'    WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
+\copy people_aliases 		FROM 'sql/data-import/data/all_people_aliases.csv'    WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy people_links          FROM 'sql/data-import/data/people_links.csv'          WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
-\copy casts                 FROM 'sql/data-import/data/all_casts.csv'             WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
+\copy casts           		FROM 'sql/data-import/data/all_casts.csv'             WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy movie_categories      FROM 'sql/data-import/data/movie_categories.csv'      WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy movie_keywords        FROM 'sql/data-import/data/movie_keywords.csv'        WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy trailers              FROM 'sql/data-import/data/trailers.csv'              WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')

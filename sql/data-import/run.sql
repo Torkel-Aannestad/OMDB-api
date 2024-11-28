@@ -15,5 +15,6 @@ VACUUM;
 \i :base_path/025_add_identity_for_id.sql
 
 ANALYZE;
+\i :base_path/030_add_created_at_column.sql
 \i :base_path/031_purge_dirty_categories.sql
 

@@ -24,5 +24,4 @@ CREATE TABLE IF NOT EXISTS image_ids (id bigint, object_id bigint, object_type t
 CREATE TABLE IF NOT EXISTS image_licenses (image_id bigint, source text, license_id bigint, author text);
 CREATE TABLE IF NOT EXISTS movie_references (movie_id bigint, referenced_id bigint, type text);
 
-
 COMMIT;
