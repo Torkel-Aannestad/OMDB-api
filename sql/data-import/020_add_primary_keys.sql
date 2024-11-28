@@ -3,7 +3,6 @@ BEGIN;
 \echo '020_add_primary_keys'
 
 ALTER TABLE people             ADD PRIMARY KEY (id);
-ALTER TABLE people_aliases     ADD PRIMARY KEY (person_id, name);
 ALTER TABLE categories         ADD PRIMARY KEY (id);
 ALTER TABLE image_ids          ADD PRIMARY KEY (id);
 ALTER TABLE image_licenses     ADD PRIMARY KEY (image_id);

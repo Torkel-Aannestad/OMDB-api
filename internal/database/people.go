@@ -9,30 +9,23 @@ import (
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
 )
 
-type Movie struct {
-	ID          int64     `json:"id"`
-	ParentID    NullInt64 `json:"parent_id,omitempty"`
-	SeriesID    NullInt64 `json:"series_id,omitempty"`
-	Name        string    `json:"name"`
-	Date        time.Time `json:"date,omitempty"`
-	Kind        string    `json:"kind"`
-	Runtime     int64     `json:"runtime,omitempty"`
-	Budget      float64   `json:"budget,omitempty"`
-	Revenue     float64   `json:"revenue,omitempty"`
-	Homepage    string    `json:"homepage,omitempty"`
-	VoteAvarage float64   `json:"vote_average,omitempty"`
-	VoteCount   int64     `json:"vote_count,omitempty"`
-	Abstract    string    `json:"abstract,omitempty"`
-	Version     int32     `json:"version"`
-	CreatedAt   time.Time `json:"-"`
-	ModifiedAt  time.Time `json:"-"`
+type People struct {
+	ID         int64     `json:"id"`
+	Name       string    `json:"name"`
+	Birthday   time.Time `json:"birthday,omitempty"`
+	Deathday   time.Time `json:"deathday,omitempty"`
+	Gender     string    `json:"gender,omitempty"`
+	Aliases    []string  `json:"alias,omitempty"`
+	Version    int32     `json:"version"`
+	CreatedAt  time.Time `json:"-"`
+	ModifiedAt time.Time `json:"-"`
 }
 
-type MovieModel struct {
+type PeopleModel struct {
 	DB *sql.DB
 }
 
-func (m MovieModel) Insert(movie *Movie) error {
+func (m PeopleModel) Insert(movie *Movie) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -76,7 +69,7 @@ func (m MovieModel) Insert(movie *Movie) error {
 	)
 }
 
-func (m MovieModel) Get(id int64) (*Movie, error) {
+func (m PeopleModel) Get(id int64) (*Movie, error) {
 	if id < 0 {
 		return nil, ErrRecordNotFound
 	}
@@ -142,7 +135,7 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 // -- ORDER BY title ASC, id ASC
 // -- LIMIT sqlc.arg(limit_value) OFFSET sqlc.arg(offset_value);
 
-// func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
+// func (m PeopleModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
 
 // 	sortColumn := filters.getSortColumn()
 // 	sortDirection := filters.getSortDirection()
@@ -199,7 +192,7 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 // 	return movies, metadata, nil
 // }
 
-func (m MovieModel) Update(movie *Movie) error {
+func (m PeopleModel) Update(movie *Movie) error {
 	query := `
 	UPDATE movies
 	SET 
@@ -252,7 +245,7 @@ func (m MovieModel) Update(movie *Movie) error {
 	return nil
 }
 
-func (m MovieModel) Delete(id int64) error {
+func (m PeopleModel) Delete(id int64) error {
 	if id < 0 {
 		return ErrRecordNotFound
 	}
@@ -277,7 +270,7 @@ func (m MovieModel) Delete(id int64) error {
 	return nil
 }
 
-func ValidateMovie(v *validator.Validator, movie *Movie) {
+func ValidatePeople(v *validator.Validator, movie *Movie) {
 	v.Check(movie.Name != "", "name", "must be provided")
 	v.Check(len(movie.Name) <= 500, "name", "must not be more than 500 bytes long")
 

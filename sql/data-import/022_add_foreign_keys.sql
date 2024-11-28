@@ -6,7 +6,6 @@ BEGIN;
 -- movie references
 ALTER TABLE movies             ADD FOREIGN KEY (parent_id) REFERENCES movies (id) ON DELETE cascade,
                                ADD FOREIGN KEY (series_id) REFERENCES movies (id) ON DELETE cascade;
-ALTER TABLE people_aliases     ADD FOREIGN KEY (person_id) REFERENCES people (id) ON DELETE cascade;
 ALTER TABLE people_links       ADD FOREIGN KEY (person_id) REFERENCES people (id) ON DELETE cascade;
 ALTER TABLE casts              ADD FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE cascade,
                                ADD FOREIGN KEY (person_id) REFERENCES people (id) ON DELETE cascade,

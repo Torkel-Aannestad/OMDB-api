@@ -7,10 +7,11 @@ WITH t as (
 )
 DELETE FROM movies WHERE ctid in (select ctid FROM t WHERE row_number > 1);
 
-WITH t as (
-  select ctid, row_number() over (partition by person_id, name), * from people_aliases
-  )
-DELETE from people_aliases where ctid in ( select ctid FROM t WHERE row_number > 1);
+UPDATE people
+SET aliases = (
+  SELECT array_agg(DISTINCT alias) 
+  FROM unnest(aliases) alias
+) WHERE aliases IS NOT NULL;
 
 WITH t as (
   select ctid, row_number() over (partition by movie_id, language), * from movie_links

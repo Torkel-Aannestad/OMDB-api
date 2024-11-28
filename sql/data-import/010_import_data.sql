@@ -67,7 +67,7 @@ INSERT INTO people (id, name, birthday, deathday, gender, aliases)
 SELECT p.id, p.name, p.birthday, p.deathday, p.gender, a.aliases
 FROM all_people p
 LEFT JOIN (
-    SELECT person_id, array_agg(alias) AS aliases 
+    SELECT person_id, array_agg(name) AS aliases 
     FROM all_people_aliases 
     GROUP BY person_id
 ) a ON p.id = a.person_id;

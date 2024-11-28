@@ -20,10 +20,6 @@ ALTER TABLE people
     ALTER COLUMN deathday SET NOT NULL,
     ALTER COLUMN gender SET NOT NULL;
 
-ALTER TABLE people_aliases
-    ALTER COLUMN person_id SET NOT NULL,
-    ALTER COLUMN name SET NOT NULL;
-
 ALTER TABLE people_links
     ALTER COLUMN source SET NOT NULL,
     ALTER COLUMN key SET NOT NULL,
