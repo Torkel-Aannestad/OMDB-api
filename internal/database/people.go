@@ -56,53 +56,39 @@ func (m PeopleModel) Insert(person *Person) error {
 	)
 }
 
-func (m PeopleModel) Get(id int64) (*Movie, error) {
+func (m PeopleModel) Get(id int64) (*Person, error) {
 	if id < 0 {
 		return nil, ErrRecordNotFound
 	}
-	movie := Movie{}
+	person := Person{}
 
 	query := `
 	SELECT 
 		id,
-		name,
-		parent_id,
-		date,
-		series_id,
-		kind,
-		runtime,
-		budget,
-		revenue,
-		homepage,
-		vote_average,
-		votes_count,
-		abstract,
+		name, 
+		birthday
+		deathday, 
+		gender, 
+		aliases, 
 		created_at,
 		modified_at,
 		version
-	FROM movies
+	FROM people
 	WHERE id = $1;`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(
-		&movie.ID,
-		&movie.Name,
-		&movie.ParentID,
-		&movie.Date,
-		&movie.SeriesID,
-		&movie.Kind,
-		&movie.Runtime,
-		&movie.Budget,
-		&movie.Revenue,
-		&movie.Homepage,
-		&movie.VoteAvarage,
-		&movie.VoteCount,
-		&movie.Abstract,
-		&movie.CreatedAt,
-		&movie.ModifiedAt,
-		&movie.Version,
+		&person.ID,
+		&person.Name,
+		&person.Birthday,
+		&person.Deathday,
+		&person.Gender,
+		&person.Aliases,
+		&person.CreatedAt,
+		&person.ModifiedAt,
+		&person.Version,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -112,7 +98,7 @@ func (m PeopleModel) Get(id int64) (*Movie, error) {
 		}
 	}
 
-	return &movie, nil
+	return &person, nil
 }
 
 // -- SELECT count(*) OVER(), id, name, parent_id, date, series_id, kind, runtime, budget, revenue, homepage, vote_average, votes_count, abstract, created_at, modified_at, version
