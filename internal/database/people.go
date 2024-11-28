@@ -30,7 +30,7 @@ func (m PeopleModel) Insert(person *Person) error {
 	defer cancel()
 
 	query := `
-	INSERT INTO movies (
+	INSERT INTO people (
 	name, 
 	birthday
 	deathday, 
@@ -229,32 +229,26 @@ func (m PeopleModel) Delete(id int64) error {
 	return nil
 }
 
-func ValidatePeople(v *validator.Validator, movie *Movie) {
-	v.Check(movie.Name != "", "name", "must be provided")
-	v.Check(len(movie.Name) <= 500, "name", "must not be more than 500 bytes long")
+// &person.Name,
+// &person.Birthday,
+// &person.Deathday,
+// &person.Gender,
+// &person.Aliases,
 
-	v.Check(movie.ParentID.Int64 != 0, "parent_id", "must be provided")
-	v.Check(movie.ParentID.Int64 > 0, "parent_id", "must be a positive integer")
+func ValidatePeople(v *validator.Validator, person *Person) {
+	v.Check(person.Name != "", "name", "must be provided")
+	v.Check(len(person.Name) <= 500, "name", "must not be more than 500 bytes long")
 
-	v.Check(movie.SeriesID.Int64 != 0, "series_id", "must be provided")
-	v.Check(movie.ParentID.Int64 > 0, "series_id", "must be a positive integer")
+	v.Check(person.Birthday.IsZero(), "date", "must be provided")
+	v.Check(person.Birthday.Year() >= 1888, "date", "must be greater than year 1888")
+	v.Check(person.Birthday.Compare(time.Now()) < 1, "date", "must not be in the future")
 
-	v.Check(movie.Date.IsZero(), "date", "must be provided")
-	v.Check(movie.Date.Year() >= 1888, "date", "must be greater than year 1888")
-	v.Check(movie.Date.Compare(time.Now()) < 1, "date", "must not be in the future")
+	v.Check(person.Deathday.Year() >= 1888, "date", "must be greater than year 1888")
+	v.Check(person.Deathday.Compare(time.Now()) < 1, "date", "must not be in the future")
 
-	v.Check(movie.Runtime != 0, "runtime", "must be provided")
-	v.Check(movie.Runtime > 0, "runtime", "must be a positive integer")
+	v.Check(person.Gender != "", "gender", "must be provided")
+	v.Check(person.Gender != "male" && person.Gender != "female" && person.Gender != "non-binary" && person.Gender != "unknown", "Gender", "must be one of the following values: male, female, non-binary, unknown")
 
-	v.Check(movie.Budget >= 0, "budget", "must be a positive integer")
-	v.Check(movie.Revenue >= 0, "revenue", "must be a positive integer")
-
-	v.Check(len(movie.Homepage) > 256, "homepage", "must not be longer than 256")
-
-	v.Check(movie.VoteAvarage >= 0, "vote_average", "must be a positive integer")
-	v.Check(movie.VoteAvarage <= 10, "vote_average", "must be less or equal to 10")
-	v.Check(movie.VoteCount >= 0, "votes_count", "must be a positive integer")
-
-	v.Check(len(movie.Abstract) > 4096, "abstract", "must not be longer than 4096")
+	v.Check(validator.Unique(person.Aliases), "aliases", "must not contain duplicate values")
 
 }
