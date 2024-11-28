@@ -210,7 +210,7 @@ func (m PeopleModel) Delete(id int64) error {
 	}
 
 	stmt := `
-		DELETE FROM movies WHERE id = $1
+		DELETE FROM people WHERE id = $1
 	`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
