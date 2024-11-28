@@ -43,6 +43,11 @@ db/data-download:
 	@echo 'Downloading OMDB CSVs...'
 	@./sql/data-import/download.sh
 
+## db/pg_dump/schema: slqc generates go types from database schema and queries
+.PHONY: db/pg_dump/schema
+db/pg_dump/schema:
+	pg_dump "${MOVIE_MAZE_DB_DSN}" --schema-only > sql/schema/moviemaze_schema.sql
+
 ## db/sqlc/generate: slqc generates go types from database schema and queries
 .PHONY: db/sqlc/generate
 db/sqlc/generate:
