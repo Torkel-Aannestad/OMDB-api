@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS movies(
     abstract text -- from movie_abstracts_en
 );
 CREATE TABLE IF NOT EXISTS people (id bigint, name text, birthday date, deathday date, gender int, aliases text[]);
---  CREATE TABLE IF NOT EXISTS people_aliases (person_id bigint, name text);
 CREATE TABLE IF NOT EXISTS people_links (source text, key text, person_id bigint, language text);
 CREATE TABLE IF NOT EXISTS casts (movie_id bigint, person_id bigint, job_id bigint, role text, position int);
 CREATE TABLE IF NOT EXISTS jobs (id bigint, name text);

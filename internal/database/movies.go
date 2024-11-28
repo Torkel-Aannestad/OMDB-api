@@ -55,9 +55,9 @@ func (m MovieModel) Insert(movie *Movie) error {
 
 	args := []any{
 		movie.Name,
-		movie.ParentID,
+		movie.ParentID.NullInt64,
 		movie.Date,
-		movie.SeriesID,
+		movie.SeriesID.NullInt64,
 		movie.Kind,
 		movie.Runtime,
 		movie.Budget,

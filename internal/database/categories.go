@@ -9,86 +9,77 @@ import (
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
 )
 
-type Person struct {
+type Category struct {
 	ID         int64     `json:"id"`
 	Name       string    `json:"name"`
-	Birthday   time.Time `json:"birthday,omitempty"`
-	Deathday   time.Time `json:"deathday,omitempty"`
-	Gender     string    `json:"gender,omitempty"`
-	Aliases    []string  `json:"aliases,omitempty"`
-	Version    int32     `json:"version"`
+	ParentID   NullInt64 `json:"parent_id,omitempty"`
+	RootID     NullInt64 `json:"root_id,omitempty"`
 	CreatedAt  time.Time `json:"-"`
 	ModifiedAt time.Time `json:"-"`
 }
 
-type PeopleModel struct {
+type CategoryItem struct {
+	MovieId    int64 `json:"movie_id"`
+	CategoryId int64 `json:"category_id"`
+}
+
+type CategoriesModel struct {
 	DB *sql.DB
 }
 
-func (m PeopleModel) Insert(person *Person) error {
+func (m CategoriesModel) InsertCategory(category *Category) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	query := `
-	INSERT INTO people (
-	name, 
-	birthday
-	deathday, 
-	gender, 
-	aliases, 
+	INSERT INTO categories (
+		name, 
+		parent_id
+		root_id, 
 	)
-	VALUES ($1, $2, $3, $4, $5, $6)
-	RETURNING id, created_at, modified_at, version`
+	VALUES ($1, $2, $3)
+	RETURNING id, created_at, modified_at`
 
 	args := []any{
-		person.Name,
-		person.Birthday,
-		person.Deathday,
-		person.Gender,
-		person.Aliases,
+		category.Name,
+		category.ParentID.NullInt64,
+		category.RootID.NullInt64,
 	}
 
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(
-		&person.ID,
-		&person.CreatedAt,
-		&person.ModifiedAt,
-		&person.Version,
+		&category.ID,
+		&category.CreatedAt,
+		&category.ModifiedAt,
 	)
 }
 
-func (m PeopleModel) Get(id int64) (*Person, error) {
+func (m CategoriesModel) GetCategory(id int64) (*Category, error) {
 	if id < 0 {
 		return nil, ErrRecordNotFound
 	}
-	person := Person{}
+	category := Category{}
 
 	query := `
 	SELECT 
 		id,
 		name, 
-		birthday
-		deathday, 
-		gender, 
-		aliases, 
+		parent_id
+		root_id, 
 		created_at,
 		modified_at,
-		version
-	FROM people
+	FROM categories
 	WHERE id = $1;`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(
-		&person.ID,
-		&person.Name,
-		&person.Birthday,
-		&person.Deathday,
-		&person.Gender,
-		&person.Aliases,
-		&person.CreatedAt,
-		&person.ModifiedAt,
-		&person.Version,
+		&category.ID,
+		&category.Name,
+		&category.ParentID.NullInt64,
+		&category.RootID.NullInt64,
+		&category.CreatedAt,
+		&category.ModifiedAt,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -98,7 +89,7 @@ func (m PeopleModel) Get(id int64) (*Person, error) {
 		}
 	}
 
-	return &person, nil
+	return &category, nil
 }
 
 // -- SELECT count(*) OVER(), id, name, parent_id, date, series_id, kind, runtime, budget, revenue, homepage, vote_average, votes_count, abstract, created_at, modified_at, version
@@ -108,7 +99,7 @@ func (m PeopleModel) Get(id int64) (*Person, error) {
 // -- ORDER BY title ASC, id ASC
 // -- LIMIT sqlc.arg(limit_value) OFFSET sqlc.arg(offset_value);
 
-// func (m PeopleModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
+// func (m CategoriesModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
 
 // 	sortColumn := filters.getSortColumn()
 // 	sortDirection := filters.getSortDirection()
@@ -165,7 +156,7 @@ func (m PeopleModel) Get(id int64) (*Person, error) {
 // 	return movies, metadata, nil
 // }
 
-func (m PeopleModel) Update(person *Person) error {
+func (m CategoriesModel) Update(category *Category) error {
 	query := `
 	UPDATE people
 	SET 
@@ -180,20 +171,20 @@ func (m PeopleModel) Update(person *Person) error {
 	RETURNING version`
 
 	args := []any{
-		&person.ID,
-		&person.Version,
-		&person.Name,
-		&person.Birthday,
-		&person.Deathday,
-		&person.Gender,
-		&person.Aliases,
-		&person.ModifiedAt,
+		&category.ID,
+		&category.Version,
+		&category.Name,
+		&category.Birthday,
+		&category.Deathday,
+		&category.Gender,
+		&category.Aliases,
+		&category.ModifiedAt,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&person.Version)
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&category.Version)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrEditConflict
@@ -204,7 +195,7 @@ func (m PeopleModel) Update(person *Person) error {
 	return nil
 }
 
-func (m PeopleModel) Delete(id int64) error {
+func (m CategoriesModel) Delete(id int64) error {
 	if id < 0 {
 		return ErrRecordNotFound
 	}
@@ -229,20 +220,20 @@ func (m PeopleModel) Delete(id int64) error {
 	return nil
 }
 
-func ValidatePeople(v *validator.Validator, person *Person) {
-	v.Check(person.Name != "", "name", "must be provided")
-	v.Check(len(person.Name) <= 500, "name", "must not be more than 500 bytes long")
+func ValidateCategory(v *validator.Validator, category *Category) {
+	v.Check(category.Name != "", "name", "must be provided")
+	v.Check(len(category.Name) <= 500, "name", "must not be more than 500 bytes long")
 
-	v.Check(person.Birthday.IsZero(), "date", "must be provided")
-	v.Check(person.Birthday.Year() >= 1888, "date", "must be greater than year 1888")
-	v.Check(person.Birthday.Compare(time.Now()) < 1, "date", "must not be in the future")
+	v.Check(category.Birthday.IsZero(), "date", "must be provided")
+	v.Check(category.Birthday.Year() >= 1888, "date", "must be greater than year 1888")
+	v.Check(category.Birthday.Compare(time.Now()) < 1, "date", "must not be in the future")
 
-	v.Check(person.Deathday.Year() >= 1888, "date", "must be greater than year 1888")
-	v.Check(person.Deathday.Compare(time.Now()) < 1, "date", "must not be in the future")
+	v.Check(category.Deathday.Year() >= 1888, "date", "must be greater than year 1888")
+	v.Check(category.Deathday.Compare(time.Now()) < 1, "date", "must not be in the future")
 
-	v.Check(person.Gender != "", "gender", "must be provided")
-	v.Check(person.Gender != "male" && person.Gender != "female" && person.Gender != "non-binary" && person.Gender != "unknown", "Gender", "must be one of the following values: male, female, non-binary, unknown")
+	v.Check(category.Gender != "", "gender", "must be provided")
+	v.Check(category.Gender != "male" && category.Gender != "female" && category.Gender != "non-binary" && category.Gender != "unknown", "Gender", "must be one of the following values: male, female, non-binary, unknown")
 
-	v.Check(validator.Unique(person.Aliases), "aliases", "must not contain duplicate values")
+	v.Check(validator.Unique(category.Aliases), "aliases", "must not contain duplicate values")
 
 }
