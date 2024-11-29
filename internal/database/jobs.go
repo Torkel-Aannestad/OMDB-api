@@ -16,10 +16,6 @@ type Job struct {
 	ModifiedAt time.Time `json:"-"`
 }
 
-type CastsModel struct {
-	DB *sql.DB
-}
-
 func (m CastsModel) InsertJob(job *Job) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
