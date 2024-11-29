@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"time"
+
+	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
 )
 
 type Category struct {
@@ -110,20 +112,7 @@ func (m CategoriesModel) DeleteCategory(id int64) error {
 	return nil
 }
 
-// func ValidateCategory(v *validator.Validator, category *Category) {
-// 	v.Check(category.Name != "", "name", "must be provided")
-// 	v.Check(len(category.Name) <= 500, "name", "must not be more than 500 bytes long")
-
-// 	v.Check(category.Birthday.IsZero(), "date", "must be provided")
-// 	v.Check(category.Birthday.Year() >= 1888, "date", "must be greater than year 1888")
-// 	v.Check(category.Birthday.Compare(time.Now()) < 1, "date", "must not be in the future")
-
-// 	v.Check(category.Deathday.Year() >= 1888, "date", "must be greater than year 1888")
-// 	v.Check(category.Deathday.Compare(time.Now()) < 1, "date", "must not be in the future")
-
-// 	v.Check(category.Gender != "", "gender", "must be provided")
-// 	v.Check(category.Gender != "male" && category.Gender != "female" && category.Gender != "non-binary" && category.Gender != "unknown", "Gender", "must be one of the following values: male, female, non-binary, unknown")
-
-// 	v.Check(validator.Unique(category.Aliases), "aliases", "must not contain duplicate values")
-
-// }
+func ValidateCategory(v *validator.Validator, category *Category) {
+	v.Check(category.Name != "", "name", "must be provided")
+	v.Check(len(category.Name) <= 500, "name", "must not be more than 500 bytes long")
+}
