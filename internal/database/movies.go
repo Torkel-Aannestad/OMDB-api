@@ -287,7 +287,7 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 	v.Check(movie.SeriesID.Int64 != 0, "series_id", "must be provided")
 	v.Check(movie.SeriesID.Int64 > 0, "series_id", "must be a positive integer")
 
-	v.Check(movie.Kind != "movie" || movie.Kind != "series" || movie.Kind != "season" || movie.Kind != "episode" || movie.Kind != "movieseries", "kind", "must be one of the following values: movie, series, season, episode, movieseries")
+	v.Check(movie.Kind != "movie" && movie.Kind != "series" && movie.Kind != "season" && movie.Kind != "episode" && movie.Kind != "movieseries", "kind", "must be one of the following values: movie, series, season, episode, movieseries")
 
 	v.Check(movie.Date.IsZero(), "date", "must be provided")
 	v.Check(movie.Date.Year() >= 1888, "date", "must be greater than year 1888")
