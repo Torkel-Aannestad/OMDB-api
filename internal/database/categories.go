@@ -67,7 +67,7 @@ func (m CategoriesModel) GetCategory(id int64) (*Category, error) {
 		created_at,
 		modified_at,
 	FROM categories
-	WHERE id = $1;`
+	WHERE id = $1`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
