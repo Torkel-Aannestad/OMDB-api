@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"time"
 )
 
@@ -15,11 +14,6 @@ type Category struct {
 	RootID     NullInt64 `json:"root_id,omitempty"`
 	CreatedAt  time.Time `json:"-"`
 	ModifiedAt time.Time `json:"-"`
-}
-
-type CategoryItem struct {
-	MovieId    int64 `json:"movie_id"`
-	CategoryId int64 `json:"category_id"`
 }
 
 type CategoriesModel struct {
@@ -33,8 +27,8 @@ func (m CategoriesModel) InsertCategory(category *Category) error {
 	query := `
 	INSERT INTO categories (
 		name, 
-		parent_id
-		root_id, 
+		parent_id,
+		root_id
 	)
 	VALUES ($1, $2, $3)
 	RETURNING id, created_at, modified_at`
@@ -59,15 +53,15 @@ func (m CategoriesModel) GetCategory(id int64) (*Category, error) {
 	category := Category{}
 
 	query := `
-	SELECT 
-		id,
-		name, 
-		parent_id
-		root_id, 
-		created_at,
-		modified_at,
-	FROM categories
-	WHERE id = $1`
+		SELECT 
+			id,
+			name, 
+			parent_id,
+			root_id, 
+			created_at,
+			modified_at
+		FROM categories
+		WHERE id = $1`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -133,33 +127,3 @@ func (m CategoriesModel) DeleteCategory(id int64) error {
 // 	v.Check(validator.Unique(category.Aliases), "aliases", "must not contain duplicate values")
 
 // }
-
-func (m CategoriesModel) InsertCategoryItem(categoryItem *CategoryItem, table string) error {
-	if table != "movie_categories" && table != "movie_keywords" {
-		return errors.New("table value must be movie_keywords or movie_categories")
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-	// MovieId    int64 `json:"movie_id"`
-	// CategoryId int64 `json:"category_id"`
-	query := fmt.Sprintf(`
-	INSERT INTO %v (
-		name, 
-		parent_id
-	)
-	VALUES ($1, $2, $3)
-	RETURNING id, created_at, modified_at`)
-
-	args := []any{
-		category.Name,
-		category.ParentID.NullInt64,
-		category.RootID.NullInt64,
-	}
-
-	return m.DB.QueryRowContext(ctx, query, args...).Scan(
-		&category.ID,
-		&category.CreatedAt,
-		&category.ModifiedAt,
-	)
-}
