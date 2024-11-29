@@ -14,11 +14,20 @@ type CategoryItem struct {
 	ModifiedAt time.Time `json:"-"`
 }
 
-func (m CategoriesModel) InsertCategoryItem(categoryItem *CategoryItem, tableName string) error {
-	if tableName != "movie_categories" && tableName != "movie_keywords" {
-		return errors.New("table value must be movie_keywords or movie_categories")
-	}
+var errCategoryItemTableName = errors.New("table value must be movie_keywords or movie_categories")
 
+func categoryTableNameValidation(tableName string) error {
+	if tableName != "movie_categories" && tableName != "movie_keywords" {
+		return errCategoryItemTableName
+	}
+	return nil
+}
+
+func (m CategoriesModel) InsertCategoryItem(categoryItem *CategoryItem, tableName string) error {
+	err := categoryTableNameValidation(tableName)
+	if err != nil {
+		return err
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -45,8 +54,9 @@ func (m CategoriesModel) GetCategoryItems(movieId int64, tableName string) ([]*C
 	if movieId < 0 {
 		return nil, ErrRecordNotFound
 	}
-	if tableName != "movie_categories" && tableName != "movie_keywords" {
-		return nil, errors.New("table value must be movie_keywords or movie_categories")
+	err := categoryTableNameValidation(tableName)
+	if err != nil {
+		return nil, err
 	}
 	query := fmt.Sprintf(`
 		SELECT 
@@ -93,8 +103,9 @@ func (m CategoriesModel) DeleteCategoryItem(movieID, categoryID int64, tableName
 	if movieID < 0 || categoryID < 0 {
 		return ErrRecordNotFound
 	}
-	if tableName != "movie_categories" && tableName != "movie_keywords" {
-		return errors.New("table value must be movie_keywords or movie_categories")
+	err := categoryTableNameValidation(tableName)
+	if err != nil {
+		return err
 	}
 
 	stmt := fmt.Sprintf(`DELETE FROM %v WHERE movie_id = $1 AND category_id = $2`, tableName)
