@@ -80,6 +80,6 @@ LEFT JOIN (
 \copy movie_links           FROM 'sql/data-import/data/movie_links.csv'           WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy image_ids             FROM 'sql/data-import/data/image_ids.csv'             WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 \copy image_licenses        FROM 'sql/data-import/data/image_licenses.csv'        WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
-\copy movie_references      FROM 'sql/data-import/data/movie_references.csv'      WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
+-- \copy movie_references      FROM 'sql/data-import/data/movie_references.csv'      WITH (FORMAT CSV, HEADER TRUE, NULL '\N', ESCAPE '\')
 
 COMMIT;

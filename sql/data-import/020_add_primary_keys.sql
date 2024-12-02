@@ -13,7 +13,7 @@ ALTER TABLE movie_links        ADD PRIMARY KEY (movie_id, language, key);
 -- ALTER TABLE movie_references   ADD PRIMARY KEY (movie_id, referenced_id, type);
 ALTER TABLE people_links       ADD PRIMARY KEY (person_id, language, key);
 ALTER TABLE movies             ADD PRIMARY KEY (id);
-ALTER TABLE trailers           ADD PRIMARY KEY (movie_id, trailer_id);
+ALTER TABLE trailers           ADD PRIMARY KEY (trailer_id);
 ALTER TABLE casts              ADD PRIMARY KEY (movie_id, person_id, job_id, role, position);
 
 COMMIT;
