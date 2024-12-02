@@ -281,12 +281,6 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 	v.Check(movie.Name != "", "name", "must be provided")
 	v.Check(len(movie.Name) <= 500, "name", "must not be more than 500 bytes long")
 
-	v.Check(movie.ParentID.Int64 != 0, "parent_id", "must be provided")
-	v.Check(movie.ParentID.Int64 > 0, "parent_id", "must be a positive integer")
-
-	v.Check(movie.SeriesID.Int64 != 0, "series_id", "must be provided")
-	v.Check(movie.SeriesID.Int64 > 0, "series_id", "must be a positive integer")
-
 	v.Check(movie.Kind != "movie" && movie.Kind != "series" && movie.Kind != "season" && movie.Kind != "episode" && movie.Kind != "movieseries", "kind", "must be one of the following values: movie, series, season, episode, movieseries")
 
 	v.Check(movie.Date.IsZero(), "date", "must be provided")
@@ -308,3 +302,10 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 	v.Check(len(movie.Abstract) > 4096, "abstract", "must not be longer than 4096")
 
 }
+
+// func ValidateParentID(v *validator.Validator, int64)
+// v.Check(movie.ParentID.Int64 != 0, "parent_id", "must be provided")
+// v.Check(movie.ParentID.Int64 > 0, "parent_id", "must be a positive integer")
+
+// v.Check(movie.SeriesID.Int64 != 0, "series_id", "must be provided")
+// v.Check(movie.SeriesID.Int64 > 0, "series_id", "must be a positive integer")

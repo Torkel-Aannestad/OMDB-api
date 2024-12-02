@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"net/http"
 
@@ -12,10 +13,18 @@ import (
 
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Title   string           `json:"title"`
-		Year    int32            `json:"year"`
-		Runtime database.Runtime `json:"runtime"`
-		Genres  []string         `json:"genres"`
+		Name        string             `json:"name"`
+		ParentID    database.NullInt64 `json:"parent_id,omitempty"`
+		Date        time.Time          `json:"date"`
+		SeriesID    database.NullInt64 `json:"series_id,omitempty"`
+		Kind        string             `json:"kind"`
+		Runtime     int64              `json:"runtime"`
+		Budget      float64            `json:"budget,omitempty"`
+		Revenue     float64            `json:"revenue,omitempty"`
+		Homepage    string             `json:"homepage,omitempty"`
+		VoteAverage float64            `json:"vote_average"`
+		VotesCount  int64              `json:"votes_count"`
+		Abstract    string             `json:"abstract"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -25,10 +34,18 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	movie := database.Movie{
-		Title:   input.Title,
-		Year:    input.Year,
-		Runtime: input.Runtime,
-		Genres:  input.Genres,
+		Name:        input.Name,
+		ParentID:    input.ParentID,
+		SeriesID:    input.SeriesID,
+		Date:        input.Date,
+		Kind:        input.Kind,
+		Runtime:     input.Runtime,
+		Budget:      input.Budget,
+		Revenue:     input.Revenue,
+		Homepage:    input.Homepage,
+		VoteAvarage: input.VoteAverage,
+		VoteCount:   input.VotesCount,
+		Abstract:    input.Abstract,
 	}
 
 	v := validator.New()
