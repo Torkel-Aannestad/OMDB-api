@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
@@ -142,62 +143,70 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 // -- ORDER BY title ASC, id ASC
 // -- LIMIT sqlc.arg(limit_value) OFFSET sqlc.arg(offset_value);
 
-// func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
+func (m MovieModel) GetAll(name string, filters Filters) ([]*Movie, Metadata, error) {
 
-// 	sortColumn := filters.getSortColumn()
-// 	sortDirection := filters.getSortDirection()
+	sortColumn := filters.getSortColumn()
+	sortDirection := filters.getSortDirection()
 
-// 	query := fmt.Sprintf(`
-// 		SELECT count(*) OVER(), id, created_at, title, year, runtime, genres, version
-// 		FROM movies
-// 		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
-// 		AND (genres @> $2 OR $2 = '{}')
-// 		ORDER BY %s %s, id ASC
-// 		LIMIT $3 OFFSET $4
-// 	`, sortColumn, sortDirection)
+	query := fmt.Sprintf(`
+		SELECT count(*) OVER(), id, name, parent_id, date, series_id, kind, runtime, budget, revenue, homepage, vote_average, votes_count, abstract, created_at, modified_at, version
+		FROM movies
+		WHERE (to_tsvector('simple', name) @@ plainto_tsquery('simple', $1) OR $1 = '')
+		ORDER BY %s %s, id ASC
+		LIMIT $2 OFFSET $3
+	`, sortColumn, sortDirection)
 
-// 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-// 	defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
-// 	args := []any{title, pg.Array(genres), filters.limit(), filters.Offset()}
+	args := []any{name, filters.limit(), filters.Offset()}
 
-// 	rows, err := m.DB.QueryContext(ctx, query, args...)
-// 	if err != nil {
-// 		return nil, Metadata{}, err
-// 	}
-// 	defer rows.Close()
+	rows, err := m.DB.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, Metadata{}, err
+	}
+	defer rows.Close()
 
-// 	totalRecords := 0
-// 	movies := []*Movie{}
+	totalRecords := 0
+	movies := []*Movie{}
 
-// 	for rows.Next() {
-// 		var movie Movie
+	for rows.Next() {
+		var movie Movie
 
-// 		err := rows.Scan(
-// 			&totalRecords,
-// 			&movie.ID,
-// 			&movie.CreatedAt,
-// 			&movie.Title,
-// 			&movie.Year,
-// 			&movie.Runtime,
-// 			pg.Array(&movie.Genres),
-// 			&movie.Version,
-// 		)
-// 		if err != nil {
-// 			return nil, Metadata{}, err
-// 		}
-// 		movies = append(movies, &movie)
-// 	}
+		err := rows.Scan(
+			&totalRecords,
+			&movie.ID,
+			&movie.Name,
+			&movie.ParentID,
+			&movie.Date,
+			&movie.SeriesID,
+			&movie.Kind,
+			&movie.Runtime,
+			&movie.Budget,
+			&movie.Revenue,
+			&movie.Homepage,
+			&movie.VoteAvarage,
+			&movie.VoteCount,
+			&movie.Abstract,
+			&movie.CreatedAt,
+			&movie.ModifiedAt,
+			&movie.Version,
+		)
+		if err != nil {
+			return nil, Metadata{}, err
+		}
+		movies = append(movies, &movie)
+	}
 
-// 	err = rows.Err()
-// 	if err != nil {
-// 		return nil, Metadata{}, err
-// 	}
+	err = rows.Err()
+	if err != nil {
+		return nil, Metadata{}, err
+	}
 
-// 	metadata := calculateMetadata(filters.Page, filters.PageSize, totalRecords)
+	metadata := calculateMetadata(filters.Page, filters.PageSize, totalRecords)
 
-// 	return movies, metadata, nil
-// }
+	return movies, metadata, nil
+}
 
 func (m MovieModel) Update(movie *Movie) error {
 	query := `
