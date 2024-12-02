@@ -145,70 +145,97 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 // 	}
 // }
 
-// func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Request) {
-// 	id, err := app.readIDParam(r)
-// 	if err != nil {
-// 		app.notFoundResponse(w, r)
-// 		return
-// 	}
+func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
 
-// 	var input struct {
-// 		Title   *string           `json:"title"`
-// 		Year    *int32            `json:"year"`
-// 		Runtime *database.Runtime `json:"runtime"`
-// 		Genres  []string          `json:"genres"`
-// 	}
+	var input struct {
+		Name        *string             `json:"name"`
+		ParentID    *database.NullInt64 `json:"parent_id,omitempty"`
+		Date        *time.Time          `json:"date"`
+		SeriesID    *database.NullInt64 `json:"series_id,omitempty"`
+		Kind        *string             `json:"kind"`
+		Runtime     *int64              `json:"runtime"`
+		Budget      *float64            `json:"budget,omitempty"`
+		Revenue     *float64            `json:"revenue,omitempty"`
+		Homepage    *string             `json:"homepage,omitempty"`
+		VoteAverage *float64            `json:"vote_average"`
+		VotesCount  *int64              `json:"votes_count"`
+		Abstract    *string             `json:"abstract,omitempty"`
+		Version     *int32              `json:"version"`
+	}
 
-// 	err = app.readJSON(w, r, &input)
-// 	if err != nil {
-// 		app.badRequestResponse(w, r, err)
-// 		return
-// 	}
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
 
-// 	movie, err := app.models.Movies.Get(id)
-// 	if err != nil {
-// 		if errors.Is(err, database.ErrRecordNotFound) {
-// 			app.notFoundResponse(w, r)
+	movie, err := app.models.Movies.Get(id)
+	if err != nil {
+		if errors.Is(err, database.ErrRecordNotFound) {
+			app.notFoundResponse(w, r)
 
-// 		} else {
-// 			app.serverErrorResponse(w, r, err)
-// 		}
-// 		return
-// 	}
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
 
-// 	if input.Title != nil {
-// 		movie.Title = *input.Title
-// 	}
-// 	if input.Year != nil {
-// 		movie.Year = *input.Year
-// 	}
-// 	if input.Runtime != nil {
-// 		movie.Runtime = *input.Runtime
-// 	}
-// 	if input.Genres != nil {
-// 		movie.Genres = input.Genres
-// 	}
+	if input.Name != nil {
+		movie.Name = *input.Name
+	}
+	if input.ParentID != nil {
+		movie.ParentID = *input.ParentID
+	}
+	if input.Date != nil {
+		movie.Date = *input.Date
+	}
+	if input.SeriesID != nil {
+		movie.SeriesID = *input.SeriesID
+	}
+	if input.Kind != nil {
+		movie.Kind = *input.Kind
+	}
+	if input.Runtime != nil {
+		movie.Runtime = *input.Runtime
+	}
+	if input.Budget != nil {
+		movie.Budget = *input.Budget
+	}
+	if input.Revenue != nil {
+		movie.Revenue = *input.Revenue
+	}
+	if input.Homepage != nil {
+		movie.Homepage = *input.Homepage
+	}
+	if input.Abstract != nil {
+		movie.Abstract = *input.Abstract
+	}
 
-// 	v := validator.New()
-// 	database.ValidateMovie(v, movie)
-// 	if !v.Valid() {
-// 		app.failedValidationResponse(w, r, v.Errors)
-// 		return
-// 	}
+	v := validator.New()
+	database.ValidateMovie(v, movie)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
 
-// 	err = app.models.Movies.Update(movie)
-// 	if err != nil {
-// 		if errors.Is(err, database.ErrEditConflict) {
-// 			app.editConflictResponse(w, r)
-// 		} else {
-// 			app.serverErrorResponse(w, r, err)
-// 		}
-// 		return
-// 	}
+	err = app.models.Movies.Update(movie)
+	if err != nil {
+		if errors.Is(err, database.ErrEditConflict) {
+			app.editConflictResponse(w, r)
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
 
-// 	app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
+	app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
 
-// }
+}
 
 func (app *application) deleteMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
