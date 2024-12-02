@@ -281,9 +281,9 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 	v.Check(movie.Name != "", "name", "must be provided")
 	v.Check(len(movie.Name) <= 500, "name", "must not be more than 500 bytes long")
 
-	v.Check(movie.Kind != "movie" && movie.Kind != "series" && movie.Kind != "season" && movie.Kind != "episode" && movie.Kind != "movieseries", "kind", "must be one of the following values: movie, series, season, episode, movieseries")
+	v.Check(movie.Kind == "movie" || movie.Kind == "series" || movie.Kind == "season" || movie.Kind == "episode" || movie.Kind == "movieseries", "kind", "must be one of the following values: movie, series, season, episode, movieseries")
 
-	v.Check(movie.Date.IsZero(), "date", "must be provided")
+	v.Check(!movie.Date.IsZero(), "date", "must be provided")
 	v.Check(movie.Date.Year() >= 1888, "date", "must be greater than year 1888")
 	v.Check(movie.Date.Compare(time.Now()) < 1, "date", "must not be in the future")
 
@@ -293,13 +293,13 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 	v.Check(movie.Budget >= 0, "budget", "must be a positive integer")
 	v.Check(movie.Revenue >= 0, "revenue", "must be a positive integer")
 
-	v.Check(len(movie.Homepage) > 256, "homepage", "must not be longer than 256")
+	v.Check(len(movie.Homepage) <= 256, "homepage", "must not be longer than 256")
 
 	v.Check(movie.VoteAvarage >= 0, "vote_average", "must be a positive integer")
 	v.Check(movie.VoteAvarage <= 10, "vote_average", "must be less or equal to 10")
 	v.Check(movie.VoteCount >= 0, "votes_count", "must be a positive integer")
 
-	v.Check(len(movie.Abstract) > 4096, "abstract", "must not be longer than 4096")
+	v.Check(len(movie.Abstract) <= 4096, "abstract", "must not be longer than 4096")
 
 }
 
