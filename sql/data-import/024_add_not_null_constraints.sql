@@ -73,9 +73,9 @@ ALTER TABLE image_licenses
     ALTER COLUMN license_id SET NOT NULL,
     ALTER COLUMN author SET NOT NULL;
 
-ALTER TABLE movie_references
-    ALTER COLUMN movie_id SET NOT NULL,
-    ALTER COLUMN referenced_id SET NOT NULL,
-    ALTER COLUMN type SET NOT NULL;
+-- ALTER TABLE movie_references
+--     ALTER COLUMN movie_id SET NOT NULL,
+--     ALTER COLUMN referenced_id SET NOT NULL,
+--     ALTER COLUMN type SET NOT NULL;
 
 COMMIT;

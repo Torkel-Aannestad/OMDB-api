@@ -20,6 +20,6 @@ COMMENT ON TABLE trailers is 'Youtube/Vimeo Trailer';
 CREATE TABLE IF NOT EXISTS movie_links (source text, key text, movie_id bigint, language text);
 CREATE TABLE IF NOT EXISTS image_ids (id bigint, object_id bigint, object_type text, image_version int);
 CREATE TABLE IF NOT EXISTS image_licenses (image_id bigint, source text, license_id bigint, author text);
-CREATE TABLE IF NOT EXISTS movie_references (movie_id bigint, referenced_id bigint, type text);
+-- CREATE TABLE IF NOT EXISTS movie_references (movie_id bigint, referenced_id bigint, type text);
 
 COMMIT;

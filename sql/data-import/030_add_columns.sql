@@ -40,9 +40,9 @@ ALTER TABLE movie_links
     ADD created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     ADD modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
-ALTER TABLE movie_references   
-    ADD created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    ADD modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+-- ALTER TABLE movie_references   
+--     ADD created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+--     ADD modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 ALTER TABLE people_links       
     ADD created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

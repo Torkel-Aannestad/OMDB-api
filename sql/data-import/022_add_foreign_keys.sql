@@ -16,8 +16,8 @@ ALTER TABLE movie_keywords     ADD FOREIGN KEY (movie_id) REFERENCES movies (id)
                                ADD FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE cascade;
 ALTER TABLE trailers           ADD FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE cascade;
 ALTER TABLE movie_links        ADD FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE cascade;
-ALTER TABLE movie_references   ADD FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE cascade,
-                               ADD FOREIGN KEY (referenced_id) REFERENCES movies (id) ON DELETE cascade;
+-- ALTER TABLE movie_references   ADD FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE cascade,
+--                                ADD FOREIGN KEY (referenced_id) REFERENCES movies (id) ON DELETE cascade;
 
 -- other references
 ALTER TABLE image_licenses     ADD FOREIGN KEY (image_id) REFERENCES image_ids (id) ON DELETE cascade;

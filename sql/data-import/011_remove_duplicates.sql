@@ -18,12 +18,11 @@ WITH t as (
   )
 DELETE from movie_links where ctid in (select ctid FROM t WHERE row_number > 1);
 
-DELETE FROM movie_references WHERE type IS NULL;
-
-WITH t as (
-  select ctid, row_number() over (partition by movie_id, referenced_id, type), * from movie_references
-  )
-DELETE from movie_references where ctid in (select ctid FROM t WHERE row_number > 1);
+-- DELETE FROM movie_references WHERE type IS NULL;
+-- WITH t as (
+--   select ctid, row_number() over (partition by movie_id, referenced_id, type), * from movie_references
+--   )
+-- DELETE from movie_references where ctid in (select ctid FROM t WHERE row_number > 1);
 
 WITH t as (
   select ctid, row_number() over (partition by movie_id, person_id, job_id, role, "position"), * from casts

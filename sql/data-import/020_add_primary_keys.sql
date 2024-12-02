@@ -10,7 +10,7 @@ ALTER TABLE jobs               ADD PRIMARY KEY (id);
 ALTER TABLE movie_categories   ADD PRIMARY KEY (movie_id, category_id);
 ALTER TABLE movie_keywords     ADD PRIMARY KEY (movie_id, category_id);
 ALTER TABLE movie_links        ADD PRIMARY KEY (movie_id, language, key);
-ALTER TABLE movie_references   ADD PRIMARY KEY (movie_id, referenced_id, type);
+-- ALTER TABLE movie_references   ADD PRIMARY KEY (movie_id, referenced_id, type);
 ALTER TABLE people_links       ADD PRIMARY KEY (person_id, language, key);
 ALTER TABLE movies             ADD PRIMARY KEY (id);
 ALTER TABLE trailers           ADD PRIMARY KEY (movie_id, trailer_id);
