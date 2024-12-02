@@ -16,7 +16,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/movies", app.protectedRoute("movies:read", app.listMoviesHandler))
 	router.HandlerFunc(http.MethodPost, "/v1/movies", app.protectedRoute("movies:write", app.createMovieHandler))
-	router.HandlerFunc(http.MethodGet, "/v1/movies/:id", app.protectedRoute("movies:read", app.showMovieHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/movies/:id", app.protectedRoute("movies:read", app.getMovieHandler))
 	router.HandlerFunc(http.MethodPatch, "/v1/movies/:id", app.protectedRoute("movies:write", app.updateMovieHandler))
 	router.HandlerFunc(http.MethodDelete, "/v1/movies/:id", app.protectedRoute("movies:write", app.deleteMovieHandler))
 

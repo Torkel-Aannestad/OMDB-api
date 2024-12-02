@@ -136,13 +136,6 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	return &movie, nil
 }
 
-// -- SELECT count(*) OVER(), id, name, parent_id, date, series_id, kind, runtime, budget, revenue, homepage, vote_average, votes_count, abstract, created_at, modified_at, version
-// -- FROM movies
-// -- WHERE (to_tsvector('simple', name) @@ plainto_tsquery('simple', sqlc.arg(name)) OR sqlc.arg(name) = '')
-// -- AND (genres @> sqlc.arg(genres) OR sqlc.arg(genres) = '{}')
-// -- ORDER BY title ASC, id ASC
-// -- LIMIT sqlc.arg(limit_value) OFFSET sqlc.arg(offset_value);
-
 func (m MovieModel) GetAll(name string, filters Filters) ([]*Movie, Metadata, error) {
 
 	sortColumn := filters.getSortColumn()
