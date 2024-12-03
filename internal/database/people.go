@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
@@ -101,6 +102,64 @@ func (m PeopleModel) Get(id int64) (*Person, error) {
 	return &person, nil
 }
 
+func (m PeopleModel) GetAll(name string, filter Filters) ([]*Person, Metadata, error) {
+	sortColumn := filter.getSortColumn()
+	sortDirection := filter.getSortDirection()
+
+	query := fmt.Sprintf(`
+		SELECT count(*) OVER(), id, name, birthday, deathday, gender, aliases, greated_at, modified_at, version
+		FROM people
+		WHERE  (to_tsvector('simple', name) @@ plainto_tsquery('simple', $1) OR $1 = '')
+		ORDER BY %s %s, id ASC
+		LIMIT $2 OFFSET $3
+	`, sortColumn, sortDirection)
+
+	args := []any{name, filter.limit(), filter.offset()}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rows, err := m.DB.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, Metadata{}, err
+	}
+	defer rows.Close()
+
+	totalRecords := 0
+	people := []*Person{}
+
+	for rows.Next() {
+		var person Person
+
+		err = rows.Scan(
+			totalRecords,
+			&person.ID,
+			&person.Birthday,
+			&person.Deathday,
+			&person.Gender,
+			&person.Aliases,
+			&person.CreatedAt,
+			&person.ModifiedAt,
+			&person.Version,
+		)
+		if err != nil {
+			return nil, Metadata{}, err
+		}
+
+		people = append(people, &person)
+
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, Metadata{}, err
+	}
+
+	metadata := calculateMetadata(filter.Page, filter.PageSize, totalRecords)
+
+	return people, metadata, nil
+}
+
 func (m PeopleModel) Update(person *Person) error {
 	query := `
 	UPDATE people
@@ -169,7 +228,7 @@ func ValidatePeople(v *validator.Validator, person *Person) {
 	v.Check(person.Name != "", "name", "must be provided")
 	v.Check(len(person.Name) <= 500, "name", "must not be more than 500 bytes long")
 
-	v.Check(person.Birthday.IsZero(), "date", "must be provided")
+	v.Check(!person.Birthday.IsZero(), "date", "must be provided")
 	v.Check(person.Birthday.Year() >= 1888, "date", "must be greater than year 1888")
 	v.Check(person.Birthday.Compare(time.Now()) < 1, "date", "must not be in the future")
 

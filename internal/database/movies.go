@@ -149,10 +149,10 @@ func (m MovieModel) GetAll(name string, filters Filters) ([]*Movie, Metadata, er
 		LIMIT $2 OFFSET $3
 	`, sortColumn, sortDirection)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	args := []any{name, filters.limit(), filters.Offset()}
+	args := []any{name, filters.limit(), filters.offset()}
 
 	rows, err := m.DB.QueryContext(ctx, query, args...)
 	if err != nil {
