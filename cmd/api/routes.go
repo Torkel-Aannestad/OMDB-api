@@ -31,6 +31,10 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/v1/casts", app.protectedRoute("casts:write", app.createCastHandler))
 	router.HandlerFunc(http.MethodDelete, "/v1/casts", app.protectedRoute("casts:write", app.deleteCastHandler))
 
+	router.HandlerFunc(http.MethodPost, "/v1/categories", app.protectedRoute("categories:write", app.createCategoryHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/categories/:id", app.protectedRoute("categories:read", app.getCategoryHandler))
+	router.HandlerFunc(http.MethodDelete, "/v1/categories/:id", app.protectedRoute("categories:write", app.deleteCategoryHandler))
+
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activated", app.activateUserHandler)
 
