@@ -239,5 +239,4 @@ func ValidatePeople(v *validator.Validator, person *Person) {
 	v.Check(person.Gender != "male" && person.Gender != "female" && person.Gender != "non-binary" && person.Gender != "unknown", "Gender", "must be one of the following values: male, female, non-binary, unknown")
 
 	v.Check(validator.Unique(person.Aliases), "aliases", "must not contain duplicate values")
-
 }

@@ -129,19 +129,12 @@ func (app *application) updatePeopleHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	var input struct {
-		Name        *string             `json:"name"`
-		ParentID    *database.NullInt64 `json:"parent_id,omitempty"`
-		Date        *time.Time          `json:"date"`
-		SeriesID    *database.NullInt64 `json:"series_id,omitempty"`
-		Kind        *string             `json:"kind"`
-		Runtime     *int64              `json:"runtime"`
-		Budget      *float64            `json:"budget,omitempty"`
-		Revenue     *float64            `json:"revenue,omitempty"`
-		Homepage    *string             `json:"homepage,omitempty"`
-		VoteAverage *float64            `json:"vote_average"`
-		VotesCount  *int64              `json:"votes_count"`
-		Abstract    *string             `json:"abstract,omitempty"`
-		Version     *int32              `json:"version"`
+		Name     *string    `json:"name"`
+		Birthday *time.Time `json:"birthday,omitempty"`
+		Deathday *time.Time `json:"deathday,omitempty"`
+		Gender   *string    `json:"gender,omitempty"`
+		Aliases  *[]string  `json:"aliases,omitempty"`
+		Version  *int32     `json:"version"`
 	}
 
 	err = app.readJSON(w, r, &input)
@@ -150,11 +143,10 @@ func (app *application) updatePeopleHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	movie, err := app.models.Movies.Get(id)
+	person, err := app.models.People.Get(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
-
 		} else {
 			app.serverErrorResponse(w, r, err)
 		}
@@ -162,44 +154,29 @@ func (app *application) updatePeopleHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	if input.Name != nil {
-		movie.Name = *input.Name
+		person.Name = *input.Name
 	}
-	if input.ParentID != nil {
-		movie.ParentID = *input.ParentID
+	if input.Birthday != nil {
+		person.Birthday = *input.Birthday
 	}
-	if input.Date != nil {
-		movie.Date = *input.Date
+	if input.Deathday != nil {
+		person.Deathday = *input.Deathday
 	}
-	if input.SeriesID != nil {
-		movie.SeriesID = *input.SeriesID
+	if input.Gender != nil {
+		person.Gender = *input.Gender
 	}
-	if input.Kind != nil {
-		movie.Kind = *input.Kind
-	}
-	if input.Runtime != nil {
-		movie.Runtime = *input.Runtime
-	}
-	if input.Budget != nil {
-		movie.Budget = *input.Budget
-	}
-	if input.Revenue != nil {
-		movie.Revenue = *input.Revenue
-	}
-	if input.Homepage != nil {
-		movie.Homepage = *input.Homepage
-	}
-	if input.Abstract != nil {
-		movie.Abstract = *input.Abstract
+	if input.Aliases != nil {
+		person.Aliases = *input.Aliases
 	}
 
 	v := validator.New()
-	database.ValidateMovie(v, movie)
+	database.ValidatePeople(v, person)
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	err = app.models.Movies.Update(movie)
+	err = app.models.People.Update(person)
 	if err != nil {
 		if errors.Is(err, database.ErrEditConflict) {
 			app.editConflictResponse(w, r)
@@ -209,7 +186,7 @@ func (app *application) updatePeopleHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
+	app.writeJSON(w, http.StatusOK, envelope{"people": person}, nil)
 
 }
 
