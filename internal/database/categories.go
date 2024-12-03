@@ -22,7 +22,7 @@ type CategoriesModel struct {
 	DB *sql.DB
 }
 
-func (m CategoriesModel) InsertCategory(category *Category) error {
+func (m CategoriesModel) Insert(category *Category) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -48,7 +48,7 @@ func (m CategoriesModel) InsertCategory(category *Category) error {
 	)
 }
 
-func (m CategoriesModel) GetCategory(id int64) (*Category, error) {
+func (m CategoriesModel) Get(id int64) (*Category, error) {
 	if id < 0 {
 		return nil, ErrRecordNotFound
 	}
@@ -87,7 +87,7 @@ func (m CategoriesModel) GetCategory(id int64) (*Category, error) {
 	return &category, nil
 }
 
-func (m CategoriesModel) DeleteCategory(id int64) error {
+func (m CategoriesModel) Delete(id int64) error {
 	if id < 0 {
 		return ErrRecordNotFound
 	}
