@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"time"
+
+	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
 )
 
 type Cast struct {
@@ -20,7 +22,7 @@ type CastsModel struct {
 	DB *sql.DB
 }
 
-func (m CastsModel) InsertCast(job *Job) error {
+func (m CastsModel) Insert(cast *Cast) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -35,14 +37,15 @@ func (m CastsModel) InsertCast(job *Job) error {
 	VALUES ($1, $2, $3, $4, $5)
 	RETURNING created_at, modified_at`
 
-	return m.DB.QueryRowContext(ctx, query, job.Name).Scan(
-		&job.ID,
-		&job.CreatedAt,
-		&job.ModifiedAt,
+	args := []any{cast.MovieID, cast.PersonID, cast.JobID, cast.Role, cast.Position}
+
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(
+		&cast.CreatedAt,
+		&cast.ModifiedAt,
 	)
 }
 
-func (m CastsModel) GetCastsByMovieID(movieID int64) ([]*Cast, error) {
+func (m CastsModel) GetByMovieID(movieID int64) ([]*Cast, error) {
 	if movieID < 0 {
 		return nil, ErrRecordNotFound
 	}
@@ -94,7 +97,7 @@ func (m CastsModel) GetCastsByMovieID(movieID int64) ([]*Cast, error) {
 	return casts, nil
 }
 
-func (m CastsModel) GetCastsByPersonID(personID int64) ([]*Cast, error) {
+func (m CastsModel) GetByPersonID(personID int64) ([]*Cast, error) {
 	if personID < 0 {
 		return nil, ErrRecordNotFound
 	}
@@ -146,7 +149,7 @@ func (m CastsModel) GetCastsByPersonID(personID int64) ([]*Cast, error) {
 	return casts, nil
 }
 
-func (m CastsModel) DeleteCast(id int64) error {
+func (m CastsModel) Delete(id int64) error {
 	if id < 0 {
 		return ErrRecordNotFound
 	}
@@ -169,4 +172,21 @@ func (m CastsModel) DeleteCast(id int64) error {
 		return ErrRecordNotFound
 	}
 	return nil
+}
+
+func ValidateCast(v *validator.Validator, cast *Cast) {
+	v.Check(cast.MovieID != 0, "movie_id", "must be provided")
+	v.Check(cast.MovieID < 0, "movie_id", "must be a positive number")
+
+	v.Check(cast.PersonID != 0, "person_id", "must be provided")
+	v.Check(cast.PersonID < 0, "person_id", "must be a positive number")
+
+	v.Check(cast.JobID != 0, "job_id", "must be provided")
+	v.Check(cast.JobID < 0, "job_id", "must be a positive number")
+
+	v.Check(len(cast.Role) <= 250, "role", "must not be longer than 250 characters")
+
+	v.Check(cast.Position != 0, "position", "must be provided")
+	v.Check(cast.Position < 0, "position", "must be a positive number")
+
 }
