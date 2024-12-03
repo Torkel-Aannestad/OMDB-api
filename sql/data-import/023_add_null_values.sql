@@ -8,12 +8,14 @@ SET
     name = COALESCE(name, 'Unknown'),      
     birthday = COALESCE(birthday, '1888-01-01'), 
     deathday = COALESCE(deathday, '1888-01-01'), 
-    gender = COALESCE(gender, 99)
+    gender = COALESCE(gender, 99),
+    aliases = COALESCE(aliases, ARRAY[]::text[])
 WHERE
     name IS NULL OR
     birthday IS NULL OR
     deathday IS NULL OR
-    gender IS NULL;
+    gender IS NULL OR
+    aliases IS NULL;
 
 -- movies
 UPDATE movies
