@@ -2,10 +2,13 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
 )
+
+var errCategoryItemTableName = errors.New("table value must be movie_keywords or movie_categories")
 
 type CategoryItem struct {
 	MovieId    int64     `json:"movie_id"`
@@ -14,7 +17,9 @@ type CategoryItem struct {
 	ModifiedAt time.Time `json:"-"`
 }
 
-var errCategoryItemTableName = errors.New("table value must be movie_keywords or movie_categories")
+type CategoryItemsModel struct {
+	DB *sql.DB
+}
 
 func categoryTableNameValidation(tableName string) error {
 	if tableName != "movie_categories" && tableName != "movie_keywords" {
@@ -23,7 +28,7 @@ func categoryTableNameValidation(tableName string) error {
 	return nil
 }
 
-func (m CategoriesModel) InsertCategoryItem(categoryItem *CategoryItem, tableName string) error {
+func (m CategoryItemsModel) Insert(categoryItem *CategoryItem, tableName string) error {
 	err := categoryTableNameValidation(tableName)
 	if err != nil {
 		return err
@@ -50,7 +55,7 @@ func (m CategoriesModel) InsertCategoryItem(categoryItem *CategoryItem, tableNam
 	)
 }
 
-func (m CategoriesModel) GetCategoryItems(movieId int64, tableName string) ([]*CategoryItem, error) {
+func (m CategoryItemsModel) Get(movieId int64, tableName string) ([]*CategoryItem, error) {
 	if movieId < 0 {
 		return nil, ErrRecordNotFound
 	}
@@ -99,7 +104,7 @@ func (m CategoriesModel) GetCategoryItems(movieId int64, tableName string) ([]*C
 	return categoryItems, nil
 }
 
-func (m CategoriesModel) DeleteCategoryItem(movieID, categoryID int64, tableName string) error {
+func (m CategoryItemsModel) Delete(movieID, categoryID int64, tableName string) error {
 	if movieID < 0 || categoryID < 0 {
 		return ErrRecordNotFound
 	}
