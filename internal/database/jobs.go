@@ -16,7 +16,11 @@ type Job struct {
 	ModifiedAt time.Time `json:"-"`
 }
 
-func (m CastsModel) InsertJob(job *Job) error {
+type JobsModel struct {
+	DB *sql.DB
+}
+
+func (m JobsModel) InsertJob(job *Job) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -34,7 +38,7 @@ func (m CastsModel) InsertJob(job *Job) error {
 	)
 }
 
-func (m CastsModel) GetJobById(id int64) (*Job, error) {
+func (m JobsModel) GetJobById(id int64) (*Job, error) {
 	if id < 0 {
 		return nil, ErrRecordNotFound
 	}
@@ -69,7 +73,7 @@ func (m CastsModel) GetJobById(id int64) (*Job, error) {
 	return &job, nil
 }
 
-func (m CastsModel) DeleteJob(id int64) error {
+func (m JobsModel) DeleteJob(id int64) error {
 	if id < 0 {
 		return ErrRecordNotFound
 	}

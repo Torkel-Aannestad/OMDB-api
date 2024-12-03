@@ -18,6 +18,7 @@ type Models struct {
 	People      *PeopleModel
 	Categories  *CategoriesModel
 	Casts       *CastsModel
+	Jobs        *JobsModel
 	ImageIDs    *ImageIDsModel
 	MovieLinks  *MovieLinkModel
 	PeopleLinks *PeopleLinkModel
@@ -33,6 +34,7 @@ func NewModels(db *sql.DB) *Models {
 		People:      &PeopleModel{DB: db},
 		Categories:  &CategoriesModel{DB: db},
 		Casts:       &CastsModel{DB: db},
+		Jobs:        &JobsModel{DB: db},
 		ImageIDs:    &ImageIDsModel{DB: db},
 		MovieLinks:  &MovieLinkModel{DB: db},
 		PeopleLinks: &PeopleLinkModel{DB: db},
