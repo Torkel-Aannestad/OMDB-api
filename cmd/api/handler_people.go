@@ -34,6 +34,8 @@ func (app *application) createPeopleHandler(w http.ResponseWriter, r *http.Reque
 
 	if input.Deathday != nil {
 		person.Deathday = *input.Deathday
+	} else {
+		person.Deathday = time.Date(1888, 1, 1, 00, 00, 00, 00, time.UTC)
 	}
 	if input.Aliases != nil {
 		person.Aliases = *input.Aliases

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
+	"github.com/lib/pq"
 )
 
 type Person struct {
@@ -32,13 +33,13 @@ func (m PeopleModel) Insert(person *Person) error {
 
 	query := `
 	INSERT INTO people (
-	name, 
-	birthday
-	deathday, 
-	gender, 
-	aliases, 
+		name, 
+		birthday,
+		deathday, 
+		gender, 
+		aliases
 	)
-	VALUES ($1, $2, $3, $4, $5, $6)
+	VALUES ($1, $2, $3, $4, $5)
 	RETURNING id, created_at, modified_at, version`
 
 	args := []any{
@@ -46,7 +47,7 @@ func (m PeopleModel) Insert(person *Person) error {
 		person.Birthday,
 		person.Deathday,
 		person.Gender,
-		person.Aliases,
+		pq.Array(person.Aliases),
 	}
 
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(
@@ -61,13 +62,14 @@ func (m PeopleModel) Get(id int64) (*Person, error) {
 	if id < 0 {
 		return nil, ErrRecordNotFound
 	}
-	person := Person{}
+
+	var person Person
 
 	query := `
 	SELECT 
 		id,
 		name, 
-		birthday
+		birthday,
 		deathday, 
 		gender, 
 		aliases, 
@@ -86,7 +88,7 @@ func (m PeopleModel) Get(id int64) (*Person, error) {
 		&person.Birthday,
 		&person.Deathday,
 		&person.Gender,
-		&person.Aliases,
+		pq.Array(&person.Aliases),
 		&person.CreatedAt,
 		&person.ModifiedAt,
 		&person.Version,
@@ -107,7 +109,7 @@ func (m PeopleModel) GetAll(name string, filter Filters) ([]*Person, Metadata, e
 	sortDirection := filter.getSortDirection()
 
 	query := fmt.Sprintf(`
-		SELECT count(*) OVER(), id, name, birthday, deathday, gender, aliases, greated_at, modified_at, version
+		SELECT count(*) OVER(), id, name, birthday, deathday, gender, aliases, created_at, modified_at, version
 		FROM people
 		WHERE  (to_tsvector('simple', name) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		ORDER BY %s %s, id ASC
@@ -132,12 +134,13 @@ func (m PeopleModel) GetAll(name string, filter Filters) ([]*Person, Metadata, e
 		var person Person
 
 		err = rows.Scan(
-			totalRecords,
+			&totalRecords,
 			&person.ID,
+			&person.Name,
 			&person.Birthday,
 			&person.Deathday,
 			&person.Gender,
-			&person.Aliases,
+			pq.Array(&person.Aliases),
 			&person.CreatedAt,
 			&person.ModifiedAt,
 			&person.Version,
@@ -181,7 +184,7 @@ func (m PeopleModel) Update(person *Person) error {
 		&person.Birthday,
 		&person.Deathday,
 		&person.Gender,
-		&person.Aliases,
+		pq.Array(&person.Aliases),
 		&person.ModifiedAt,
 	}
 
@@ -228,12 +231,12 @@ func ValidatePeople(v *validator.Validator, person *Person) {
 	v.Check(person.Name != "", "name", "must be provided")
 	v.Check(len(person.Name) <= 500, "name", "must not be more than 500 bytes long")
 
-	v.Check(!person.Birthday.IsZero(), "date", "must be provided")
-	v.Check(person.Birthday.Year() >= 1888, "date", "must be greater than year 1888")
-	v.Check(person.Birthday.Compare(time.Now()) < 1, "date", "must not be in the future")
+	v.Check(!person.Birthday.IsZero(), "birthday", "must be provided")
+	v.Check(person.Birthday.Year() >= 1888, "birthday", "must be greater than year 1888")
+	v.Check(person.Birthday.Compare(time.Now()) < 1, "birthday", "must not be in the future")
 
-	v.Check(person.Deathday.Year() >= 1888, "date", "must be greater than year 1888")
-	v.Check(person.Deathday.Compare(time.Now()) < 1, "date", "must not be in the future")
+	v.Check(person.Deathday.Year() >= 1888, "deathday", "must be greater than year 1888")
+	v.Check(person.Deathday.Compare(time.Now()) < 1, "deathday", "must not be in the future")
 
 	v.Check(person.Gender != "", "gender", "must be provided")
 	v.Check(person.Gender != "male" && person.Gender != "female" && person.Gender != "non-binary" && person.Gender != "unknown", "Gender", "must be one of the following values: male, female, non-binary, unknown")
