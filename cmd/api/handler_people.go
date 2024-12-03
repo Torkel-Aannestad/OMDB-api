@@ -197,7 +197,7 @@ func (app *application) deletePeopleHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = app.models.Movies.Delete(id)
+	err = app.models.People.Delete(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -206,7 +206,7 @@ func (app *application) deletePeopleHandler(w http.ResponseWriter, r *http.Reque
 		}
 		return
 	}
-	err = app.writeJSON(w, http.StatusOK, envelope{"message": "movie successfuly deleted"}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "person successfuly deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
