@@ -64,7 +64,7 @@ func (app *application) getCategoryHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	movie, err := app.models.Movies.Get(id)
+	category, err := app.models.Categories.Get(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -75,7 +75,7 @@ func (app *application) getCategoryHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"category": category}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
