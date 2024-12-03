@@ -149,18 +149,17 @@ func (m CastsModel) GetByPersonID(personID int64) ([]*Cast, error) {
 	return casts, nil
 }
 
-func (m CastsModel) Delete(id int64) error {
-	if id < 0 {
-		return ErrRecordNotFound
-	}
+func (m CastsModel) Delete(cast Cast) error {
 
 	stmt := `
-		DELETE FROM casts WHERE movie_id = $1 AND person_id = $2 AND job_id = $3
+		DELETE FROM casts WHERE movie_id = $1 AND person_id = $2 AND job_id = $3 AND role = $4 AND position = $5
 	`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	result, err := m.DB.ExecContext(ctx, stmt, id)
+	args := []any{cast.MovieID, cast.PersonID, cast.JobID, cast.Role, cast.Position}
+
+	result, err := m.DB.ExecContext(ctx, stmt, args...)
 	if err != nil {
 		return err
 	}
