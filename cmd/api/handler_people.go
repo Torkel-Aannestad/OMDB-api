@@ -62,7 +62,7 @@ func (app *application) createPeopleHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 }
-func (app *application) getpeopleHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) getPeopleHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
