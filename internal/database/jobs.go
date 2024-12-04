@@ -20,7 +20,7 @@ type JobsModel struct {
 	DB *sql.DB
 }
 
-func (m JobsModel) InsertJob(job *Job) error {
+func (m JobsModel) Insert(job *Job) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -38,7 +38,7 @@ func (m JobsModel) InsertJob(job *Job) error {
 	)
 }
 
-func (m JobsModel) GetJobById(id int64) (*Job, error) {
+func (m JobsModel) Get(id int64) (*Job, error) {
 	if id < 0 {
 		return nil, ErrRecordNotFound
 	}
@@ -73,7 +73,7 @@ func (m JobsModel) GetJobById(id int64) (*Job, error) {
 	return &job, nil
 }
 
-func (m JobsModel) DeleteJob(id int64) error {
+func (m JobsModel) Delete(id int64) error {
 	if id < 0 {
 		return ErrRecordNotFound
 	}
@@ -98,7 +98,7 @@ func (m JobsModel) DeleteJob(id int64) error {
 	return nil
 }
 
-func ValidateJob(v *validator.Validator, job *Category) {
+func ValidateJob(v *validator.Validator, job *Job) {
 	v.Check(job.Name != "", "name", "must be provided")
 	v.Check(len(job.Name) <= 500, "name", "must not be more than 500 bytes long")
 }
