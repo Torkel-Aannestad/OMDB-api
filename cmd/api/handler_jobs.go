@@ -73,14 +73,14 @@ func (app *application) getJobHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *application) deleteCategoryHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) deleteJobHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
 
-	err = app.models.Categories.Delete(id)
+	err = app.models.Jobs.Delete(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -89,7 +89,7 @@ func (app *application) deleteCategoryHandler(w http.ResponseWriter, r *http.Req
 		}
 		return
 	}
-	err = app.writeJSON(w, http.StatusOK, envelope{"message": "category successfuly deleted"}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "job successfuly deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
