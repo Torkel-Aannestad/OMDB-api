@@ -26,8 +26,8 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPatch, "/v1/people/:id", app.protectedRoute("people:write", app.updatePeopleHandler))
 	router.HandlerFunc(http.MethodDelete, "/v1/people/:id", app.protectedRoute("people:write", app.deletePeopleHandler))
 
-	router.HandlerFunc(http.MethodGet, "/v1/casts/:movie_id", app.protectedRoute("casts:read", app.getCastsByMovieIdHandler))
-	router.HandlerFunc(http.MethodGet, "/v1/casts/:person_id", app.protectedRoute("casts:read", app.getCastsByPersonIdHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/casts/by-movie-id/:id", app.protectedRoute("casts:read", app.getCastsByMovieIdHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/casts/by-person-id/:id", app.protectedRoute("casts:read", app.getCastsByPersonIdHandler))
 	router.HandlerFunc(http.MethodPost, "/v1/casts", app.protectedRoute("casts:write", app.createCastHandler))
 	router.HandlerFunc(http.MethodDelete, "/v1/casts", app.protectedRoute("casts:write", app.deleteCastHandler))
 

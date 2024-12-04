@@ -3,13 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
-	"strconv"
 
 	"net/http"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
-	"github.com/julienschmidt/httprouter"
 )
 
 func (app *application) createCastHandler(w http.ResponseWriter, r *http.Request) {
@@ -66,9 +64,8 @@ func (app *application) createCastHandler(w http.ResponseWriter, r *http.Request
 
 }
 func (app *application) getCastsByMovieIdHandler(w http.ResponseWriter, r *http.Request) {
-	params := httprouter.ParamsFromContext(r.Context())
-	id, err := strconv.ParseInt(params.ByName("movie_id"), 10, 64)
-	if err != nil || id < 1 {
+	id, err := app.readIDParam(r)
+	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
@@ -92,9 +89,8 @@ func (app *application) getCastsByMovieIdHandler(w http.ResponseWriter, r *http.
 }
 
 func (app *application) getCastsByPersonIdHandler(w http.ResponseWriter, r *http.Request) {
-	params := httprouter.ParamsFromContext(r.Context())
-	id, err := strconv.ParseInt(params.ByName("person_id"), 10, 64)
-	if err != nil || id < 1 {
+	id, err := app.readIDParam(r)
+	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
