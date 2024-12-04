@@ -35,3 +35,4 @@ Refactor uten sqlc. Implementer selv, men bruk sqlc til å generere for deg. Da 
 - Getting user's IP with Realip package
   - github.com/tomasen/realip
 - users email. Use postgresql plugin citext to make string case insensitive. This way we don't need to worry case.
+- error triage
