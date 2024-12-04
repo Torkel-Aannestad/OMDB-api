@@ -10,11 +10,11 @@ import (
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
 )
 
-func (app *application) createMovieLinkHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) createPersonLinkHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Source   string `json:"source"`
 		Key      string `json:"key"`
-		MovieID  int64  `json:"movie_id"`
+		PersonID int64  `json:"person_id"`
 		Language string `json:"language"`
 	}
 
@@ -24,37 +24,37 @@ func (app *application) createMovieLinkHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	movieLink := database.MovieLink{
+	peopleLink := database.PeopleLink{
 		Source:   input.Source,
 		Key:      input.Key,
-		MovieID:  input.MovieID,
+		PersonID: input.PersonID,
 		Language: input.Language,
 	}
 
 	v := validator.New()
-	database.ValidateMovieLink(v, &movieLink)
+	database.ValidatePeopleLink(v, &peopleLink)
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	err = app.models.MovieLinks.Insert(&movieLink)
+	err = app.models.PeopleLinks.Insert(&peopleLink)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
 	header := make(http.Header)
-	header.Set("Location", fmt.Sprintf("/v1/movie-links/%d", movieLink.MovieID))
+	header.Set("Location", fmt.Sprintf("/v1/people-links/%d", peopleLink.PersonID))
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"movie_links": movieLink}, header)
+	err = app.writeJSON(w, http.StatusCreated, envelope{"people_links": peopleLink}, header)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
 }
-func (app *application) getMovieLinksHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) getPeopleLinksHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
@@ -79,7 +79,7 @@ func (app *application) getMovieLinksHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func (app *application) deleteMovieLinkHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) deletePersonLinkHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		MovieId  int64  `json:"movie_id"`
 		Language string `json:"language"`
