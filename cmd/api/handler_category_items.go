@@ -67,14 +67,14 @@ func (app *application) createMovieCategoriesHandler(w http.ResponseWriter, r *h
 	}
 }
 
-func (app *application) getCategoryHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIDParam(r)
+func (app *application) getMovieKeywordsHandler(w http.ResponseWriter, r *http.Request) {
+	movieId, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
 
-	category, err := app.models.Categories.Get(id)
+	movieKeywords, err := app.models.CategoryItems.Get(movieId, "movie_keywords")
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -85,21 +85,53 @@ func (app *application) getCategoryHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"category": category}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"movie_keywords": movieKeywords}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+func (app *application) getMovieCategoriesHandler(w http.ResponseWriter, r *http.Request) {
+	movieId, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	movieCategories, err := app.models.CategoryItems.Get(movieId, "movie_categories")
+	if err != nil {
+		if errors.Is(err, database.ErrRecordNotFound) {
+			app.notFoundResponse(w, r)
+
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"movie_categories": movieCategories}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 }
 
-func (app *application) deleteCategoryHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIDParam(r)
+func (app *application) deleteMovieKeywordHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		movieID    int64
+		categoryId int64
+	}
+	err := app.readJSON(w, r, &input)
 	if err != nil {
-		app.notFoundResponse(w, r)
+		app.badRequestResponse(w, r, err)
 		return
 	}
+	movieKeyword := database.CategoryItem{
+		MovieId:    input.movieID,
+		CategoryId: input.categoryId,
+	}
 
-	err = app.models.Categories.Delete(id)
+	err = app.models.CategoryItems.Delete(movieKeyword.MovieId, movieKeyword.CategoryId, "movie_keywords")
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -108,7 +140,36 @@ func (app *application) deleteCategoryHandler(w http.ResponseWriter, r *http.Req
 		}
 		return
 	}
-	err = app.writeJSON(w, http.StatusOK, envelope{"message": "category successfuly deleted"}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "movie_keyword successfuly deleted"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+func (app *application) deleteMovieCategoryHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		movieID    int64
+		categoryId int64
+	}
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+	movieKeyword := database.CategoryItem{
+		MovieId:    input.movieID,
+		CategoryId: input.categoryId,
+	}
+
+	err = app.models.CategoryItems.Delete(movieKeyword.MovieId, movieKeyword.CategoryId, "movie_keywords")
+	if err != nil {
+		if errors.Is(err, database.ErrRecordNotFound) {
+			app.notFoundResponse(w, r)
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "movie_keyword successfuly deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
