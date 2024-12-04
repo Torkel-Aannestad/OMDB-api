@@ -10,7 +10,7 @@ import (
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
 )
 
-func (app *application) createPersonLinkHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) createPeopleLinkHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Source   string `json:"source"`
 		Key      string `json:"key"`
@@ -79,7 +79,7 @@ func (app *application) getPeopleLinksHandler(w http.ResponseWriter, r *http.Req
 	}
 }
 
-func (app *application) deletePersonLinkHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) deletePeopleLinkHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		PersonID int64  `json:"person_id"`
 		Language string `json:"language"`
