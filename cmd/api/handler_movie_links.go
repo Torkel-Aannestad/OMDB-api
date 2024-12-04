@@ -54,14 +54,14 @@ func (app *application) createMovieLinkHandler(w http.ResponseWriter, r *http.Re
 	}
 
 }
-func (app *application) getCategoryHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) getMovielinksHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
 
-	category, err := app.models.Categories.Get(id)
+	movieLinks, err := app.models.MovieLinks.GetMovieLinks(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -72,7 +72,7 @@ func (app *application) getCategoryHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"category": category}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"movie_links": movieLinks}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

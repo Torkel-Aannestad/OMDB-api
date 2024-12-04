@@ -48,8 +48,8 @@ func (m MovieLinkModel) Insert(movieLink *MovieLink) error {
 	)
 }
 
-func (m MovieLinkModel) GetMovieLinks(personID int64) ([]*MovieLink, error) {
-	if personID < 0 {
+func (m MovieLinkModel) GetMovieLinks(movieID int64) ([]*MovieLink, error) {
+	if movieID < 0 {
 		return nil, ErrRecordNotFound
 	}
 
@@ -65,7 +65,7 @@ func (m MovieLinkModel) GetMovieLinks(personID int64) ([]*MovieLink, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := m.DB.QueryContext(ctx, query, personID)
+	rows, err := m.DB.QueryContext(ctx, query, movieID)
 	if err != nil {
 		return nil, err
 	}
