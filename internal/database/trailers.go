@@ -80,12 +80,11 @@ func (m TrailersModel) Get(MovieID int64) ([]*Trailer, error) {
 		var trailer Trailer
 
 		err := rows.Scan(
-			&trailer.MovieID,
-			&trailer.Key,
+			&trailer.TrailerID,
 			&trailer.Source,
+			&trailer.Key,
+			&trailer.MovieID,
 			&trailer.Language,
-			&trailer.CreatedAt,
-			&trailer.ModifiedAt,
 		)
 		if err != nil {
 			return nil, err

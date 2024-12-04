@@ -87,8 +87,6 @@ func (m CategoryItemsModel) Get(movieId int64, tableName string) ([]*CategoryIte
 		err := rows.Scan(
 			&categoryItem.MovieId,
 			&categoryItem.CategoryId,
-			&categoryItem.CreatedAt,
-			&categoryItem.ModifiedAt,
 		)
 		if err != nil {
 			return nil, err

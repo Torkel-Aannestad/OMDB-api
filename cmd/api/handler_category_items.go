@@ -118,8 +118,8 @@ func (app *application) getMovieCategoriesHandler(w http.ResponseWriter, r *http
 
 func (app *application) deleteMovieKeywordHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		movieID    int64
-		categoryId int64
+		MovieId    int64 `json:"movie_id"`
+		CategoryId int64 `json:"category_id"`
 	}
 	err := app.readJSON(w, r, &input)
 	if err != nil {
@@ -127,8 +127,8 @@ func (app *application) deleteMovieKeywordHandler(w http.ResponseWriter, r *http
 		return
 	}
 	movieKeyword := database.CategoryItem{
-		MovieId:    input.movieID,
-		CategoryId: input.categoryId,
+		MovieId:    input.MovieId,
+		CategoryId: input.CategoryId,
 	}
 
 	err = app.models.CategoryItems.Delete(movieKeyword.MovieId, movieKeyword.CategoryId, "movie_keywords")
@@ -147,8 +147,8 @@ func (app *application) deleteMovieKeywordHandler(w http.ResponseWriter, r *http
 }
 func (app *application) deleteMovieCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		movieID    int64
-		categoryId int64
+		MovieId    int64 `json:"movie_id"`
+		CategoryId int64 `json:"category_id"`
 	}
 	err := app.readJSON(w, r, &input)
 	if err != nil {
@@ -156,8 +156,8 @@ func (app *application) deleteMovieCategoryHandler(w http.ResponseWriter, r *htt
 		return
 	}
 	movieKeyword := database.CategoryItem{
-		MovieId:    input.movieID,
-		CategoryId: input.categoryId,
+		MovieId:    input.MovieId,
+		CategoryId: input.CategoryId,
 	}
 
 	err = app.models.CategoryItems.Delete(movieKeyword.MovieId, movieKeyword.CategoryId, "movie_categories")

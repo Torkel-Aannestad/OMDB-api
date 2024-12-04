@@ -26,9 +26,9 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPatch, "/v1/people/:id", app.protectedRoute("people:write", app.updatePeopleHandler))
 	router.HandlerFunc(http.MethodDelete, "/v1/people/:id", app.protectedRoute("people:write", app.deletePeopleHandler))
 
+	router.HandlerFunc(http.MethodPost, "/v1/casts", app.protectedRoute("casts:write", app.createCastHandler))
 	router.HandlerFunc(http.MethodGet, "/v1/casts/by-movie-id/:id", app.protectedRoute("casts:read", app.getCastsByMovieIdHandler))
 	router.HandlerFunc(http.MethodGet, "/v1/casts/by-person-id/:id", app.protectedRoute("casts:read", app.getCastsByPersonIdHandler))
-	router.HandlerFunc(http.MethodPost, "/v1/casts", app.protectedRoute("casts:write", app.createCastHandler))
 	router.HandlerFunc(http.MethodDelete, "/v1/casts", app.protectedRoute("casts:write", app.deleteCastHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/jobs", app.protectedRoute("jobs:write", app.createJobHandler))
@@ -56,7 +56,7 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodPost, "/v1/trailers", app.protectedRoute("trailers:write", app.createTrailerHandler))
 	router.HandlerFunc(http.MethodGet, "/v1/trailers/:id", app.protectedRoute("trailers:read", app.getTrailersHandler)) //expects movieId
-	router.HandlerFunc(http.MethodDelete, "/v1/trailers", app.protectedRoute("trailers:write", app.deleteTrailerHandler))
+	router.HandlerFunc(http.MethodDelete, "/v1/trailers/:id", app.protectedRoute("trailers:write", app.deleteTrailerHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activated", app.activateUserHandler)

@@ -14,8 +14,8 @@ type Cast struct {
 	JobID      int64     `json:"job_id"`
 	Role       string    `json:"role"`
 	Position   int32     `json:"position"`
-	CreatedAt  time.Time `json:"created_at"`
-	ModifiedAt time.Time `json:"modified_at"`
+	CreatedAt  time.Time `json:"-"`
+	ModifiedAt time.Time `json:"-"`
 }
 
 type CastsModel struct {
@@ -80,8 +80,6 @@ func (m CastsModel) GetByMovieID(movieID int64) ([]*Cast, error) {
 			&cast.JobID,
 			&cast.Role,
 			&cast.Position,
-			&cast.CreatedAt,
-			&cast.ModifiedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -132,8 +130,6 @@ func (m CastsModel) GetByPersonID(personID int64) ([]*Cast, error) {
 			&cast.JobID,
 			&cast.Role,
 			&cast.Position,
-			&cast.CreatedAt,
-			&cast.ModifiedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -152,7 +148,7 @@ func (m CastsModel) GetByPersonID(personID int64) ([]*Cast, error) {
 func (m CastsModel) Delete(cast Cast) error {
 
 	stmt := `
-		DELETE FROM casts WHERE movie_id = $1 AND person_id = $2 AND job_id = $3 AND role = $4 AND position = $5
+		DELETE FROM casts WHERE movie_id = $1 AND person_id = $2 AND job_id = $3 AND role = $4 AND position = $5;
 	`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -175,17 +171,17 @@ func (m CastsModel) Delete(cast Cast) error {
 
 func ValidateCast(v *validator.Validator, cast *Cast) {
 	v.Check(cast.MovieID != 0, "movie_id", "must be provided")
-	v.Check(cast.MovieID < 0, "movie_id", "must be a positive number")
+	v.Check(cast.MovieID > 0, "movie_id", "must be a positive number")
 
 	v.Check(cast.PersonID != 0, "person_id", "must be provided")
-	v.Check(cast.PersonID < 0, "person_id", "must be a positive number")
+	v.Check(cast.PersonID > 0, "person_id", "must be a positive number")
 
 	v.Check(cast.JobID != 0, "job_id", "must be provided")
-	v.Check(cast.JobID < 0, "job_id", "must be a positive number")
+	v.Check(cast.JobID > 0, "job_id", "must be a positive number")
 
 	v.Check(len(cast.Role) <= 250, "role", "must not be longer than 250 characters")
 
 	v.Check(cast.Position != 0, "position", "must be provided")
-	v.Check(cast.Position < 0, "position", "must be a positive number")
+	v.Check(cast.Position > 0, "position", "must be a positive number")
 
 }

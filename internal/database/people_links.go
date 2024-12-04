@@ -81,8 +81,6 @@ func (m PeopleLinkModel) Get(personID int64) ([]*PeopleLink, error) {
 			&personLink.Source,
 			&personLink.PersonID,
 			&personLink.Language,
-			&personLink.CreatedAt,
-			&personLink.ModifiedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -126,9 +124,8 @@ func (m PeopleLinkModel) Delete(personID int64, language, key string) error {
 
 func ValidatePeopleLink(v *validator.Validator, PeopleLink *PeopleLink) {
 	v.Check(PeopleLink.Key != "", "key", "must be provided")
-	v.Check(len(PeopleLink.Key) <= 500, "key", "must not be more than 500 bytes long")
+	v.Check(validator.PermittedValue(PeopleLink.Key, "wikidata", "wikipedia", "imdbperson"), "source", "must not be of the following values 'wikidata', 'wikipedia' or 'imdbperson'")
 
 	v.Check(PeopleLink.Source != "", "source", "must be provided")
 	v.Check(len(PeopleLink.Source) <= 500, "source", "must not be more than 500 bytes long")
-	v.Check(validator.PermittedValue(PeopleLink.Source, "wikidata", "wikipedia", "imdbperson"), "source", "must not be of the following values 'wikidata', 'wikipedia' or 'imdbperson'")
 }

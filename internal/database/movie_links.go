@@ -81,8 +81,6 @@ func (m MovieLinkModel) Get(movieID int64) ([]*MovieLink, error) {
 			&personLink.Source,
 			&personLink.MovieID,
 			&personLink.Language,
-			&personLink.CreatedAt,
-			&personLink.ModifiedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -125,10 +123,10 @@ func (m MovieLinkModel) Delete(movieID int64, language, key string) error {
 }
 
 func ValidateMovieLink(v *validator.Validator, MovieLink *MovieLink) {
-	v.Check(MovieLink.Key != "", "key", "must be provided")
-	v.Check(len(MovieLink.Key) <= 500, "key", "must not be more than 500 bytes long")
-
 	v.Check(MovieLink.Source != "", "source", "must be provided")
 	v.Check(len(MovieLink.Source) <= 500, "source", "must not be more than 500 bytes long")
-	v.Check(validator.PermittedValue(MovieLink.Source, "wikidata", "wikipedia", "imdbperson"), "source", "must not be of the following values 'wikidata', 'wikipedia' or 'imdbperson'")
+
+	v.Check(MovieLink.Key != "", "key", "must be provided")
+	v.Check(validator.PermittedValue(MovieLink.Key, "wikidata", "wikipedia", "imdbperson"), "source", "must not be of the following values 'wikidata', 'wikipedia' or 'imdbperson'")
+
 }
