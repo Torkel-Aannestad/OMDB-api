@@ -100,12 +100,12 @@ func (m MovieLinkModel) GetMovieLinks(movieID int64) ([]*MovieLink, error) {
 	return movieLinks, nil
 }
 
-func (m MovieLinkModel) Delete(movieLink MovieLink) error {
+func (m MovieLinkModel) Delete(movieID int64, language, key string) error {
 
 	stmt := `
 		DELETE FROM movie_links WHERE movie_id = $1 AND language = $2 AND key = $3;
 	`
-	args := []any{movieLink.MovieID, movieLink.Language, movieLink.Key}
+	args := []any{movieID, language, key}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

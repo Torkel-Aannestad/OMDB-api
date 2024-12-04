@@ -45,9 +45,9 @@ func (app *application) createMovieLinkHandler(w http.ResponseWriter, r *http.Re
 	}
 
 	header := make(http.Header)
-	header.Set("Location", fmt.Sprintf("/v1/categories/%d", category.ID))
+	header.Set("Location", fmt.Sprintf("/v1/movie-links/%d", movieLink.MovieID))
 
-	err = app.writeJSON(w, http.StatusCreated, envelope{"category": category}, header)
+	err = app.writeJSON(w, http.StatusCreated, envelope{"movie_links": movieLink}, header)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -79,14 +79,25 @@ func (app *application) getMovielinksHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func (app *application) deleteCategoryHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIDParam(r)
-	if err != nil {
-		app.notFoundResponse(w, r)
-		return
+func (app *application) deleteMovieLinkHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		MovieId  int64  `json:"movie_id"`
+		Language string `json:"language"`
+		Key      string `json:"key"`
 	}
 
-	err = app.models.Categories.Delete(id)
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+	movieLink := database.MovieLink{
+		MovieID:  input.MovieId,
+		Language: input.Language,
+		Key:      input.Key,
+	}
+
+	err = app.models.MovieLinks.Delete(movieLink.MovieID, movieLink.Language, movieLink.Key)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -95,7 +106,7 @@ func (app *application) deleteCategoryHandler(w http.ResponseWriter, r *http.Req
 		}
 		return
 	}
-	err = app.writeJSON(w, http.StatusOK, envelope{"message": "category successfuly deleted"}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "movielink successfuly deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
