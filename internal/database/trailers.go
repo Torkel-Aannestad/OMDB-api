@@ -50,7 +50,7 @@ func (m TrailersModel) Insert(trailer *Trailer) error {
 	)
 }
 
-func (m TrailersModel) GetTrailers(MovieID int64) ([]*Trailer, error) {
+func (m TrailersModel) Get(MovieID int64) ([]*Trailer, error) {
 	if MovieID < 0 {
 		return nil, ErrRecordNotFound
 	}
