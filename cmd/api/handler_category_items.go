@@ -160,7 +160,7 @@ func (app *application) deleteMovieCategoryHandler(w http.ResponseWriter, r *htt
 		CategoryId: input.categoryId,
 	}
 
-	err = app.models.CategoryItems.Delete(movieKeyword.MovieId, movieKeyword.CategoryId, "movie_keywords")
+	err = app.models.CategoryItems.Delete(movieKeyword.MovieId, movieKeyword.CategoryId, "movie_categories")
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -169,7 +169,7 @@ func (app *application) deleteMovieCategoryHandler(w http.ResponseWriter, r *htt
 		}
 		return
 	}
-	err = app.writeJSON(w, http.StatusOK, envelope{"message": "movie_keyword successfuly deleted"}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "movie_category successfuly deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

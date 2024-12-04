@@ -35,6 +35,13 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/categories/:id", app.protectedRoute("categories:read", app.getCategoryHandler))
 	router.HandlerFunc(http.MethodDelete, "/v1/categories/:id", app.protectedRoute("categories:write", app.deleteCategoryHandler))
 
+	router.HandlerFunc(http.MethodPost, "/v1/movie-keywords", app.protectedRoute("category-items:write", app.createMovieKeywordsHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/movie-keywords/:id", app.protectedRoute("category-items:read", app.getMovieKeywordsHandler)) //expects movieId
+	router.HandlerFunc(http.MethodDelete, "/v1/movie-keywords", app.protectedRoute("category-items:write", app.deleteMovieKeywordHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/movie-categories", app.protectedRoute("category-items:write", app.createMovieCategoriesHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/movie-categories/:id", app.protectedRoute("category-items:read", app.getMovieCategoriesHandler)) //expects movieId
+	router.HandlerFunc(http.MethodDelete, "/v1/movie-categories", app.protectedRoute("category-items:write", app.deleteMovieCategoryHandler))
+
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activated", app.activateUserHandler)
 
