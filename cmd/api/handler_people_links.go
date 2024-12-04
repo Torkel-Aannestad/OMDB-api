@@ -81,7 +81,7 @@ func (app *application) getPeopleLinksHandler(w http.ResponseWriter, r *http.Req
 
 func (app *application) deletePersonLinkHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		MovieId  int64  `json:"movie_id"`
+		PersonID int64  `json:"person_id"`
 		Language string `json:"language"`
 		Key      string `json:"key"`
 	}
@@ -91,13 +91,13 @@ func (app *application) deletePersonLinkHandler(w http.ResponseWriter, r *http.R
 		app.badRequestResponse(w, r, err)
 		return
 	}
-	movieLink := database.MovieLink{
-		MovieID:  input.MovieId,
+	peopleLink := database.PeopleLink{
+		PersonID: input.PersonID,
 		Language: input.Language,
 		Key:      input.Key,
 	}
 
-	err = app.models.MovieLinks.Delete(movieLink.MovieID, movieLink.Language, movieLink.Key)
+	err = app.models.PeopleLinks.Delete(peopleLink.PersonID, peopleLink.Language, peopleLink.Key)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -106,7 +106,7 @@ func (app *application) deletePersonLinkHandler(w http.ResponseWriter, r *http.R
 		}
 		return
 	}
-	err = app.writeJSON(w, http.StatusOK, envelope{"message": "movielink successfuly deleted"}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "peoplelink successfuly deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

@@ -100,12 +100,12 @@ func (m PeopleLinkModel) Get(personID int64) ([]*PeopleLink, error) {
 	return peopleLinks, nil
 }
 
-func (m PeopleLinkModel) Delete(peopleLink PeopleLink) error {
+func (m PeopleLinkModel) Delete(personID int64, language, key string) error {
 
 	stmt := `
 		DELETE FROM people_links WHERE person_id = $1 AND language = $2 AND key = $3;
 	`
-	args := []any{peopleLink.PersonID, peopleLink.Language, peopleLink.Key}
+	args := []any{personID, language, key}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
