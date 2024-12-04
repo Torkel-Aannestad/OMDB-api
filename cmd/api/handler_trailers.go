@@ -61,7 +61,7 @@ func (app *application) getTrailersHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	category, err := app.models.Categories.Get(id)
+	trailers, err := app.models.Trailer.Get(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -72,7 +72,7 @@ func (app *application) getTrailersHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"category": category}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"trailers": trailers}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
