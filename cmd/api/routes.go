@@ -54,6 +54,10 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/people-links/:id", app.protectedRoute("people-links:read", app.getPeopleLinksHandler)) //expects personId
 	router.HandlerFunc(http.MethodDelete, "/v1/people-links", app.protectedRoute("people-links:write", app.deletePeopleLinkHandler))
 
+	router.HandlerFunc(http.MethodPost, "/v1/trailers", app.protectedRoute("trailers:write", app.createTrailerHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/trailers/:id", app.protectedRoute("trailers:read", app.getTrailersHandler)) //expects movieId
+	router.HandlerFunc(http.MethodDelete, "/v1/trailers", app.protectedRoute("trailers:write", app.deleteTrailerHandler))
+
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activated", app.activateUserHandler)
 
