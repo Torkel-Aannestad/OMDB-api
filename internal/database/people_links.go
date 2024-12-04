@@ -100,18 +100,17 @@ func (m PeopleLinkModel) GetPeopleLinks(personID int64) ([]*PeopleLink, error) {
 	return peopleLinks, nil
 }
 
-func (m PeopleLinkModel) Delete(id int64) error {
-	if id < 0 {
-		return ErrRecordNotFound
-	}
+func (m PeopleLinkModel) Delete(peopleLink PeopleLink) error {
 
 	stmt := `
-		DELETE FROM categories WHERE id = $1
+		DELETE FROM people_links WHERE person_id = $1 AND language = $2 AND key = $3;
 	`
+	args := []any{peopleLink.PersonID, peopleLink.Language, peopleLink.Key}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	result, err := m.DB.ExecContext(ctx, stmt, id)
+	result, err := m.DB.ExecContext(ctx, stmt, args...)
 	if err != nil {
 		return err
 	}
