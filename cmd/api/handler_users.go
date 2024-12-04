@@ -62,7 +62,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	err = app.models.Permissions.AddForUser(user.ID, "movies:read")
+	err = app.models.Permissions.AddForUser(user.ID, "movies:read", "people:read", "casts:read", "jobs:read", "categories:read", "category-items:read", "movie-links:read", "people-links:read", "trailers:read")
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
