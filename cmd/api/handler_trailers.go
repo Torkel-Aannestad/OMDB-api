@@ -86,7 +86,7 @@ func (app *application) deleteTrailerHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err = app.models.Categories.Delete(id)
+	err = app.models.Trailer.Delete(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -95,7 +95,7 @@ func (app *application) deleteTrailerHandler(w http.ResponseWriter, r *http.Requ
 		}
 		return
 	}
-	err = app.writeJSON(w, http.StatusOK, envelope{"message": "category successfuly deleted"}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "trailer successfuly deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
