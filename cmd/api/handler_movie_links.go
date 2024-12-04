@@ -61,7 +61,7 @@ func (app *application) getMovieLinksHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	movieLinks, err := app.models.MovieLinks.GetMovieLinks(id)
+	movieLinks, err := app.models.MovieLinks.Get(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)

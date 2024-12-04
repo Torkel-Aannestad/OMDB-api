@@ -61,7 +61,7 @@ func (app *application) getPeopleLinksHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	movieLinks, err := app.models.MovieLinks.GetMovieLinks(id)
+	peopleLinks, err := app.models.PeopleLinks.Get(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -72,7 +72,7 @@ func (app *application) getPeopleLinksHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"movie_links": movieLinks}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"people_links": peopleLinks}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

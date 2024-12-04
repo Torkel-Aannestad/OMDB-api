@@ -48,7 +48,7 @@ func (m PeopleLinkModel) Insert(peopleLink *PeopleLink) error {
 	)
 }
 
-func (m PeopleLinkModel) GetPeopleLinks(personID int64) ([]*PeopleLink, error) {
+func (m PeopleLinkModel) Get(personID int64) ([]*PeopleLink, error) {
 	if personID < 0 {
 		return nil, ErrRecordNotFound
 	}

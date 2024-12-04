@@ -48,7 +48,7 @@ func (m MovieLinkModel) Insert(movieLink *MovieLink) error {
 	)
 }
 
-func (m MovieLinkModel) GetMovieLinks(movieID int64) ([]*MovieLink, error) {
+func (m MovieLinkModel) Get(movieID int64) ([]*MovieLink, error) {
 	if movieID < 0 {
 		return nil, ErrRecordNotFound
 	}
