@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -11,8 +12,9 @@ type Image struct {
 	ObjectID     int64     `json:"object_id"`
 	ObjectType   string    `json:"object_type"`
 	ImageVersion int32     `json:"image_version"`
-	CreatedAt    time.Time `json:"created_at"`
-	ModifiedAt   time.Time `json:"modified_at"`
+	CreatedAt    time.Time `json:"-"`
+	ModifiedAt   time.Time `json:"-"`
+	Version      int32     `json:"version"`
 }
 
 type ImagesModel struct {
@@ -24,13 +26,13 @@ func (m ImagesModel) Insert(image *Image) error {
 	defer cancel()
 
 	query := `
-	INSERT INTO image_ids (
+	INSERT INTO images (
 		object_id,  
 		object_type,
 		image_version
 	)
 	VALUES ($1, $2, $3)
-	RETURNING id, created_at, modified_at`
+	RETURNING id, created_at, modified_at, version`
 
 	args := []any{image.ObjectID, image.ObjectType, image.ImageVersion}
 
@@ -38,9 +40,48 @@ func (m ImagesModel) Insert(image *Image) error {
 		&image.ID,
 		&image.CreatedAt,
 		&image.ModifiedAt,
+		&image.Version,
 	)
 }
 
+func (m ImagesModel) Get(id int64) (*Image, error) {
+	if id < 0 {
+		return nil, ErrRecordNotFound
+	}
+
+	query := `
+	SELECT 
+		id,  
+		object_id,  
+		object_type,
+		version,
+		created_at,
+		modified_at
+	FROM image_ids
+	WHERE object_id = $1 AND object_type = $2`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var image Image
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(
+		&image.ID,
+		&image.ObjectID,
+		&image.ObjectType,
+		&image.Version,
+		&image.CreatedAt,
+		&image.ModifiedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrRecordNotFound
+		} else {
+			return nil, err
+		}
+	}
+
+	return &image, nil
+}
 func (m ImagesModel) GetImageForObject(movieID int64, objectType string) ([]*Image, error) {
 	if movieID < 0 {
 		return nil, ErrRecordNotFound
@@ -51,14 +92,16 @@ func (m ImagesModel) GetImageForObject(movieID int64, objectType string) ([]*Ima
 		id,  
 		object_id,  
 		object_type,
-		image_version
+		version,
+		created_at,
+		modified_at
 	FROM image_ids
 	WHERE object_id = $1 AND object_type = $2`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := m.DB.QueryContext(ctx, query, movieID)
+	rows, err := m.DB.QueryContext(ctx, query, movieID, objectType)
 	if err != nil {
 		return nil, err
 	}
@@ -73,6 +116,7 @@ func (m ImagesModel) GetImageForObject(movieID int64, objectType string) ([]*Ima
 			&image.ID,
 			&image.ObjectID,
 			&image.ObjectType,
+			&image.Version,
 			&image.CreatedAt,
 			&image.ModifiedAt,
 		)
@@ -88,6 +132,38 @@ func (m ImagesModel) GetImageForObject(movieID int64, objectType string) ([]*Ima
 	}
 
 	return images, nil
+}
+
+func (m ImagesModel) Update(image *Image) error {
+	query := `
+	UPDATE images
+	SET 
+		object_id = $3,
+		object_type = $4,
+		modified_at = NOW(),
+		version = version + 1
+	WHERE id = $1 and version = $2
+	RETURNING version`
+
+	args := []any{
+		&image.ID,
+		&image.Version,
+		&image.ObjectID,
+		&image.ObjectType,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&image.Version)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrEditConflict
+		} else {
+			return err
+		}
+	}
+	return nil
 }
 
 func (m ImagesModel) Delete(id int64) error {
