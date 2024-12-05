@@ -87,6 +87,30 @@ func (app *application) getCastsByMovieIdHandler(w http.ResponseWriter, r *http.
 		return
 	}
 }
+func (app *application) getCastHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	cast, err := app.models.Casts.Get(id)
+	if err != nil {
+		if errors.Is(err, database.ErrRecordNotFound) {
+			app.notFoundResponse(w, r)
+
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"cast": cast}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
 
 func (app *application) getCastsByPersonIdHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -111,6 +135,76 @@ func (app *application) getCastsByPersonIdHandler(w http.ResponseWriter, r *http
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+}
+
+func (app *application) updateCastHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	var input struct {
+		MovieID  *int64  `json:"movie_id"`
+		PersonID *int64  `json:"person_id"`
+		JobID    *int64  `json:"job_id"`
+		Role     *string `json:"role"`
+		Position *int32  `json:"position"`
+		Version  *int32  `json:"version"`
+	}
+
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	cast, err := app.models.Casts.Get(id)
+	if err != nil {
+		if errors.Is(err, database.ErrRecordNotFound) {
+			app.notFoundResponse(w, r)
+
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	if input.MovieID != nil {
+		cast.MovieID = *input.MovieID
+	}
+	if input.PersonID != nil {
+		cast.PersonID = *input.PersonID
+	}
+	if input.JobID != nil {
+		cast.JobID = *input.JobID
+	}
+	if input.Role != nil {
+		cast.Role = *input.Role
+	}
+	if input.Position != nil {
+		cast.Position = *input.Position
+	}
+
+	v := validator.New()
+	database.ValidateCast(v, cast)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	err = app.models.Casts.Update(cast)
+	if err != nil {
+		if errors.Is(err, database.ErrEditConflict) {
+			app.editConflictResponse(w, r)
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, envelope{"cast": cast}, nil)
+
 }
 
 func (app *application) deleteCastHandler(w http.ResponseWriter, r *http.Request) {
