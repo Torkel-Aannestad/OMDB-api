@@ -20,7 +20,7 @@ type Models struct {
 	CategoryItems *CategoryItemsModel
 	Casts         *CastsModel
 	Jobs          *JobsModel
-	ImageIDs      *ImageIDsModel
+	Images        *ImagesModel
 	MovieLinks    *MovieLinkModel
 	PeopleLinks   *PeopleLinkModel
 	Trailer       *TrailersModel
@@ -37,7 +37,7 @@ func NewModels(db *sql.DB) *Models {
 		CategoryItems: &CategoryItemsModel{DB: db},
 		Casts:         &CastsModel{DB: db},
 		Jobs:          &JobsModel{DB: db},
-		ImageIDs:      &ImageIDsModel{DB: db},
+		Images:        &ImagesModel{DB: db},
 		MovieLinks:    &MovieLinkModel{DB: db},
 		PeopleLinks:   &PeopleLinkModel{DB: db},
 		Trailer:       &TrailersModel{DB: db},

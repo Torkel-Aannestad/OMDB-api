@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type ImageID struct {
+type Image struct {
 	ID           int64     `json:"id"`
 	ObjectID     int64     `json:"object_id"`
 	ObjectType   string    `json:"object_type"`
@@ -15,11 +15,11 @@ type ImageID struct {
 	ModifiedAt   time.Time `json:"modified_at"`
 }
 
-type ImageIDsModel struct {
+type ImagesModel struct {
 	DB *sql.DB
 }
 
-func (m ImageIDsModel) Insert(imageID *ImageID) error {
+func (m ImagesModel) Insert(image *Image) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -32,16 +32,16 @@ func (m ImageIDsModel) Insert(imageID *ImageID) error {
 	VALUES ($1, $2, $3)
 	RETURNING id, created_at, modified_at`
 
-	args := []any{imageID.ObjectID, imageID.ObjectType, imageID.ImageVersion}
+	args := []any{image.ObjectID, image.ObjectType, image.ImageVersion}
 
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(
-		&imageID.ID,
-		&imageID.CreatedAt,
-		&imageID.ModifiedAt,
+		&image.ID,
+		&image.CreatedAt,
+		&image.ModifiedAt,
 	)
 }
 
-func (m ImageIDsModel) GetImageForObject(movieID int64, objectType string) ([]*ImageID, error) {
+func (m ImagesModel) GetImageForObject(movieID int64, objectType string) ([]*Image, error) {
 	if movieID < 0 {
 		return nil, ErrRecordNotFound
 	}
@@ -64,22 +64,22 @@ func (m ImageIDsModel) GetImageForObject(movieID int64, objectType string) ([]*I
 	}
 	defer rows.Close()
 
-	imageIDs := []*ImageID{}
+	images := []*Image{}
 
 	for rows.Next() {
-		var imageID ImageID
+		var image Image
 
 		err := rows.Scan(
-			&imageID.ID,
-			&imageID.ObjectID,
-			&imageID.ObjectType,
-			&imageID.CreatedAt,
-			&imageID.ModifiedAt,
+			&image.ID,
+			&image.ObjectID,
+			&image.ObjectType,
+			&image.CreatedAt,
+			&image.ModifiedAt,
 		)
 		if err != nil {
 			return nil, err
 		}
-		imageIDs = append(imageIDs, &imageID)
+		images = append(images, &image)
 	}
 
 	err = rows.Err()
@@ -87,10 +87,10 @@ func (m ImageIDsModel) GetImageForObject(movieID int64, objectType string) ([]*I
 		return nil, err
 	}
 
-	return imageIDs, nil
+	return images, nil
 }
 
-func (m ImageIDsModel) Delete(id int64) error {
+func (m ImagesModel) Delete(id int64) error {
 	if id < 0 {
 		return ErrRecordNotFound
 	}
