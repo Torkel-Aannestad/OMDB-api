@@ -52,7 +52,6 @@ ALTER TABLE categories
     ALTER COLUMN name SET NOT NULL;
 
 ALTER TABLE trailers
-    ALTER COLUMN trailer_id SET NOT NULL,
     ALTER COLUMN key SET NOT NULL,
     ALTER COLUMN movie_id SET NOT NULL,
     ALTER COLUMN language SET NOT NULL,
