@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
@@ -17,6 +18,7 @@ type Cast struct {
 	Position   int32     `json:"position"`
 	CreatedAt  time.Time `json:"-"`
 	ModifiedAt time.Time `json:"-"`
+	Version    int32     `json:"version"`
 }
 
 type CastsModel struct {
@@ -36,7 +38,7 @@ func (m CastsModel) Insert(cast *Cast) error {
 		position
 	)
 	VALUES ($1, $2, $3, $4, $5)
-	RETURNING id, created_at, modified_at`
+	RETURNING id, created_at, modified_at, version`
 
 	args := []any{cast.MovieID, cast.PersonID, cast.JobID, cast.Role, cast.Position}
 
@@ -44,6 +46,7 @@ func (m CastsModel) Insert(cast *Cast) error {
 		&cast.ID,
 		&cast.CreatedAt,
 		&cast.ModifiedAt,
+		&cast.Version,
 	)
 }
 
@@ -53,13 +56,14 @@ func (m CastsModel) GetByMovieID(movieID int64) ([]*Cast, error) {
 	}
 
 	query := `
-		SELECT 
+	SELECT 
 		id,
 		movie_id,
 		person_id,
 		job_id,
 		role,
-		position
+		position,
+		version
 	FROM casts
 	WHERE movie_id = $1`
 
@@ -84,6 +88,7 @@ func (m CastsModel) GetByMovieID(movieID int64) ([]*Cast, error) {
 			&cast.JobID,
 			&cast.Role,
 			&cast.Position,
+			&cast.Version,
 		)
 		if err != nil {
 			return nil, err
@@ -105,13 +110,14 @@ func (m CastsModel) GetByPersonID(personID int64) ([]*Cast, error) {
 	}
 
 	query := `
-		SELECT 
+	SELECT 
 		id,
 		movie_id,
 		person_id,
 		job_id,
 		role,
-		position
+		position,
+		version
 	FROM casts
 	WHERE person_id = $1`
 
@@ -136,6 +142,7 @@ func (m CastsModel) GetByPersonID(personID int64) ([]*Cast, error) {
 			&cast.JobID,
 			&cast.Role,
 			&cast.Position,
+			&cast.Version,
 		)
 		if err != nil {
 			return nil, err
@@ -149,6 +156,44 @@ func (m CastsModel) GetByPersonID(personID int64) ([]*Cast, error) {
 	}
 
 	return casts, nil
+}
+
+func (m CastsModel) Update(cast *Cast) error {
+	query := `
+	UPDATE casts
+	SET 
+		movie_id = $3,
+		person_id = $4,
+		job_id = $5,
+		role = $6,
+		position = $7,
+		modified_at = NOW(),
+		version = version + 1
+	WHERE id = $1 and version = $2
+	RETURNING version`
+
+	args := []any{
+		&cast.ID,
+		&cast.Version,
+		&cast.MovieID,
+		&cast.PersonID,
+		&cast.JobID,
+		&cast.Role,
+		&cast.Position,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&cast.Version)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrEditConflict
+		} else {
+			return err
+		}
+	}
+	return nil
 }
 
 func (m CastsModel) Delete(id int64) error {
