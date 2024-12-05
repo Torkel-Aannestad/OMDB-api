@@ -87,30 +87,6 @@ func (app *application) getCastsByMovieIdHandler(w http.ResponseWriter, r *http.
 		return
 	}
 }
-func (app *application) getCastHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIDParam(r)
-	if err != nil {
-		app.notFoundResponse(w, r)
-		return
-	}
-
-	cast, err := app.models.Casts.Get(id)
-	if err != nil {
-		if errors.Is(err, database.ErrRecordNotFound) {
-			app.notFoundResponse(w, r)
-
-		} else {
-			app.serverErrorResponse(w, r, err)
-		}
-		return
-	}
-
-	err = app.writeJSON(w, http.StatusOK, envelope{"cast": cast}, nil)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-}
 
 func (app *application) getCastsByPersonIdHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -150,7 +126,7 @@ func (app *application) updateCastHandler(w http.ResponseWriter, r *http.Request
 		JobID    *int64  `json:"job_id"`
 		Role     *string `json:"role"`
 		Position *int32  `json:"position"`
-		Version  *int32  `json:"version"`
+		Version  int32   `json:"version"`
 	}
 
 	err = app.readJSON(w, r, &input)
