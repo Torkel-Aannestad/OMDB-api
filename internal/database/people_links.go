@@ -57,6 +57,7 @@ func (m PeopleLinkModel) Get(personID int64) ([]*PeopleLink, error) {
 
 	query := `
 	SELECT 
+		id,
 		source,  
 		key,
 		person_id,
@@ -79,6 +80,7 @@ func (m PeopleLinkModel) Get(personID int64) ([]*PeopleLink, error) {
 		var personLink PeopleLink
 
 		err := rows.Scan(
+			&personLink.ID,
 			&personLink.Key,
 			&personLink.Source,
 			&personLink.PersonID,

@@ -80,24 +80,13 @@ func (app *application) getMovieLinksHandler(w http.ResponseWriter, r *http.Requ
 }
 
 func (app *application) deleteMovieLinkHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		MovieId  int64  `json:"movie_id"`
-		Language string `json:"language"`
-		Key      string `json:"key"`
-	}
-
-	err := app.readJSON(w, r, &input)
+	id, err := app.readIDParam(r)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
-	movieLink := database.MovieLink{
-		MovieID:  input.MovieId,
-		Language: input.Language,
-		Key:      input.Key,
-	}
 
-	err = app.models.MovieLinks.Delete(movieLink.MovieID, movieLink.Language, movieLink.Key)
+	err = app.models.MovieLinks.Delete(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)

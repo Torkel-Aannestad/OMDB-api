@@ -9,6 +9,7 @@ import (
 )
 
 type MovieLink struct {
+	ID         int64     `json:"id"`
 	Source     string    `json:"source"`
 	Key        string    `json:"key"`
 	MovieID    int64     `json:"movie_id"`
@@ -33,7 +34,7 @@ func (m MovieLinkModel) Insert(movieLink *MovieLink) error {
 		language
 	)
 	VALUES ($1, $2, $3, $4)
-	RETURNING created_at, modified_at`
+	RETURNING id, created_at, modified_at`
 
 	args := []any{
 		movieLink.Source,
@@ -43,6 +44,7 @@ func (m MovieLinkModel) Insert(movieLink *MovieLink) error {
 	}
 
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(
+		&movieLink.ID,
 		&movieLink.CreatedAt,
 		&movieLink.ModifiedAt,
 	)
@@ -55,10 +57,11 @@ func (m MovieLinkModel) Get(movieID int64) ([]*MovieLink, error) {
 
 	query := `
 	SELECT 
-	source,  
-	key,
-	movie_id,
-	language
+		id,
+		source,  
+		key,
+		movie_id,
+		language
 	FROM movie_links
 	WHERE movie_id = $1`
 
@@ -77,6 +80,7 @@ func (m MovieLinkModel) Get(movieID int64) ([]*MovieLink, error) {
 		var personLink MovieLink
 
 		err := rows.Scan(
+			&personLink.ID,
 			&personLink.Key,
 			&personLink.Source,
 			&personLink.MovieID,
@@ -98,17 +102,15 @@ func (m MovieLinkModel) Get(movieID int64) ([]*MovieLink, error) {
 	return movieLinks, nil
 }
 
-func (m MovieLinkModel) Delete(movieID int64, language, key string) error {
-
+func (m MovieLinkModel) Delete(Id int64) error {
 	stmt := `
-		DELETE FROM movie_links WHERE movie_id = $1 AND language = $2 AND key = $3;
+		DELETE FROM movie_links WHERE id = $1;
 	`
-	args := []any{movieID, language, key}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	result, err := m.DB.ExecContext(ctx, stmt, args...)
+	result, err := m.DB.ExecContext(ctx, stmt, Id)
 	if err != nil {
 		return err
 	}
