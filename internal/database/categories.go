@@ -16,6 +16,7 @@ type Category struct {
 	RootID     NullInt64 `json:"root_id,omitempty"`
 	CreatedAt  time.Time `json:"-"`
 	ModifiedAt time.Time `json:"-"`
+	Version    int32     `json:"version"`
 }
 
 type CategoriesModel struct {
@@ -33,7 +34,7 @@ func (m CategoriesModel) Insert(category *Category) error {
 		root_id
 	)
 	VALUES ($1, $2, $3)
-	RETURNING id, created_at, modified_at`
+	RETURNING id, created_at, modified_at, version`
 
 	args := []any{
 		category.Name,
@@ -45,6 +46,7 @@ func (m CategoriesModel) Insert(category *Category) error {
 		&category.ID,
 		&category.CreatedAt,
 		&category.ModifiedAt,
+		&category.Version,
 	)
 }
 
@@ -61,7 +63,8 @@ func (m CategoriesModel) Get(id int64) (*Category, error) {
 			parent_id,
 			root_id, 
 			created_at,
-			modified_at
+			modified_at,
+			version
 		FROM categories
 		WHERE id = $1`
 
@@ -75,6 +78,7 @@ func (m CategoriesModel) Get(id int64) (*Category, error) {
 		&category.RootID.NullInt64,
 		&category.CreatedAt,
 		&category.ModifiedAt,
+		&category.Version,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -85,6 +89,40 @@ func (m CategoriesModel) Get(id int64) (*Category, error) {
 	}
 
 	return &category, nil
+}
+
+func (m CategoriesModel) Update(category *Category) error {
+	query := `
+	UPDATE categories
+	SET 
+		name = $3,
+		parent_id = $4,
+		root_id = $5,
+		modified_at = NOW(),
+		version = version + 1
+	WHERE id = $1 and version = $2
+	RETURNING version`
+
+	args := []any{
+		&category.ID,
+		&category.Version,
+		&category.Name,
+		&category.ParentID,
+		&category.RootID,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&category.Version)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrEditConflict
+		} else {
+			return err
+		}
+	}
+	return nil
 }
 
 func (m CategoriesModel) Delete(id int64) error {
