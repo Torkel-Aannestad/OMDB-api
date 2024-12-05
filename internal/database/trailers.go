@@ -9,7 +9,7 @@ import (
 )
 
 type Trailer struct {
-	TrailerID  int64     `json:"trailer_id"`
+	ID         int64     `json:"id"`
 	Key        string    `json:"key"`
 	MovieID    int64     `json:"movie_id"`
 	Language   string    `json:"language"`
@@ -34,7 +34,7 @@ func (m TrailersModel) Insert(trailer *Trailer) error {
 		language
 	)
 	VALUES ($1, $2, $3, $4)
-	RETURNING trailer_id, created_at, modified_at`
+	RETURNING id, created_at, modified_at`
 
 	args := []any{
 		trailer.MovieID,
@@ -44,7 +44,7 @@ func (m TrailersModel) Insert(trailer *Trailer) error {
 	}
 
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(
-		&trailer.TrailerID,
+		&trailer.ID,
 		&trailer.CreatedAt,
 		&trailer.ModifiedAt,
 	)
@@ -57,7 +57,7 @@ func (m TrailersModel) Get(MovieID int64) ([]*Trailer, error) {
 
 	query := `
 		SELECT 
-			trailer_id,
+			id,
 			source,  
 			key,
 			movie_id,
@@ -80,7 +80,7 @@ func (m TrailersModel) Get(MovieID int64) ([]*Trailer, error) {
 		var trailer Trailer
 
 		err := rows.Scan(
-			&trailer.TrailerID,
+			&trailer.ID,
 			&trailer.Source,
 			&trailer.Key,
 			&trailer.MovieID,
@@ -102,18 +102,18 @@ func (m TrailersModel) Get(MovieID int64) ([]*Trailer, error) {
 	return trailers, nil
 }
 
-func (m TrailersModel) Delete(trailerID int64) error {
-	if trailerID < 0 {
+func (m TrailersModel) Delete(id int64) error {
+	if id < 0 {
 		return ErrRecordNotFound
 	}
 
 	stmt := `
-		DELETE FROM trailers WHERE trailer_id = $1
+		DELETE FROM trailers WHERE id = $1
 	`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	result, err := m.DB.ExecContext(ctx, stmt, trailerID)
+	result, err := m.DB.ExecContext(ctx, stmt, id)
 	if err != nil {
 		return err
 	}

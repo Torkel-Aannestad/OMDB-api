@@ -45,7 +45,7 @@ func (app *application) createTrailerHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	header := make(http.Header)
-	header.Set("Location", fmt.Sprintf("/v1/trailers/%d", trailer.TrailerID))
+	header.Set("Location", fmt.Sprintf("/v1/trailers/%d", trailer.ID))
 
 	err = app.writeJSON(w, http.StatusCreated, envelope{"trailers": trailer}, header)
 	if err != nil {
