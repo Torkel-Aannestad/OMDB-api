@@ -9,6 +9,7 @@ import (
 )
 
 type Cast struct {
+	ID         int64     `json:"id"`
 	MovieID    int64     `json:"movie_id"`
 	PersonID   int64     `json:"person_id"`
 	JobID      int64     `json:"job_id"`
@@ -35,11 +36,12 @@ func (m CastsModel) Insert(cast *Cast) error {
 		position
 	)
 	VALUES ($1, $2, $3, $4, $5)
-	RETURNING created_at, modified_at`
+	RETURNING id, created_at, modified_at`
 
 	args := []any{cast.MovieID, cast.PersonID, cast.JobID, cast.Role, cast.Position}
 
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(
+		&cast.ID,
 		&cast.CreatedAt,
 		&cast.ModifiedAt,
 	)
@@ -52,6 +54,7 @@ func (m CastsModel) GetByMovieID(movieID int64) ([]*Cast, error) {
 
 	query := `
 		SELECT 
+		id,
 		movie_id,
 		person_id,
 		job_id,
@@ -75,6 +78,7 @@ func (m CastsModel) GetByMovieID(movieID int64) ([]*Cast, error) {
 		var cast Cast
 
 		err := rows.Scan(
+			&cast.ID,
 			&cast.MovieID,
 			&cast.PersonID,
 			&cast.JobID,
@@ -102,6 +106,7 @@ func (m CastsModel) GetByPersonID(personID int64) ([]*Cast, error) {
 
 	query := `
 		SELECT 
+		id,
 		movie_id,
 		person_id,
 		job_id,
@@ -125,6 +130,7 @@ func (m CastsModel) GetByPersonID(personID int64) ([]*Cast, error) {
 		var cast Cast
 
 		err := rows.Scan(
+			&cast.ID,
 			&cast.MovieID,
 			&cast.PersonID,
 			&cast.JobID,
@@ -145,17 +151,15 @@ func (m CastsModel) GetByPersonID(personID int64) ([]*Cast, error) {
 	return casts, nil
 }
 
-func (m CastsModel) Delete(cast Cast) error {
+func (m CastsModel) Delete(id int64) error {
 
 	stmt := `
-		DELETE FROM casts WHERE movie_id = $1 AND person_id = $2 AND job_id = $3 AND role = $4 AND position = $5;
+		DELETE FROM casts WHERE id = $1;
 	`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	args := []any{cast.MovieID, cast.PersonID, cast.JobID, cast.Role, cast.Position}
-
-	result, err := m.DB.ExecContext(ctx, stmt, args...)
+	result, err := m.DB.ExecContext(ctx, stmt, id)
 	if err != nil {
 		return err
 	}

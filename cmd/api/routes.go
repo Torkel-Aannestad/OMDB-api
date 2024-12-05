@@ -29,7 +29,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/v1/casts", app.protectedRoute("casts:write", app.createCastHandler))
 	router.HandlerFunc(http.MethodGet, "/v1/casts/by-movie-id/:id", app.protectedRoute("casts:read", app.getCastsByMovieIdHandler))
 	router.HandlerFunc(http.MethodGet, "/v1/casts/by-person-id/:id", app.protectedRoute("casts:read", app.getCastsByPersonIdHandler))
-	router.HandlerFunc(http.MethodDelete, "/v1/casts", app.protectedRoute("casts:write", app.deleteCastHandler))
+	router.HandlerFunc(http.MethodDelete, "/v1/casts/:id", app.protectedRoute("casts:write", app.deleteCastHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/jobs", app.protectedRoute("jobs:write", app.createJobHandler))
 	router.HandlerFunc(http.MethodGet, "/v1/jobs/:id", app.protectedRoute("jobs:read", app.getJobHandler))

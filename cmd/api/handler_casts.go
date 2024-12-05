@@ -114,29 +114,13 @@ func (app *application) getCastsByPersonIdHandler(w http.ResponseWriter, r *http
 }
 
 func (app *application) deleteCastHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		MovieID  int64  `json:"movie_id"`
-		PersonID int64  `json:"person_id"`
-		JobID    int64  `json:"job_id"`
-		Role     string `json:"role"`
-		Position int32  `json:"position"`
-	}
-
-	err := app.readJSON(w, r, &input)
+	id, err := app.readIDParam(r)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	cast := database.Cast{
-		MovieID:  input.MovieID,
-		PersonID: input.PersonID,
-		JobID:    input.JobID,
-		Role:     input.Role,
-		Position: input.Position,
-	}
-
-	err = app.models.Casts.Delete(cast)
+	err = app.models.Casts.Delete(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
