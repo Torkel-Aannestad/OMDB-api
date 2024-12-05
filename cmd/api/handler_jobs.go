@@ -48,6 +48,7 @@ func (app *application) createJobHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 }
+
 func (app *application) getJobHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -71,6 +72,59 @@ func (app *application) getJobHandler(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+}
+
+func (app *application) updateJobHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	var input struct {
+		Name *string `json:"name"`
+	}
+
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	job, err := app.models.Jobs.Get(id)
+	if err != nil {
+		if errors.Is(err, database.ErrRecordNotFound) {
+			app.notFoundResponse(w, r)
+
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	if input.Name != nil {
+		job.Name = *input.Name
+	}
+
+	v := validator.New()
+	database.ValidateJob(v, job)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	err = app.models.Jobs.Update(job)
+	if err != nil {
+		if errors.Is(err, database.ErrEditConflict) {
+			app.editConflictResponse(w, r)
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, envelope{"job": job}, nil)
+
 }
 
 func (app *application) deleteJobHandler(w http.ResponseWriter, r *http.Request) {

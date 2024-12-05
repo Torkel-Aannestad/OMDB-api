@@ -14,6 +14,7 @@ type Job struct {
 	Name       string    `json:"name"`
 	CreatedAt  time.Time `json:"-"`
 	ModifiedAt time.Time `json:"-"`
+	Version    int32     `json:"version"`
 }
 
 type JobsModel struct {
@@ -29,12 +30,13 @@ func (m JobsModel) Insert(job *Job) error {
 		name
 	)
 	VALUES ($1)
-	RETURNING id, created_at, modified_at`
+	RETURNING id, created_at, modified_at, version`
 
 	return m.DB.QueryRowContext(ctx, query, job.Name).Scan(
 		&job.ID,
 		&job.CreatedAt,
 		&job.ModifiedAt,
+		&job.Version,
 	)
 }
 
@@ -49,7 +51,8 @@ func (m JobsModel) Get(id int64) (*Job, error) {
 			id,  
 			name,
 			created_at,
-			modified_at
+			modified_at,
+			version
 		FROM jobs
 		WHERE id = $1`
 
@@ -61,6 +64,7 @@ func (m JobsModel) Get(id int64) (*Job, error) {
 		&job.Name,
 		&job.CreatedAt,
 		&job.ModifiedAt,
+		&job.Version,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -71,6 +75,36 @@ func (m JobsModel) Get(id int64) (*Job, error) {
 	}
 
 	return &job, nil
+}
+
+func (m JobsModel) Update(job *Job) error {
+	query := `
+	UPDATE jobs
+	SET 
+		name = $3,
+		modified_at = NOW(),
+		version = version + 1
+	WHERE id = $1 and version = $2
+	RETURNING version`
+
+	args := []any{
+		&job.ID,
+		&job.Version,
+		&job.Name,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&job.Version)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrEditConflict
+		} else {
+			return err
+		}
+	}
+	return nil
 }
 
 func (m JobsModel) Delete(id int64) error {
