@@ -50,6 +50,47 @@ func (m CastsModel) Insert(cast *Cast) error {
 	)
 }
 
+func (m CastsModel) Get(id int64) (*Cast, error) {
+	if id < 0 {
+		return nil, ErrRecordNotFound
+	}
+
+	query := `
+	SELECT 
+		id,
+		movie_id,
+		person_id,
+		job_id,
+		role,
+		position,
+		version
+	FROM casts
+	WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var cast Cast
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(
+		&cast.ID,
+		&cast.MovieID,
+		&cast.PersonID,
+		&cast.JobID,
+		&cast.Role,
+		&cast.Position,
+		&cast.Version,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrRecordNotFound
+		} else {
+			return nil, err
+		}
+	}
+
+	return &cast, nil
+}
+
 func (m CastsModel) GetByMovieID(movieID int64) ([]*Cast, error) {
 	if movieID < 0 {
 		return nil, ErrRecordNotFound
