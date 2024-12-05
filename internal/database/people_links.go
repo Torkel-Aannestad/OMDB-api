@@ -9,6 +9,7 @@ import (
 )
 
 type PeopleLink struct {
+	ID         int64     `json:"id"`
 	Source     string    `json:"source"`
 	Key        string    `json:"key"`
 	PersonID   int64     `json:"person_id"`
@@ -33,7 +34,7 @@ func (m PeopleLinkModel) Insert(peopleLink *PeopleLink) error {
 		language
 	)
 	VALUES ($1, $2, $3, $4)
-	RETURNING created_at, modified_at`
+	RETURNING id, created_at, modified_at`
 
 	args := []any{
 		peopleLink.Source,
@@ -43,6 +44,7 @@ func (m PeopleLinkModel) Insert(peopleLink *PeopleLink) error {
 	}
 
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(
+		&peopleLink.ID,
 		&peopleLink.CreatedAt,
 		&peopleLink.ModifiedAt,
 	)
@@ -55,10 +57,10 @@ func (m PeopleLinkModel) Get(personID int64) ([]*PeopleLink, error) {
 
 	query := `
 	SELECT 
-	source,  
-	key,
-	person_id,
-	language
+		source,  
+		key,
+		person_id,
+		language
 	FROM people_links
 	WHERE person_id = $1`
 
@@ -98,17 +100,16 @@ func (m PeopleLinkModel) Get(personID int64) ([]*PeopleLink, error) {
 	return peopleLinks, nil
 }
 
-func (m PeopleLinkModel) Delete(personID int64, language, key string) error {
+func (m PeopleLinkModel) Delete(id int64) error {
 
 	stmt := `
-		DELETE FROM people_links WHERE person_id = $1 AND language = $2 AND key = $3;
+		DELETE FROM people_links WHERE id = $1;
 	`
-	args := []any{personID, language, key}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	result, err := m.DB.ExecContext(ctx, stmt, args...)
+	result, err := m.DB.ExecContext(ctx, stmt, id)
 	if err != nil {
 		return err
 	}

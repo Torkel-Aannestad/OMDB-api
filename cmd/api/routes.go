@@ -51,8 +51,8 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodDelete, "/v1/movie-links", app.protectedRoute("movie-links:write", app.deleteMovieLinkHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/people-links", app.protectedRoute("people-links:write", app.createPeopleLinkHandler))
-	router.HandlerFunc(http.MethodGet, "/v1/people-links/:id", app.protectedRoute("people-links:read", app.getPeopleLinksHandler)) //expects personId
-	router.HandlerFunc(http.MethodDelete, "/v1/people-links", app.protectedRoute("people-links:write", app.deletePeopleLinkHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/people-links/:id", app.protectedRoute("people-links:read", app.getPeopleLinksHandler))       //expects personId
+	router.HandlerFunc(http.MethodDelete, "/v1/people-links/:id", app.protectedRoute("people-links:write", app.deletePeopleLinkHandler)) //expects id from people_link
 
 	router.HandlerFunc(http.MethodPost, "/v1/trailers", app.protectedRoute("trailers:write", app.createTrailerHandler))
 	router.HandlerFunc(http.MethodGet, "/v1/trailers/:id", app.protectedRoute("trailers:read", app.getTrailersHandler)) //expects movieId

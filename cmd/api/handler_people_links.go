@@ -80,24 +80,13 @@ func (app *application) getPeopleLinksHandler(w http.ResponseWriter, r *http.Req
 }
 
 func (app *application) deletePeopleLinkHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		PersonID int64  `json:"person_id"`
-		Language string `json:"language"`
-		Key      string `json:"key"`
-	}
-
-	err := app.readJSON(w, r, &input)
+	id, err := app.readIDParam(r)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
-	peopleLink := database.PeopleLink{
-		PersonID: input.PersonID,
-		Language: input.Language,
-		Key:      input.Key,
-	}
 
-	err = app.models.PeopleLinks.Delete(peopleLink.PersonID, peopleLink.Language, peopleLink.Key)
+	err = app.models.PeopleLinks.Delete(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
