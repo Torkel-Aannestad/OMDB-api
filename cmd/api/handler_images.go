@@ -155,13 +155,13 @@ func (app *application) updateImageHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	v := validator.New()
-	database.ValidateJob(v, image)
+	database.ValidateImage(v, image)
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	err = app.models.Jobs.Update(image)
+	err = app.models.Images.Update(image)
 	if err != nil {
 		if errors.Is(err, database.ErrEditConflict) {
 			app.editConflictResponse(w, r)
@@ -182,7 +182,7 @@ func (app *application) deleteImageHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = app.models.Jobs.Delete(id)
+	err = app.models.Images.Delete(id)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
