@@ -5,16 +5,17 @@ import (
 	"database/sql"
 	"errors"
 	"time"
+
+	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
 )
 
 type Image struct {
-	ID           int64     `json:"id"`
-	ObjectID     int64     `json:"object_id"`
-	ObjectType   string    `json:"object_type"`
-	ImageVersion int32     `json:"image_version"`
-	CreatedAt    time.Time `json:"-"`
-	ModifiedAt   time.Time `json:"-"`
-	Version      int32     `json:"version"`
+	ID         int64     `json:"id"`
+	ObjectID   int64     `json:"object_id"`
+	ObjectType string    `json:"object_type"`
+	CreatedAt  time.Time `json:"-"`
+	ModifiedAt time.Time `json:"-"`
+	Version    int32     `json:"version"`
 }
 
 type ImagesModel struct {
@@ -29,12 +30,11 @@ func (m ImagesModel) Insert(image *Image) error {
 	INSERT INTO images (
 		object_id,  
 		object_type,
-		image_version
 	)
 	VALUES ($1, $2, $3)
 	RETURNING id, created_at, modified_at, version`
 
-	args := []any{image.ObjectID, image.ObjectType, image.ImageVersion}
+	args := []any{image.ObjectID, image.ObjectType, image.Version}
 
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(
 		&image.ID,
@@ -57,7 +57,7 @@ func (m ImagesModel) Get(id int64) (*Image, error) {
 		version,
 		created_at,
 		modified_at
-	FROM image_ids
+	FROM images
 	WHERE object_id = $1 AND object_type = $2`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -82,8 +82,8 @@ func (m ImagesModel) Get(id int64) (*Image, error) {
 
 	return &image, nil
 }
-func (m ImagesModel) GetImageForObject(movieID int64, objectType string) ([]*Image, error) {
-	if movieID < 0 {
+func (m ImagesModel) GetImageForObject(objectID int64, objectType string) ([]*Image, error) {
+	if objectID < 0 {
 		return nil, ErrRecordNotFound
 	}
 
@@ -95,13 +95,13 @@ func (m ImagesModel) GetImageForObject(movieID int64, objectType string) ([]*Ima
 		version,
 		created_at,
 		modified_at
-	FROM image_ids
+	FROM images
 	WHERE object_id = $1 AND object_type = $2`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := m.DB.QueryContext(ctx, query, movieID, objectType)
+	rows, err := m.DB.QueryContext(ctx, query, objectID, objectType)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +172,7 @@ func (m ImagesModel) Delete(id int64) error {
 	}
 
 	stmt := `
-		DELETE FROM image_ids WHERE id = $1
+		DELETE FROM images WHERE id = $1
 	`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -189,4 +189,10 @@ func (m ImagesModel) Delete(id int64) error {
 		return ErrRecordNotFound
 	}
 	return nil
+}
+
+func ValidateImage(v *validator.Validator, image *Image) {
+	v.Check(image.ObjectID != 0, "object_id", "must be provided")
+	v.Check(image.ObjectID >= 0, "object_id", "must be a positive number")
+	v.Check(validator.PermittedValue(image.ObjectType, "Movie", "Person", "Job", "User", "Category", "Company", "Character"), "object_type", "must be of the following values: Movie, Person, Job, User, Category, Company, Character")
 }
