@@ -64,7 +64,7 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodPost, "/v1/images", app.protectedRoute("images:write", app.createImageHandler))
 	router.HandlerFunc(http.MethodGet, "/v1/images/:id", app.protectedRoute("images:read", app.getImageHandler))
-	router.HandlerFunc(http.MethodGet, "/v1/images", app.protectedRoute("images:read", app.getImageObjektIdHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/images", app.protectedRoute("images:read", app.getImagesObjektIdHandler))
 	router.HandlerFunc(http.MethodPatch, "/v1/images/:id", app.protectedRoute("images:write", app.updateImageHandler))
 	router.HandlerFunc(http.MethodDelete, "/v1/images/:id", app.protectedRoute("images:write", app.deleteImageHandler))
 

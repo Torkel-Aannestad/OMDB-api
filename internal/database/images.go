@@ -29,12 +29,12 @@ func (m ImagesModel) Insert(image *Image) error {
 	query := `
 	INSERT INTO images (
 		object_id,  
-		object_type,
+		object_type
 	)
-	VALUES ($1, $2, $3)
+	VALUES ($1, $2)
 	RETURNING id, created_at, modified_at, version`
 
-	args := []any{image.ObjectID, image.ObjectType, image.Version}
+	args := []any{image.ObjectID, image.ObjectType}
 
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(
 		&image.ID,
@@ -58,7 +58,7 @@ func (m ImagesModel) Get(id int64) (*Image, error) {
 		created_at,
 		modified_at
 	FROM images
-	WHERE object_id = $1 AND object_type = $2`
+	WHERE id = $1`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -82,7 +82,7 @@ func (m ImagesModel) Get(id int64) (*Image, error) {
 
 	return &image, nil
 }
-func (m ImagesModel) GetImageForObject(objectID int64, objectType string) ([]*Image, error) {
+func (m ImagesModel) GetImagesForObject(objectID int64, objectType string) ([]*Image, error) {
 	if objectID < 0 {
 		return nil, ErrRecordNotFound
 	}

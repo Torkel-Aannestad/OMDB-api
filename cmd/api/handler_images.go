@@ -76,7 +76,7 @@ func (app *application) getImageHandler(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (app *application) getImageObjektIdHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) getImagesObjektIdHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		ObjectID   int64
 		ObjectType string
@@ -100,7 +100,7 @@ func (app *application) getImageObjektIdHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	image, err := app.models.Images.GetImageForObject(input.ObjectID, input.ObjectType)
+	images, err := app.models.Images.GetImagesForObject(input.ObjectID, input.ObjectType)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
@@ -111,7 +111,7 @@ func (app *application) getImageObjektIdHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"image": image}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"images": images}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
