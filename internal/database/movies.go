@@ -12,18 +12,18 @@ import (
 
 type Movie struct {
 	ID          int64     `json:"id"`
-	ParentID    NullInt64 `json:"parent_id,omitempty"`
-	SeriesID    NullInt64 `json:"series_id,omitempty"`
+	ParentID    NullInt64 `json:"parent_id"`
+	SeriesID    NullInt64 `json:"series_id"`
 	Name        string    `json:"name"`
-	Date        time.Time `json:"date,omitempty"`
+	Date        time.Time `json:"date"`
 	Kind        string    `json:"kind"`
-	Runtime     int64     `json:"runtime,omitempty"`
-	Budget      float64   `json:"budget,omitempty"`
-	Revenue     float64   `json:"revenue,omitempty"`
-	Homepage    string    `json:"homepage,omitempty"`
-	VoteAvarage float64   `json:"vote_average,omitempty"`
-	VoteCount   int64     `json:"vote_count,omitempty"`
-	Abstract    string    `json:"abstract,omitempty"`
+	Runtime     int64     `json:"runtime"`
+	Budget      float64   `json:"budget"`
+	Revenue     float64   `json:"revenue"`
+	Homepage    string    `json:"homepage"`
+	VoteAvarage float64   `json:"vote_average"`
+	VoteCount   int64     `json:"vote_count"`
+	Abstract    string    `json:"abstract"`
 	Version     int32     `json:"version"`
 	CreatedAt   time.Time `json:"-"`
 	ModifiedAt  time.Time `json:"-"`
