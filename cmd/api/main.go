@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"database/sql"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -21,7 +19,7 @@ var (
 	version = vcs.Version()
 )
 
-type config struct {
+type Config struct {
 	port int
 	env  string
 	db   struct {
@@ -45,7 +43,7 @@ type config struct {
 }
 
 type application struct {
-	config config
+	config Config
 	logger *slog.Logger
 	models *database.Models
 	mailer mailer.Mailer
@@ -53,7 +51,7 @@ type application struct {
 }
 
 func main() {
-	var cfg config
+	var cfg Config
 
 	godotenv.Load()
 	dns := os.Getenv("MOVIE_MAZE_DB_DSN")
@@ -92,7 +90,7 @@ func main() {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil)) //change for json later
 
-	db, err := openDB(cfg)
+	db, err := database.OpenDB(cfg.db.dsn, cfg.db.maxOpenConns, cfg.db.maxIdleConns, cfg.db.maxIdleTime)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
@@ -127,27 +125,5 @@ func main() {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
-
-}
-
-func openDB(cfg config) (*sql.DB, error) {
-	db, err := sql.Open("postgres", cfg.db.dsn)
-	if err != nil {
-		return nil, err
-	}
-
-	db.SetMaxOpenConns(cfg.db.maxOpenConns)
-	db.SetMaxIdleConns(cfg.db.maxIdleConns)
-	db.SetConnMaxIdleTime(cfg.db.maxIdleTime)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	defer cancel()
-
-	err = db.PingContext(ctx)
-	if err != nil {
-		db.Close()
-		return nil, err
-	}
-	return db, nil
 
 }
