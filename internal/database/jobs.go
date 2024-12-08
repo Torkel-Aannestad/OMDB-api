@@ -22,7 +22,7 @@ type JobsModel struct {
 }
 
 func (m JobsModel) Insert(job *Job) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	query := `
@@ -56,7 +56,7 @@ func (m JobsModel) Get(id int64) (*Job, error) {
 		FROM jobs
 		WHERE id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(
@@ -93,7 +93,7 @@ func (m JobsModel) Update(job *Job) error {
 		&job.Name,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&job.Version)
@@ -115,7 +115,7 @@ func (m JobsModel) Delete(id int64) error {
 	stmt := `
 		DELETE FROM jobs WHERE id = $1
 	`
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	result, err := m.DB.ExecContext(ctx, stmt, id)

@@ -23,7 +23,7 @@ type ImagesModel struct {
 }
 
 func (m ImagesModel) Insert(image *Image) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	query := `
@@ -60,7 +60,7 @@ func (m ImagesModel) Get(id int64) (*Image, error) {
 	FROM images
 	WHERE id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	var image Image
@@ -98,7 +98,7 @@ func (m ImagesModel) GetImagesForObject(objectID int64, objectType string) ([]*I
 	FROM images
 	WHERE object_id = $1 AND object_type = $2`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	rows, err := m.DB.QueryContext(ctx, query, objectID, objectType)
@@ -152,7 +152,7 @@ func (m ImagesModel) Update(image *Image) error {
 		&image.ObjectType,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&image.Version)
@@ -174,7 +174,7 @@ func (m ImagesModel) Delete(id int64) error {
 	stmt := `
 		DELETE FROM images WHERE id = $1
 	`
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	result, err := m.DB.ExecContext(ctx, stmt, id)

@@ -23,7 +23,7 @@ type MovieLinkModel struct {
 }
 
 func (m MovieLinkModel) Insert(movieLink *MovieLink) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	query := `
@@ -65,7 +65,7 @@ func (m MovieLinkModel) Get(movieID int64) ([]*MovieLink, error) {
 	FROM movie_links
 	WHERE movie_id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	rows, err := m.DB.QueryContext(ctx, query, movieID)
@@ -107,7 +107,7 @@ func (m MovieLinkModel) Delete(Id int64) error {
 		DELETE FROM movie_links WHERE id = $1;
 	`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	result, err := m.DB.ExecContext(ctx, stmt, Id)

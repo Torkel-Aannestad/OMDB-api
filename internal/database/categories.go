@@ -24,7 +24,7 @@ type CategoriesModel struct {
 }
 
 func (m CategoriesModel) Insert(category *Category) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	query := `
@@ -68,7 +68,7 @@ func (m CategoriesModel) Get(id int64) (*Category, error) {
 		FROM categories
 		WHERE id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(
@@ -111,7 +111,7 @@ func (m CategoriesModel) Update(category *Category) error {
 		&category.RootID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&category.Version)
@@ -133,7 +133,7 @@ func (m CategoriesModel) Delete(id int64) error {
 	stmt := `
 		DELETE FROM categories WHERE id = $1
 	`
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	result, err := m.DB.ExecContext(ctx, stmt, id)

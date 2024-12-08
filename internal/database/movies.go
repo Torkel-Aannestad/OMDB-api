@@ -34,7 +34,7 @@ type MovieModel struct {
 }
 
 func (m MovieModel) Insert(movie *Movie) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	query := `
@@ -104,7 +104,7 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	FROM movies
 	WHERE id = $1;`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(
@@ -149,7 +149,7 @@ func (m MovieModel) GetAll(name string, filters Filters) ([]*Movie, Metadata, er
 		LIMIT $2 OFFSET $3
 	`, sortColumn, sortDirection)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	args := []any{name, filters.limit(), filters.offset()}
@@ -240,7 +240,7 @@ func (m MovieModel) Update(movie *Movie) error {
 		&movie.ModifiedAt,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&movie.Version)
@@ -262,7 +262,7 @@ func (m MovieModel) Delete(id int64) error {
 	stmt := `
 		DELETE FROM movies WHERE id = $1
 	`
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	result, err := m.DB.ExecContext(ctx, stmt, id)

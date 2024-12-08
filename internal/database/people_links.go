@@ -23,7 +23,7 @@ type PeopleLinkModel struct {
 }
 
 func (m PeopleLinkModel) Insert(peopleLink *PeopleLink) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	query := `
@@ -65,7 +65,7 @@ func (m PeopleLinkModel) Get(personID int64) ([]*PeopleLink, error) {
 	FROM people_links
 	WHERE person_id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	rows, err := m.DB.QueryContext(ctx, query, personID)
@@ -108,7 +108,7 @@ func (m PeopleLinkModel) Delete(id int64) error {
 		DELETE FROM people_links WHERE id = $1;
 	`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	result, err := m.DB.ExecContext(ctx, stmt, id)

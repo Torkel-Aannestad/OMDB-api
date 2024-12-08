@@ -23,7 +23,7 @@ type TrailersModel struct {
 }
 
 func (m TrailersModel) Insert(trailer *Trailer) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	query := `
@@ -65,7 +65,7 @@ func (m TrailersModel) Get(MovieID int64) ([]*Trailer, error) {
 		FROM trailers
 		WHERE movie_id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	rows, err := m.DB.QueryContext(ctx, query, MovieID)
@@ -110,7 +110,7 @@ func (m TrailersModel) Delete(id int64) error {
 	stmt := `
 		DELETE FROM trailers WHERE id = $1
 	`
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	result, err := m.DB.ExecContext(ctx, stmt, id)

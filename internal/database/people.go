@@ -28,7 +28,7 @@ type PeopleModel struct {
 }
 
 func (m PeopleModel) Insert(person *Person) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	query := `
@@ -79,7 +79,7 @@ func (m PeopleModel) Get(id int64) (*Person, error) {
 	FROM people
 	WHERE id = $1;`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(
@@ -118,7 +118,7 @@ func (m PeopleModel) GetAll(name string, filter Filters) ([]*Person, Metadata, e
 
 	args := []any{name, filter.limit(), filter.offset()}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	rows, err := m.DB.QueryContext(ctx, query, args...)
@@ -188,7 +188,7 @@ func (m PeopleModel) Update(person *Person) error {
 		&person.ModifiedAt,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&person.Version)
@@ -210,7 +210,7 @@ func (m PeopleModel) Delete(id int64) error {
 	stmt := `
 		DELETE FROM people WHERE id = $1
 	`
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	result, err := m.DB.ExecContext(ctx, stmt, id)

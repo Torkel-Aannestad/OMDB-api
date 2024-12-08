@@ -26,7 +26,7 @@ type CastsModel struct {
 }
 
 func (m CastsModel) Insert(cast *Cast) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	query := `
@@ -67,7 +67,7 @@ func (m CastsModel) Get(id int64) (*Cast, error) {
 	FROM casts
 	WHERE id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	var cast Cast
@@ -108,7 +108,7 @@ func (m CastsModel) GetByMovieID(movieID int64) ([]*Cast, error) {
 	FROM casts
 	WHERE movie_id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	rows, err := m.DB.QueryContext(ctx, query, movieID)
@@ -162,7 +162,7 @@ func (m CastsModel) GetByPersonID(personID int64) ([]*Cast, error) {
 	FROM casts
 	WHERE person_id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	rows, err := m.DB.QueryContext(ctx, query, personID)
@@ -223,7 +223,7 @@ func (m CastsModel) Update(cast *Cast) error {
 		&cast.Position,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&cast.Version)
@@ -242,7 +242,7 @@ func (m CastsModel) Delete(id int64) error {
 	stmt := `
 		DELETE FROM casts WHERE id = $1;
 	`
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	result, err := m.DB.ExecContext(ctx, stmt, id)

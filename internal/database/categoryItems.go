@@ -33,7 +33,7 @@ func (m CategoryItemsModel) Insert(categoryItem *CategoryItem, tableName string)
 	if err != nil {
 		return err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	query := fmt.Sprintf(`
@@ -70,7 +70,7 @@ func (m CategoryItemsModel) Get(movieId int64, tableName string) ([]*CategoryIte
 		FROM %v
 		WHERE movie_id = $1`, tableName)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	rows, err := m.DB.QueryContext(ctx, query, movieId)
@@ -113,7 +113,7 @@ func (m CategoryItemsModel) Delete(movieID, categoryID int64, tableName string) 
 
 	stmt := fmt.Sprintf(`DELETE FROM %v WHERE movie_id = $1 AND category_id = $2`, tableName)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	result, err := m.DB.ExecContext(ctx, stmt, movieID, categoryID)

@@ -75,7 +75,7 @@ func (m *TokenModel) Insert(token *Token) error {
 
 	args := []any{token.Hash, token.UserId, token.Expiry, token.Scope}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	_, err := m.DB.ExecContext(ctx, query, args...)
@@ -87,7 +87,7 @@ func (m *TokenModel) DeleteAllForUser(scope string, userID int64) error {
 		DELETE FROM tokens 
 		WHERE scope = $1 AND user_id = $2
 	`
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	_, err := m.DB.ExecContext(ctx, query, scope, userID)

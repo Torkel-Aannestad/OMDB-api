@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/lib/pq"
 )
@@ -31,7 +30,7 @@ func (m PermissionModel) GetAllForUser(userID int64) (Permissions, error) {
         INNER JOIN users ON users_permissions.user_id = users.id
         WHERE users.id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	rows, err := m.DB.QueryContext(ctx, query, userID)
@@ -64,7 +63,7 @@ func (m PermissionModel) AddForUser(userID int64, codes ...string) error {
         INSERT INTO users_permissions
         SELECT $1, permissions.id FROM permissions WHERE permissions.code = ANY($2)`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
 	_, err := m.DB.ExecContext(ctx, query, userID, pq.Array(codes))
