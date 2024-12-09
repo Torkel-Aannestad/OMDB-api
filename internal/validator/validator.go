@@ -40,6 +40,15 @@ func PermittedValue[T comparable](value T, permittedValues ...T) bool {
 	return slices.Contains(permittedValues, value)
 }
 
+func NotIn[T comparable](value T, blocklist ...T) bool {
+	for i := range blocklist {
+		if value == blocklist[i] {
+			return false
+		}
+	}
+	return true
+}
+
 func Matches(value string, rx *regexp.Regexp) bool {
 	return rx.MatchString(value)
 }
