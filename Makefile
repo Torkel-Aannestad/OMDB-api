@@ -108,12 +108,13 @@ production/connect:
 ## production/deploy/api: deploy the api to production
 .PHONY: production/deploy/app
 production/deploy/app:
-	rsync -P ./bin/linux_amd64/moviemaze-app moviemaze@${PRODUCTION_HOST_IP}:~
-	rsync -rP --delete ./sql/schema/ moviemaze@${PRODUCTION_HOST_IP}:~/sql/migrations
-	ssh -t moviemaze@${PRODUCTION_HOST_IP} 'cd sql/migrations && goose postgres ${MOVIE_MAZE_DB_DSN_PROD} up && cd ../..'
-	rsync -P ./remote/production/moviemaze.service moviemaze@${PRODUCTION_HOST_IP}:~
+	rsync -P ./bin/linux_amd64/moviemaze-app moviemaze@${PRODUCTION_HOST_IP}:~/moviemaze
+	rsync -rP --delete ./sql/schema/ moviemaze@${PRODUCTION_HOST_IP}:~/moviemaze/sql/schema
+	rsync -rP --delete ./sql/migrations/ moviemaze@${PRODUCTION_HOST_IP}:~/moviemaze/sql/migrations
+	ssh -t moviemaze@${PRODUCTION_HOST_IP} 'cd moviemaze/sql/migrations && goose postgres ${MOVIE_MAZE_DB_DSN_PROD} up'
+	rsync -P ./remote/production/moviemaze.service moviemaze@${PRODUCTION_HOST_IP}:~/moviemaze
 	ssh -t moviemaze@${PRODUCTION_HOST_IP} '\
-		sudo mv ~/moviemaze.service /etc/systemd/system/ \
+		sudo mv ~/moviemaze/moviemaze.service /etc/systemd/system/ \
 		&& sudo systemctl enable moviemaze \
 		&& sudo systemctl restart moviemaze \
 		'
