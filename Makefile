@@ -13,7 +13,7 @@ confirm:
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	go run ./cmd/api -db-dsn=${MOVIE_MAZE_DB_DSN} 
+	go run ./cmd/api -db-dsn=${MOVIE_MAZE_DB_DSN_DEV} 
 
 ## live/server: run air
 .PHONY: live/server
@@ -23,19 +23,19 @@ live/server:
 ## db/psql: connect to the database using psql
 .PHONY: db/psql
 db/psql:
-	psql ${MOVIE_MAZE_DB_DSN}
+	psql ${MOVIE_MAZE_DB_DSN_DEV}
 
 ## db/migrations/up: apply all up database migrations
 .PHONY: db/migrations/up
 db/migrations/up: confirm
 	@echo 'Running up migrations...'
-	@cd sql/schema && goose postgres ${MOVIE_MAZE_DB_DSN} up && cd ../..
+	@cd sql/schema && goose postgres ${MOVIE_MAZE_DB_DSN_DEV} up && cd ../..
 
 ## db/import-data: imports OMDB dataset
 .PHONY: db/import-data
 db/import-data:
 	@echo 'Importing OMDB data...'
-	@psql -v ON_ERROR_STOP=1 -d "${MOVIE_MAZE_DB_DSN}" -c "\i sql/data-import/run.sql"
+	@psql -v ON_ERROR_STOP=1 -d "${MOVIE_MAZE_DB_DSN_DEV}" -c "\i sql/data-import/run.sql"
 
 ## db/data-download: downloads new OMDB CSV files
 .PHONY: db/data-download
@@ -46,7 +46,7 @@ db/data-download:
 ## db/pg_dump/schema: slqc generates go types from database schema and queries
 .PHONY: db/pg_dump/schema
 db/pg_dump/schema:
-	pg_dump "${MOVIE_MAZE_DB_DSN}" --schema-only > sql/schema/moviemaze_schema.sql
+	pg_dump "${MOVIE_MAZE_DB_DSN_DEV}" --schema-only > sql/schema/moviemaze_schema.sql
 
 ## db/sqlc/generate: slqc generates go types from database schema and queries
 .PHONY: db/sqlc/generate
@@ -134,4 +134,3 @@ production/import-data/run:
 		'
 	@echo "data import complete..."
 
-	

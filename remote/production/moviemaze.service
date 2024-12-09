@@ -19,7 +19,7 @@ User=moviemaze
 Group=moviemaze
 EnvironmentFile=/etc/environment
 WorkingDirectory=/home/moviemaze/moviemaze
-ExecStart=/home/moviemaze/moviemaze/moviemaze-app -port=4000 -env=production -db-dsn=${MOVIE_MAZE_DB_DSN}
+ExecStart=/home/moviemaze/moviemaze/moviemaze-app -port=4000 -env=production -db-dsn=${MOVIE_MAZE_DB_DSN} -smtp-host=live.smtp.mailtrap.io -smtp-username=${MAILTRAP_USERNAME_PROD} -smtp-password=${MAILTRAP_PASSWORD_PROD}
 
 # Automatically restart the service after a 5-second wait if it exits with a non-zero 
 # exit code. If it restarts more than 5 times in 600 seconds, then the rate limit we

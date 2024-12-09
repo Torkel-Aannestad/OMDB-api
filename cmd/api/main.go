@@ -54,9 +54,9 @@ func main() {
 	var cfg Config
 
 	godotenv.Load()
-	dsn := os.Getenv("MOVIE_MAZE_DB_DSN")
-	mailtrapUsername := os.Getenv("MAILTRAP_USERNAME")
-	mailtrapPassword := os.Getenv("MAILTRAP_PASSWORD")
+	dsn := os.Getenv("MOVIE_MAZE_DB_DSN_DEV")
+	mailtrapUsername := os.Getenv("MAILTRAP_USERNAME_DEV")
+	mailtrapPassword := os.Getenv("MAILTRAP_PASSWORD_DEV")
 
 	flag.IntVar(&cfg.port, "port", 4000, "port to listen for request")
 	flag.StringVar(&cfg.env, "env", "development", "development | staging | production")
@@ -72,12 +72,12 @@ func main() {
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
 
-	//mailer
+	//Mailer
 	flag.StringVar(&cfg.smtp.host, "smtp-host", "sandbox.smtp.mailtrap.io", "host")
 	flag.IntVar(&cfg.smtp.port, "smtp-port", 587, "port")
 	flag.StringVar(&cfg.smtp.username, "smtp-username", mailtrapUsername, "username")
 	flag.StringVar(&cfg.smtp.password, "smtp-password", mailtrapPassword, "password")
-	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.alexedwards.net>", "sender")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "MovieMaze <no-reply@moviemaze.torkelaannestad.com>", "sender")
 
 	displayVersion := flag.Bool("version", false, "Display version and exit")
 
