@@ -20,5 +20,3 @@ ANALYZE;
 -- \i :base_path/031_purge_dirty_categories.sql
 
 \i :base_path/040_add_indexes.sql
-
-

@@ -54,7 +54,7 @@ func main() {
 	var cfg Config
 
 	godotenv.Load()
-	dns := os.Getenv("MOVIE_MAZE_DB_DSN")
+	dsn := os.Getenv("MOVIE_MAZE_DB_DSN")
 	mailtrapUsername := os.Getenv("MAILTRAP_USERNAME")
 	mailtrapPassword := os.Getenv("MAILTRAP_PASSWORD")
 
@@ -62,7 +62,7 @@ func main() {
 	flag.StringVar(&cfg.env, "env", "development", "development | staging | production")
 
 	//DB flags
-	flag.StringVar(&cfg.db.dsn, "db-dsn", dns, "dsn for PG instance")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", dsn, "dsn for PG instance")
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.DurationVar(&cfg.db.maxIdleTime, "db-max-idle-time", 15*time.Minute, "PostgreSQL max connection idle time")
