@@ -1,0 +1,47 @@
+{{define "subject"}}Welcome to MovieMaze!{{ end }}
+
+{{define "plainBody"}}
+Hi. Thanks for signing up for a MovieMaze account. We're excited to have you on
+board! To activate your account Please send a request to PUT
+https://moviemaze.torkelaannestad.com/v1/users/activate with a the activation
+token below as the body. {"token": "{{.activationToken}}"} Please note that this
+is a one-time use token and it will expire in 3 days. For further information
+please see the API documentation at moviemaze.torkelaannestad.com/api-docs
+Thanks, The MovieMaze Team
+{{ end }}
+
+{{define "htmlBody"}}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  </head>
+
+  <body>
+    <p>Hi,</p>
+    <p>
+      Thanks for signing up for a MovieMaze account. We're excited to have you
+      on board!
+    </p>
+    <p>
+      To activate your account Please send a request to
+      <code>PUT https://moviemaze.torkelaannestad.com/v1/users/activate</code>
+      with a the activation token below as the body.
+    </p>
+    <pre><code>
+    {"token": "{{.activationToken}}"}
+    </code></pre>
+    <p>
+      Please note that this is a one-time use token and it will expire in 3
+      days.
+    </p>
+    <p>
+      For further information please see the API documentation at
+      <code> moviemaze.torkelaannestad.com/api-docs</code>
+    </p>
+    <p>Thanks,</p>
+    <p>The MovieMaze Team</p>
+  </body>
+</html>
+{{ end }}
