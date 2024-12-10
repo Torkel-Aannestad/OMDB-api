@@ -76,5 +76,6 @@ func (app *application) routes() http.Handler {
 
 	// router.Handler(http.MethodGet, "/metrics", expvar.Handler())
 
+	router.HandlerFunc(http.MethodGet, "/", app.getDocs)
 	return app.panicRecovery(app.rateLimit(app.authenticate(router)))
 }

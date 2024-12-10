@@ -2,12 +2,12 @@
 
 {{define "plainBody"}}
 Hi. Thanks for signing up for a MovieMaze account. We're excited to have you on
-board! To activate your account Please send a request to PUT
-https://moviemaze.torkelaannestad.com/v1/users/activate with a the activation
-token below as the body. {"token": "{{.activationToken}}"} Please note that this
-is a one-time use token and it will expire in 3 days. For further information
-please see the API documentation at moviemaze.torkelaannestad.com/api-docs
-Thanks, The MovieMaze Team
+board! To activate your account send a PUT request to the endpoint below with a
+the provided activation token as the body. PUT
+https://moviemaze.torkelaannestad.com/v1/users/activate {"token": "{{.activationToken
+}}"}. Please note that this is a one-time use token and it will expire in 3
+days. For further information please see the API documentation at
+moviemaze.torkelaannestad.com/api-docs Thanks, The MovieMaze Team
 {{ end }}
 
 {{define "htmlBody"}}
@@ -25,11 +25,13 @@ Thanks, The MovieMaze Team
       on board!
     </p>
     <p>
-      To activate your account Please send a request to
-      <code>PUT https://moviemaze.torkelaannestad.com/v1/users/activate</code>
-      with a the activation token below as the body.
+      To activate your account send a PUT request to the endpoint below with a
+      the provided activation token as the body.
     </p>
-    <pre><code>
+
+    <pre>
+      <code>PUT https://moviemaze.torkelaannestad.com/v1/users/activate</code>
+      <code>
     {"token": "{{.activationToken}}"}
     </code></pre>
     <p>
