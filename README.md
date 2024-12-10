@@ -1,6 +1,6 @@
-# MovieMaze
-
 ## Quickstart
+
+[API documentation](#api-documentaion)
 
 ## Database and Model design
 
@@ -58,22 +58,23 @@ GET /v1/healthcheck
 
 - Movie Response example:
 
-```{
-      "id": 1,
-      "parent_id": null,
-      "series_id": null,
-      "name": "Inception",
-      "date": "2010-07-16T00:00:00Z",
-      "kind": "movie",
-      "runtime": 148,
-      "budget": 160000000,
-      "revenue": 829895144,
-      "homepage": "https://www.inceptionmovie.com",
-      "vote_average": 8.8,
-      "vote_count": 210000,
-      "abstract": "A skilled thief is given a chance at redemption if he can successfully perform inception.",
-      "version": 1
-    },
+```JSON
+{
+  "id": 1,
+  "parent_id": null,
+  "series_id": null,
+  "name": "Inception",
+  "date": "2010-07-16T00:00:00Z",
+  "kind": "movie",
+  "runtime": 148,
+  "budget": 160000000,
+  "revenue": 829895144,
+  "homepage": "https://www.inceptionmovie.com",
+  "vote_average": 8.8,
+  "vote_count": 210000,
+  "abstract": "A skilled thief is given a chance at redemption if he can successfully perform inception.",
+  "version": 1
+},
 ```
 
 ##### GET /v1/movies
