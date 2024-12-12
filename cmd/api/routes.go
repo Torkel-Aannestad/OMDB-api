@@ -68,8 +68,8 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPatch, "/v1/images/:id", app.protectedRoute("images:write", app.updateImageHandler))
 	router.HandlerFunc(http.MethodDelete, "/v1/images/:id", app.protectedRoute("images:write", app.deleteImageHandler))
 
-	router.HandlerFunc(http.MethodPost, "/v1/api-users", app.registerUserHandler)
-	router.HandlerFunc(http.MethodPut, "/v1/api-users/activate", app.activateUserHandler)
+	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
+	router.HandlerFunc(http.MethodPut, "/v1/users/activate", app.activateUserHandler)
 
 	router.HandlerFunc(http.MethodPost, "/v1/auth/authentication", app.authenticateUserHandler)
 	// router.HandlerFunc(http.MethodPost, "/v1/auth/change-password", app.changeUserPasswordHandler)

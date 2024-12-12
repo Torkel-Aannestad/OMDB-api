@@ -31,15 +31,66 @@
     </header>
     <main class="container">
       <h1 id="moviemaze">MovieMaze</h1>
-      <p>
-        Skriver litt om projektet
-      </p>
+      <p>This project is a personal learning project. MovieMaze is a movie and series database presented as a JSON-api and later a React-based user interface. The data is downloaded from <a href="https://www.omdb.org">OMDB</a> which is a free community driven database for film media. The goal of the project has been to create a full featured ideomatic Go JSON API, which uses few dependencies and abstractions.</p>
+      <p>Stack:</p>
       <ul>
-        <li><a href="">Torkelaannestad.com</a></li>
-        <li><a href="">Github.com</a></li>
+      <li>HTTPRouter for routing</li>
+      <li>PostgreSQL database</li>
+      <li>Models built with raw SQL and Go standard libary</li>
+      <li>Auth and user management built from cratch</li>
+      <li>Mailer implemented with Go-mail and Mailtrap SMTP relay</li>
+      <li>Makefile for automations</li>
+      <li>Hosting from a Ubuntu VM with Caddy reverse proxy and rsync for file transfer and shell scripts</li>
       </ul>
+      <p>Sentral to the design of the application is Alex Edwards’ books <a href="https://lets-go.alexedwards.net/">Let’s Go</a> and <a href="https://lets-go-further.alexedwards.net/">Let’s Go Further</a>. You can read more about the technology stack and design desitions taken in the project below.</p>
+      <p><strong>Created by Torkel Aannestad</strong></p>
+      <ul>
+      <li>Torkel Aannestad</li>
+      <li><a href="Website">torkelaannestad.com</a></li>
+      <li><a href="Github">github.com/Torkel-Aannestad/</a></li>
+      </ul>
+      <p>Jump to the API-documentation: <a href="#api-documentaion">API documentation</a></p>
       <h2 id="quickstart">Quickstart</h2>
-      <p><a href="#api-documentaion">API documentation</a></p>
+      <p>The API is open for anyone to use. Sign up and activate you user account and you are ready to use the API. The database will occationally be reset, but please don’t perform to many destructive operations.</p>
+      <p>You’ll get access with 3 steps:</p>
+      <ol type="1">
+      <li>User signup</li>
+      <li>Confirm your email with token</li>
+      <li>Authenticate with email and password to get a request token</li>
+      </ol>
+      
+      <h4>1. User Signup</h4>
+      <ul>
+      <li>Base url: moviemaze.torkelaannestad.com</li>
+      <li>Endpoint: POST /v1/users</li>
+      <li>Body: name, email, password</li>
+      </ul>
+      <pre class="shell"><code>  BODY=&#39;{&quot;name&quot;: &quot;Jake Perolta&quot;,&quot;email&quot;: &quot;jake.perolta@example.com&quot;, &quot;password&quot;: &quot;yourSecurePassword&quot;}&#39;
+        curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/users</code></pre>
+      
+        <h4>2. User Activation</h4> 
+      <p>An email is sent to your email with activation token. Send the following request to active your account.</p>
+      <ul>
+      <li>Endpoint: POST /v1/users/activate</li>
+      <li>Body: token</li>
+      </ul>
+      <pre class="shell"><code>  BODY=&#39;{&quot;token&quot;: token-from-email}&#39;
+        curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/users/activate</code></pre>
+      
+        <h4>3. Get Auth Token</h4>
+      <ul>
+      <li>Endpoint: POST /v1/auth/authentication</li>
+      <li>Body: email, password</li>
+      </ul>
+      <pre class="shell"><code>  BODY=&#39;{&quot;email&quot;: &quot;youEmail@example.com&quot;, &quot;password&quot;: &quot;pa55word&quot;}&#39;
+        curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/auth/authentication</code></pre>
+      
+        <h4>Request data 🎉</h4>
+      <ul>
+      <li>Endpoint: GET /v1/movies/:id</li>
+      </ul>
+      <pre class="shell"><code>  curl -H &quot;Authorization: Bearer G5TU7Y46GRENMNUDZP2T75QGNE&quot; moviemaze.torkelaannestad.com/v1/movies/35819</code></pre>
+      <br>
       <h2 id="database-and-model-design">Database and Model design</h2>
       <ul>
         <li>migrations are handled with goose from the sql/schema directory</li>

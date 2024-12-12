@@ -1,60 +1,153 @@
-## Quickstart
+# MovieMaze
 
+This project is a personal learning project. MovieMaze is a movie and series database presented as a JSON-api and later a React-based user interface. The data is downloaded from [OMDB](https://www.omdb.org) which is a free community driven database for film media. The goal of the project has been to create a full featured ideomatic Go JSON API, which uses few dependencies and abstractions.
+
+Stack:
+
+- HTTPRouter for routing
+- PostgreSQL database
+- Models built with raw SQL and Go standard libary
+- Auth and user management built from cratch
+- Mailer implemented with Go-mail and Mailtrap SMTP relay
+- Makefile for automations
+- Hosting from a Ubuntu VM with Caddy reverse proxy and rsync for file transfer and shell scripts
+
+Sentral to the design of the application is Alex Edwards' books [Let's Go](https://lets-go.alexedwards.net/) and [Let's Go Further](https://lets-go-further.alexedwards.net/). You can read more about the technology stack and design desitions taken in the project below.
+
+<strong>Created by Torkel Aannestad</strong>
+
+- [torkelaannestad.com](torkelaannestad.com)
+- [Github](github.com/Torkel-Aannestad/)
+
+Jump to the API-documentation:
 [API documentation](#api-documentaion)
 
+## Quickstart
+
+The API is open for anyone to use. Sign up and activate you user account and you are ready to use the API. The database will occationally be reset, but please don't perform to many destructive operations.
+
+You'll get access with 3 steps:
+
+1. User signup
+2. Confirm your email with token
+3. Authenticate with email and password to get a request token
+
+<br/>
+<h3>1. User Signup</h3>
+
+- Base url: moviemaze.torkelaannestad.com
+- Endpoint: POST /v1/users
+- Body: name, email, password
+
+```shell
+  BODY='{"name": "Jake Perolta","email": "jake.perolta@example.com", "password": "yourSecurePassword"}'
+  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/users
+```
+
+<br/>
+<h3>2. User Activation</h3>
+An email is sent to your email with activation token. Send the following request to active your account.
+
+- Endpoint: POST /v1/users/activate
+- Body: token
+
+```shell
+  BODY='{"token": token-from-email}'
+  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/users/activate
+```
+
+<br/>
+<h3>3. Get Auth Token</h3>
+
+- Endpoint: POST /v1/auth/authentication
+- Body: email, password
+
+```shell
+  BODY='{"email": "youEmail@example.com", "password": "pa55word"}'
+  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/auth/authentication
+```
+
+<br/>
+<strong>Request data</strong>
+
+- Endpoint: GET /v1/movies/:id
+
+```shell
+  curl -H "Authorization: Bearer G5TU7Y46GRENMNUDZP2T75QGNE" moviemaze.torkelaannestad.com/v1/movies/35819
+```
+
+<br/>
 ## Database and Model design
 
-- migrations are handled with goose from the sql/schema directory
-- mapping between sql schema, sql queries and Go types are done with sqlc. See sqlc.yaml config file
-- sqlc is configured for autogenerating json tags for structs. By default uses the database column name as json value. Caseing can be configued. json value can be overwritten in sqlc.yaml if needed.
-- to start the handlers returns the generated types directly, however, set up a mapping to a seperate application type if needed. FOr example in case you don't want include some columns.
-- With SQLC is not convenient to do build dynamic SLQ queries with go code such as sort column and sort direction.
-
-### Refactored
-
-Refactor uten sqlc. Implementer selv, men bruk sqlc til å generere for deg. Da kan du copy pasta og endre litt. Mindre sannsynelighet for feil i mapping mellom feltene.
-
-- vi får bedre håndtering av ctx og error
-- full kontrol der vi må bruk Sprintf til å bygge opp størring.
-- vi kan legge valideringslogikk sammen med types.
-- vi kan legge til response types der vi trenger der. eks userResponse som ikke skal inneholde alle feltene.
-- vi kan nå generere kode med sqlc, men kopiere den over får full kontrol.
-
-### OMDB
-
-- Added to Makefile to transfer csv data and import to DB
+- OMDB is imported from CSV files. An import SQL script is created to set up the data model in a good starting state. See /sql/data-import/run.sql for all the set up steps.
+- Added to Makefile to transfer csv data and import to DB in production.
+- After initial data import migrations are handled with goose from the sql/schema directory.
+- sqlc is configured for autogenerating json tags for Go structs. The generated types are not used directly but copied and modified. This way we get better control over the context.Context instance and error handling. We also get full control when needing to build dynamic queries.
+- PostgreSQL configured with citext plugin for user email column to make string case insensitive.
+- Full text search features in PostgreSQL is configured to enabled a good search experience with for examample movies or people resources.
 
 ## Mailer
 
-- Mailtrap
-- MailTrap for sending transational emails. Easy free setup with no requiment for adding a domain.
-- go-mail for handling SMTP. https://pkg.go.dev/github.com/go-mail/mail
+- MailTrap for sending transational emails.
+- go-mail for handling SMTP.
 - Sending email with background Go routine
+- Email templates are found in assets/templates
 
-## Misc
+## Middleware
+
+- Authenticate middleware ensures that we retrieve the user from the database or know that the user is anonymous. The user is added to the request context your later use.
+- The protectedRoute middleware bounces the user if she is not activated, has the right permission or is anonymous.
+
+## MISC
 
 - IP based rate limiting with x/time/rate package
 - Getting user's IP with Realip package
   - github.com/tomasen/realip
-- users email. Use postgresql plugin citext to make string case insensitive. This way we don't need to worry case.
-- error triage
+- Error triage is implemented in readJSON() helper function to ensure that potensial errors from reading json body is caught and error messages regarding what the issue is can be sendt to the user. A standardized set of response messages are found in cmd/api/errors.go to ensure that only known formulations will reach the end user, and thus hiding for example error messages bubbling from PostgreSQL.
 
 ## API Documentaion
 
-### Base URL
+Base URL and example endpoint:
 
-All API endpoints are prefixed by /v1.
+```shell
+ moviemaze.torkelaannestad.com/v1/healthcheck
+```
 
-### Endpoints
+- To get access to the API please see the [quickstart section](#Quickstart) or the [users](#Users) and [auth](#Authentication) resources.
+- Error handling and expected status codes are found in [error handling](#Error-Handling).
+- Permissions. The api is implementet with permission based authorization. Upon signup your user will be granted both read and write access to most resources. Please behave nicely.
+- Optimistic concurrency control is applied to any records that can be updated thought the version field. This way multile simultanious requests to update a will fail with status code 409 conflict.
+
+### Resources
+
+Overview
+[Healthcheck](#Healthcheck)
+[Movies](#Movies)
+[People](#People)
+[Casts](#Casts)
+[Jobs](#Jobs)
+[Categories](#Categories)
+[Movie Keywords](#Movie-Keywords)
+[Movie Categories](#Movie-Categories)
+[Movie Links](#Movie-Links)
+[People Links](#People-Links)
+[Trailers](#Trailers)
+[Images](#Images)
+[Users](#Users)
+[Authentication](#Authentication)
 
 #### Healthcheck
 
-GET /v1/healthcheck
+```shell
+ GET /v1/healthcheck
+```
 
 - Description: Check the health status of the API.
 - Authentication: None
 
 #### Movies
+
+The movies table include both movies, series and episodes. Series uses the parent_id and series_id fields to form a hierarchy between top level series, seasons and episodes.
 
 - Movie Response example:
 
@@ -74,13 +167,43 @@ GET /v1/healthcheck
   "vote_count": 210000,
   "abstract": "A skilled thief is given a chance at redemption if he can successfully perform inception.",
   "version": 1
-},
+}
 ```
 
 ##### GET /v1/movies
 
-- Description: Retrieve a list of movies.
+- Description: Retrieve a list of movies. The endpoint allows full text search thought query parameters.
+- Query parameters:
+  - name: Full text search
+  - page: defaults to 1
+  - page_size: number of record for each page
+  - sort: defaults to "id". Use "-" for descending order. Valid values are: "id", "name", "date", "runtime", "-id", "-name", "-date", "-runtime".
 - Permission: movies:read
+
+```shell
+ curl -H "Authorization: Bearer yourTokenHere" "https://moviemaze.torkelaannestad.com/v1/movies?name=mad%20max&page=1&page_size=5&sort=id"
+```
+
+Response:
+
+```JSON
+{
+  "id": 1,
+  "parent_id": null,
+  "series_id": null,
+  "name": "Inception",
+  "date": "2010-07-16T00:00:00Z",
+  "kind": "movie",
+  "runtime": 148,
+  "budget": 160000000,
+  "revenue": 829895144,
+  "homepage": "https://www.inceptionmovie.com",
+  "vote_average": 8.8,
+  "vote_count": 210000,
+  "abstract": "A skilled thief is given a chance at redemption if he can successfully perform inception.",
+  "version": 1
+}
+```
 
 ##### POST /v1/movies
 
@@ -337,3 +460,8 @@ GET /v1/healthcheck
 404 Not Found: If a movie with the specified ID does not exist.
 409 Conflict: If there's a concurrency edit conflict (version mismatch).
 405 Method Not Allowed: If the method is not allowed on the specified route.
+
+## Roadmap
+
+- Improved testing
+- More advance auth features like MFA and additional rate limiting on auth endpoints.
