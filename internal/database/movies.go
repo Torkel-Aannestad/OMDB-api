@@ -317,6 +317,10 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 
 }
 
+func ValidateKind(v *validator.Validator, kind *string) {
+	v.Check(*kind == "movie" || *kind == "series" || *kind == "season" || *kind == "episode" || *kind == "movieseries", "kind", "must be one of the following values: movie, series, season, episode, movieseries")
+}
+
 // func ValidateParentID(v *validator.Validator, int64)
 // v.Check(movie.ParentID.Int64 != 0, "parent_id", "must be provided")
 // v.Check(movie.ParentID.Int64 > 0, "parent_id", "must be a positive integer")

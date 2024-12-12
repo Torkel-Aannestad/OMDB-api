@@ -133,8 +133,11 @@ func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// validate kind
-	fmt.Printf("kind: %v\n", input.Kind)
+	database.ValidateKind(v, &input.Kind)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
 
 	movies, metadata, err := app.models.Movies.GetAll(input.Name, input.Kind, input.Filters)
 	if err != nil {
