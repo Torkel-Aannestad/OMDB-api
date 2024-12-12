@@ -112,6 +112,7 @@ func (app *application) getMovieHandler(w http.ResponseWriter, r *http.Request) 
 func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name string
+		Kind string
 		database.Filters
 	}
 
@@ -120,6 +121,7 @@ func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request
 	v := validator.New()
 
 	input.Name = app.readString(qs, "name", "")
+	input.Kind = app.readString(qs, "kind", "")
 	input.Filters.Page = app.readInt(qs, "page", 1, v)
 	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
 	input.Filters.Sort = app.readString(qs, "sort", "id")
@@ -131,7 +133,10 @@ func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	movies, metadata, err := app.models.Movies.GetAll(input.Name, input.Filters)
+	// validate kind
+	fmt.Printf("kind: %v\n", input.Kind)
+
+	movies, metadata, err := app.models.Movies.GetAll(input.Name, input.Kind, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

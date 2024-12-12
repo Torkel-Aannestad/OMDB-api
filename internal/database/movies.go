@@ -136,23 +136,35 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	return &movie, nil
 }
 
-func (m MovieModel) GetAll(name string, filters Filters) ([]*Movie, Metadata, error) {
+func (m MovieModel) GetAll(name string, kind string, filters Filters) ([]*Movie, Metadata, error) {
 
 	sortColumn := filters.getSortColumn()
 	sortDirection := filters.getSortDirection()
+
+	var kindFilter string
+	if kind != "" {
+		kindFilter = "kind = $4"
+	} else {
+		kindFilter = "1=1"
+	}
 
 	query := fmt.Sprintf(`
 		SELECT count(*) OVER(), id, name, parent_id, date, series_id, kind, runtime, budget, revenue, homepage, vote_average, votes_count, abstract, created_at, modified_at, version
 		FROM movies
 		WHERE (to_tsvector('simple', name) @@ plainto_tsquery('simple', $1) OR $1 = '')
+		AND (%s)
 		ORDER BY %s %s, id ASC
 		LIMIT $2 OFFSET $3
-	`, sortColumn, sortDirection)
+	`, kindFilter, sortColumn, sortDirection)
 
 	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
-	args := []any{name, filters.limit(), filters.offset()}
+	args := []any{name}
+	args = append(args, filters.limit(), filters.offset())
+	if kind != "" {
+		args = append(args, kind)
+	}
 
 	rows, err := m.DB.QueryContext(ctx, query, args...)
 	if err != nil {
