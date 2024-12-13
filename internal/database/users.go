@@ -78,6 +78,28 @@ func (m *UserModel) GetByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
+func (m *UserModel) GetById(id string) (*User, error) {
+	user := User{}
+	query := `
+		SELECT 
+		id, created_at, name, email, password_hash, activated, version 
+		FROM users
+		WHERE id = $1
+	`
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(&user.ID, &user.CreatedAt, &user.Name, &user.Email, &user.PasswordHash, &user.Activated, &user.Version)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &user, ErrRecordNotFound
+		} else {
+			return &user, err
+		}
+	}
+	return &user, nil
+}
+
 func (m *UserModel) Update(user *User) error {
 	query := `
         UPDATE users 
