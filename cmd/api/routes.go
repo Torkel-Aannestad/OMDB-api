@@ -72,7 +72,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPut, "/v1/users/activate", app.activateUserHandler)
 
 	router.HandlerFunc(http.MethodPost, "/v1/auth/authentication", app.authenticateUserHandler)
-	// router.HandlerFunc(http.MethodPost, "/v1/auth/change-password", app.changeUserPasswordHandler)
+	router.HandlerFunc(http.MethodPost, "/v1/auth/change-password", app.changePasswordHandler)
 
 	// router.Handler(http.MethodGet, "/metrics", expvar.Handler())
 
