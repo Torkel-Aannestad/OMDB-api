@@ -99,7 +99,11 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 	user.PasswordHash = newPasswordHash
 	err = app.models.Users.Update(user)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		if errors.Is(err, database.ErrEditConflict) {
+			app.editConflictResponse(w, r)
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 
@@ -127,7 +131,6 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
-
 }
 
 func (app *application) resetPasswordHandler(w http.ResponseWriter, r *http.Request) {
