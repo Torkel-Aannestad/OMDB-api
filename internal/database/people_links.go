@@ -127,7 +127,7 @@ func (m PeopleLinkModel) Delete(id int64) error {
 
 func ValidatePeopleLink(v *validator.Validator, PeopleLink *PeopleLink) {
 	v.Check(PeopleLink.Key != "", "key", "must be provided")
-	v.Check(validator.PermittedValue(PeopleLink.Key, "wikidata", "wikipedia", "imdbperson"), "source", "must not be of the following values 'wikidata', 'wikipedia' or 'imdbperson'")
+	v.Check(validator.PermittedValue(PeopleLink.Key, "wikidata", "wikipedia", "imdbperson"), "key", "must not be of the following values 'wikidata', 'wikipedia' or 'imdbperson'")
 
 	v.Check(PeopleLink.Source != "", "source", "must be provided")
 	v.Check(len(PeopleLink.Source) <= 500, "source", "must not be more than 500 bytes long")
