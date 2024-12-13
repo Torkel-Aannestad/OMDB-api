@@ -62,7 +62,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	err = app.models.Permissions.AddForUser(user.ID, "movies:read", "people:read", "casts:read", "jobs:read", "categories:read", "category-items:read", "movie-links:read", "people-links:read", "trailers:read", "images:read")
+	err = app.models.Permissions.AddForUser(user.ID, "movies:read", "people:read", "casts:read", "jobs:read", "categories:read", "category-items:read", "movie-links:read", "people-links:read", "trailers:read", "images:write", "movies:write", "people:write", "casts:write", "jobs:write", "categories:write", "category-items:write", "movie-links:write", "people-links:write", "trailers:write", "images:write")
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -145,4 +145,35 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		app.serverErrorResponse(w, r, err)
 	}
 
+}
+
+func (app *application) addUserPermissionsHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	user, err := app.models.Users.GetById(id)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	err = app.models.Permissions.AddForUser(user.ID, "movies:read", "people:read", "casts:read", "jobs:read", "categories:read", "category-items:read", "movie-links:read", "people-links:read", "trailers:read", "images:write", "movies:write", "people:write", "casts:write", "jobs:write", "categories:write", "category-items:write", "movie-links:write", "people-links:write", "trailers:write", "images:write")
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	userPermissions, err := app.models.Permissions.GetAllForUser(user.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"permissions": userPermissions}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }

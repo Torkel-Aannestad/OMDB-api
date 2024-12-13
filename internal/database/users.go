@@ -78,7 +78,7 @@ func (m *UserModel) GetByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
-func (m *UserModel) GetById(id string) (*User, error) {
+func (m *UserModel) GetById(id int64) (*User, error) {
 	user := User{}
 	query := `
 		SELECT 

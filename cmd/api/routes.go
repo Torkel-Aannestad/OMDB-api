@@ -76,6 +76,9 @@ func (app *application) routes() http.Handler {
 
 	// router.Handler(http.MethodGet, "/metrics", expvar.Handler())
 
+	//Admin swap permission
+	router.HandlerFunc(http.MethodPost, "/v1/users/permissions/:id", app.protectedRoute("users:write", app.addUserPermissionsHandler))
+
 	router.HandlerFunc(http.MethodGet, "/", app.getDocs)
 	return app.panicRecovery(app.rateLimit(app.authenticate(router)))
 }
