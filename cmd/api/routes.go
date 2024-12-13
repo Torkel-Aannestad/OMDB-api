@@ -73,7 +73,8 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodPost, "/v1/auth/authentication", app.authenticateUserHandler) //open
 	router.HandlerFunc(http.MethodPost, "/v1/auth/change-password", app.protectedRoute(app.changePasswordHandler))
-	router.HandlerFunc(http.MethodGet, "/v1/auth/password-reset", app.protectedRoute(app.resetPasswordHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/auth/reset-password:id", app.getResetPasswordTokenHandler) //user_id
+	router.HandlerFunc(http.MethodPost, "/v1/auth/reset-password", app.resetPasswordHandler)
 
 	// router.Handler(http.MethodGet, "/metrics", expvar.Handler())
 
