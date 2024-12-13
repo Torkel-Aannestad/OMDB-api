@@ -32,8 +32,7 @@ You'll get access with 3 steps:
 2. Confirm your email with token
 3. Authenticate with email and password to get a request token
 
-<br/>
-<h3>1. User Signup</h3>
+### 1. User Signup
 
 - Base url: moviemaze.torkelaannestad.com
 - Endpoint: POST /v1/users
@@ -44,8 +43,8 @@ You'll get access with 3 steps:
   curl -d "$BODY" moviemaze.torkelaannestad.com/v1/users
 ```
 
-<br/>
-<h3>2. User Activation</h3>
+### 2. User Activation
+
 An email is sent to your email with activation token. Send the following request to active your account.
 
 - Endpoint: PUT /v1/users/activate
@@ -58,8 +57,7 @@ An email is sent to your email with activation token. Send the following request
 
 Reponse: a user object with updated "activated" value.
 
-<br/>
-<h3>3. Get Auth Token</h3>
+### 3. Get Auth Token
 
 - Endpoint: POST /v1/auth/authentication
 - Body: email, password
@@ -113,6 +111,11 @@ Response:
   - github.com/tomasen/realip
 - Error triage is implemented in readJSON() helper function to ensure that potensial errors from reading json body is caught and error messages regarding what the issue is can be sendt to the user. A standardized set of response messages are found in cmd/api/errors.go to ensure that only known formulations will reach the end user, and thus hiding for example error messages bubbling from PostgreSQL.
 
+## Roadmap
+
+- Improved testing
+- More advance auth features like MFA and additional rate limiting on auth endpoints.
+
 ## API Documentaion
 
 Base URL and example endpoint:
@@ -129,20 +132,21 @@ Base URL and example endpoint:
 ### Resources
 
 Overview
-[Healthcheck](#Healthcheck)
-[Movies](#Movies)
-[People](#People)
-[Casts](#Casts)
-[Jobs](#Jobs)
-[Categories](#Categories)
-[Movie Keywords](#Movie-Keywords)
-[Movie Categories](#Movie-Categories)
-[Movie Links](#Movie-Links)
-[People Links](#People-Links)
-[Trailers](#Trailers)
-[Images](#Images)
-[Users](#Users)
-[Authentication](#Authentication)
+
+- [Healthcheck](#Healthcheck)
+- [Movies](#Movies)
+- [People](#People)
+- [Casts](#Casts)
+- [Jobs](#Jobs)
+- [Categories](#Categories)
+- [Movie Keywords](#Movie-Keywords)
+- [Movie Categories](#Movie-Categories)
+- [Movie Links](#Movie-Links)
+- [People Links](#People-Links)
+- [Trailers](#Trailers)
+- [Images](#Images)
+- [Users](#Users)
+- [Authentication](#Authentication)
 
 #### Healthcheck
 
@@ -803,17 +807,12 @@ Reponse: list of casts
 
 ### Error Handling
 
-400 Bad Request: General response when body or query params are invalid.
-422 Unprocessable Entity: Failed validations response. Fields are errors are specified.
-404 Not Found: If a movie with the specified ID does not exist.
-409 Conflict: If there's a concurrency edit conflict (version mismatch).
-405 Method Not Allowed: If the method is not allowed on the specified route.
-429 Too Many Request: Failed due to rate limiting.
-401 Unauthorized: any issue with auth token.
-403 Forbidden: When trying to access resources without respective permission or account not active.
-500 Server error: General server error response
-
-## Roadmap
-
-- Improved testing
-- More advance auth features like MFA and additional rate limiting on auth endpoints.
+- 400 Bad Request: General response when body or query params are invalid.
+- 422 Unprocessable Entity: Failed validations response. Fields are errors are specified.
+- 404 Not Found: If a movie with the specified ID does not exist.
+- 409 Conflict: If there's a concurrency edit conflict (version mismatch).
+- 405 Method Not Allowed: If the method is not allowed on the specified route.
+- 429 Too Many Request: Failed due to rate limiting.
+- 401 Unauthorized: any issue with auth token.
+- 403 Forbidden: When trying to access resources without respective permission or account not active.
+- 500 Server error: General server error response

@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light dark">
-    <link rel="stylesheet" href="css/pico.min.css">
+    <meta name="color-scheme" content="light dark" />
+    <link rel="stylesheet" href="css/pico.min.css" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
@@ -31,124 +31,158 @@
     </header>
     <main class="container">
       <h1 id="moviemaze">MovieMaze</h1>
-      <p>This project is a personal learning project. MovieMaze is a movie and series database presented as a JSON-api and later a React-based user interface. The data is downloaded from <a href="https://www.omdb.org">OMDB</a> which is a free community driven database for film media. The goal of the project has been to create a full featured ideomatic Go JSON API, which uses few dependencies and abstractions.</p>
+      <p>
+        This project is a personal learning project. MovieMaze is a movie and
+        series database presented as a JSON-api and later a React-based user
+        interface. The data is downloaded from
+        <a href="https://www.omdb.org">OMDB</a> which is a free community driven
+        database for film media. The goal of the project has been to create a
+        full featured ideomatic Go JSON API, which uses few dependencies and
+        abstractions.
+      </p>
       <p>Stack:</p>
       <ul>
-      <li>HTTPRouter for routing</li>
-      <li>PostgreSQL database</li>
-      <li>Models built with raw SQL and Go standard libary</li>
-      <li>Auth and user management built from cratch</li>
-      <li>Mailer implemented with Go-mail and Mailtrap SMTP relay</li>
-      <li>Makefile for automations</li>
-      <li>Hosting from a Ubuntu VM with Caddy reverse proxy and rsync for file transfer and shell scripts</li>
+        <li>HTTPRouter for routing</li>
+        <li>PostgreSQL database</li>
+        <li>Models built with raw SQL and Go standard libary</li>
+        <li>Auth and user management built from cratch</li>
+        <li>Mailer implemented with Go-mail and Mailtrap SMTP relay</li>
+        <li>Makefile for automations</li>
+        <li>
+          Hosting from a Ubuntu VM with Caddy reverse proxy and rsync for file
+          transfer and shell scripts
+        </li>
       </ul>
-      <p>Sentral to the design of the application is Alex Edwards’ books <a href="https://lets-go.alexedwards.net/">Let’s Go</a> and <a href="https://lets-go-further.alexedwards.net/">Let’s Go Further</a>. You can read more about the technology stack and design desitions taken in the project below.</p>
+      <p>
+        Sentral to the design of the application is Alex Edwards’ books
+        <a href="https://lets-go.alexedwards.net/">Let’s Go</a> and
+        <a href="https://lets-go-further.alexedwards.net/">Let’s Go Further</a>.
+        You can read more about the technology stack and design desitions taken
+        in the project below.
+      </p>
       <p><strong>Created by Torkel Aannestad</strong></p>
       <ul>
-      <li>Torkel Aannestad</li>
-      <li><a href="Website">torkelaannestad.com</a></li>
-      <li><a href="Github">github.com/Torkel-Aannestad/</a></li>
+        <li><a href="torkelaannestad.com">torkelaannestad.com</a></li>
+        <li><a href="github.com/Torkel-Aannestad/">Github</a></li>
       </ul>
-      <p>Jump to the API-documentation: <a href="#api-documentaion">API documentation</a></p>
+      <p>
+        Jump to the API-documentation:
+        <a href="#api-documentaion">API documentation</a>
+      </p>
       <h2 id="quickstart">Quickstart</h2>
-      <p>The API is open for anyone to use. Sign up and activate you user account and you are ready to use the API. The database will occationally be reset, but please don’t perform to many destructive operations.</p>
+      <p>
+        The API is open for anyone to use. Sign up and activate you user account
+        and you are ready to use the API. The database will occationally be
+        reset, but please don’t perform to many destructive operations.
+      </p>
       <p>You’ll get access with 3 steps:</p>
       <ol type="1">
-      <li>User signup</li>
-      <li>Confirm your email with token</li>
-      <li>Authenticate with email and password to get a request token</li>
+        <li>User signup</li>
+        <li>Confirm your email with token</li>
+        <li>Authenticate with email and password to get a request token</li>
       </ol>
-      
-      <h4>1. User Signup</h4>
+      <h3 id="user-signup">1. User Signup</h3>
       <ul>
-      <li>Base url: moviemaze.torkelaannestad.com</li>
-      <li>Endpoint: POST /v1/users</li>
-      <li>Body: name, email, password</li>
+        <li>Base url: moviemaze.torkelaannestad.com</li>
+        <li>Endpoint: POST /v1/users</li>
+        <li>Body: name, email, password</li>
       </ul>
-      <pre class="shell"><code>  BODY=&#39;{&quot;name&quot;: &quot;Jake Perolta&quot;,&quot;email&quot;: &quot;jake.perolta@example.com&quot;, &quot;password&quot;: &quot;yourSecurePassword&quot;}&#39;
+      <pre
+        class="shell"
+      ><code>  BODY=&#39;{&quot;name&quot;: &quot;Jake Perolta&quot;,&quot;email&quot;: &quot;jake.perolta@example.com&quot;, &quot;password&quot;: &quot;yourSecurePassword&quot;}&#39;
         curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/users</code></pre>
-      
-        <h4>2. User Activation</h4> 
-      <p>An email is sent to your email with activation token. Send the following request to active your account.</p>
-      <ul>
-      <li>Endpoint: POST /v1/users/activate</li>
-      <li>Body: token</li>
-      </ul>
-      <pre class="shell"><code>  BODY=&#39;{&quot;token&quot;: token-from-email}&#39;
-        curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/users/activate</code></pre>
-      
-        <h4>3. Get Auth Token</h4>
-      <ul>
-      <li>Endpoint: POST /v1/auth/authentication</li>
-      <li>Body: email, password</li>
-      </ul>
-      <pre class="shell"><code>  BODY=&#39;{&quot;email&quot;: &quot;youEmail@example.com&quot;, &quot;password&quot;: &quot;pa55word&quot;}&#39;
-        curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/auth/authentication</code></pre>
-      
-        <h4>Request data 🎉</h4>
-      <ul>
-      <li>Endpoint: GET /v1/movies/:id</li>
-      </ul>
-      <pre class="shell"><code>  curl -H &quot;Authorization: Bearer G5TU7Y46GRENMNUDZP2T75QGNE&quot; moviemaze.torkelaannestad.com/v1/movies/35819</code></pre>
-      <br>
-      <h2 id="database-and-model-design">Database and Model design</h2>
-      <ul>
-        <li>migrations are handled with goose from the sql/schema directory</li>
-        <li>
-          mapping between sql schema, sql queries and Go types are done with
-          sqlc. See sqlc.yaml config file
-        </li>
-        <li>
-          sqlc is configured for autogenerating json tags for structs. By
-          default uses the database column name as json value. Caseing can be
-          configued. json value can be overwritten in sqlc.yaml if needed.
-        </li>
-        <li>
-          to start the handlers returns the generated types directly, however,
-          set up a mapping to a seperate application type if needed. FOr example
-          in case you don’t want include some columns.
-        </li>
-        <li>
-          With SQLC is not convenient to do build dynamic SLQ queries with go
-          code such as sort column and sort direction.
-        </li>
-      </ul>
-      <h3 id="refactored">Refactored</h3>
+      <h3 id="user-activation">2. User Activation</h3>
       <p>
-        Refactor uten sqlc. Implementer selv, men bruk sqlc til å generere for
-        deg. Da kan du copy pasta og endre litt. Mindre sannsynelighet for feil
-        i mapping mellom feltene.
+        An email is sent to your email with activation token. Send the following
+        request to active your account.
       </p>
       <ul>
-        <li>vi får bedre håndtering av ctx og error</li>
-        <li>full kontrol der vi må bruk Sprintf til å bygge opp størring.</li>
-        <li>vi kan legge valideringslogikk sammen med types.</li>
-        <li>
-          vi kan legge til response types der vi trenger der. eks userResponse
-          som ikke skal inneholde alle feltene.
-        </li>
-        <li>
-          vi kan nå generere kode med sqlc, men kopiere den over får full
-          kontrol.
-        </li>
+        <li>Endpoint: PUT /v1/users/activate</li>
+        <li>Body: token</li>
       </ul>
-      <h3 id="omdb">OMDB</h3>
+      <pre
+        class="shell"
+      ><code>  BODY=&#39;{&quot;token&quot;: token-from-email}&#39;
+        curl -X PUT -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/users/activate</code></pre>
+      <p>Reponse: a user object with updated “activated” value.</p>
+      <h3 id="get-auth-token">3. Get Auth Token</h3>
       <ul>
-        <li>Added to Makefile to transfer csv data and import to DB</li>
+        <li>Endpoint: POST /v1/auth/authentication</li>
+        <li>Body: email, password</li>
+      </ul>
+      <pre
+        class="shell"
+      ><code>  BODY=&#39;{&quot;email&quot;: &quot;yourEmail@example.com&quot;, &quot;password&quot;: &quot;pa55word&quot;}&#39;
+        curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/auth/authentication</code></pre>
+      <p>Response:</p>
+      <div class="sourceCode" id="cb4">
+        <pre
+          class="sourceCode json"
+        ><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="fu">{</span><span class="dt">&quot;authentication_token&quot;</span><span class="fu">:{</span><span class="dt">&quot;token&quot;</span><span class="fu">:</span><span class="st">&quot;JZ5B4SABDN7PBKUFKROWAQM7DU&quot;</span><span class="fu">,</span><span class="dt">&quot;expiry&quot;</span><span class="fu">:</span><span class="st">&quot;2024-12-13T09:16:07.9290901Z&quot;</span><span class="fu">}}</span></span></code></pre>
+      </div>
+      <p>
+        <br />
+        <strong>Request data</strong>
+      </p>
+      <ul>
+        <li>Endpoint: GET /v1/movies/:id</li>
+      </ul>
+      <pre
+        class="shell"
+      ><code>  curl -H &quot;Authorization: Bearer G5TU7Y46GRENMNUDZP2T75QGNE&quot; moviemaze.torkelaannestad.com/v1/movies/35819</code></pre>
+      <p>
+        <br />
+        ## Database and Model design
+      </p>
+      <ul>
+        <li>
+          OMDB is imported from CSV files. An import SQL script is created to
+          set up the data model in a good starting state. See
+          /sql/data-import/run.sql for all the set up steps.
+        </li>
+        <li>
+          Added to Makefile to transfer csv data and import to DB in production.
+        </li>
+        <li>
+          After initial data import migrations are handled with goose from the
+          sql/schema directory.
+        </li>
+        <li>
+          sqlc is configured for autogenerating json tags for Go structs. The
+          generated types are not used directly but copied and modified. This
+          way we get better control over the context.Context instance and error
+          handling. We also get full control when needing to build dynamic
+          queries.
+        </li>
+        <li>
+          PostgreSQL configured with citext plugin for user email column to make
+          string case insensitive.
+        </li>
+        <li>
+          Full text search features in PostgreSQL is configured to enabled a
+          good search experience with for examample movies or people resources.
+        </li>
       </ul>
       <h2 id="mailer">Mailer</h2>
       <ul>
-        <li>Mailtrap</li>
-        <li>
-          MailTrap for sending transational emails. Easy free setup with no
-          requiment for adding a domain.
-        </li>
-        <li>
-          go-mail for handling SMTP. https://pkg.go.dev/github.com/go-mail/mail
-        </li>
+        <li>MailTrap for sending transational emails.</li>
+        <li>go-mail for handling SMTP.</li>
         <li>Sending email with background Go routine</li>
+        <li>Email templates are found in assets/templates</li>
       </ul>
-      <h2 id="misc">Misc</h2>
+      <h2 id="middleware">Middleware</h2>
+      <ul>
+        <li>
+          Authenticate middleware ensures that we retrieve the user from the
+          database or know that the user is anonymous. The user is added to the
+          request context your later use.
+        </li>
+        <li>
+          The protectedRoute middleware bounces the user if she is not
+          activated, has the right permission or is anonymous.
+        </li>
+      </ul>
+      <h2 id="misc">MISC</h2>
       <ul>
         <li>IP based rate limiting with x/time/rate package</li>
         <li>
@@ -158,316 +192,772 @@
           </ul>
         </li>
         <li>
-          users email. Use postgresql plugin citext to make string case
-          insensitive. This way we don’t need to worry case.
+          Error triage is implemented in readJSON() helper function to ensure
+          that potensial errors from reading json body is caught and error
+          messages regarding what the issue is can be sendt to the user. A
+          standardized set of response messages are found in cmd/api/errors.go
+          to ensure that only known formulations will reach the end user, and
+          thus hiding for example error messages bubbling from PostgreSQL.
         </li>
-        <li>error triage</li>
+      </ul>
+      <h2 id="roadmap">Roadmap</h2>
+      <ul>
+        <li>Improved testing</li>
+        <li>
+          More advance auth features like MFA and additional rate limiting on
+          auth endpoints.
+        </li>
       </ul>
       <h2 id="api-documentaion">API Documentaion</h2>
-      <h3 id="base-url">Base URL</h3>
-      <p>All API endpoints are prefixed by /v1.</p>
-      <h3 id="endpoints">Endpoints</h3>
+      <p>Base URL and example endpoint:</p>
+      <pre
+        class="shell"
+      ><code> moviemaze.torkelaannestad.com/v1/healthcheck</code></pre>
+      <ul>
+        <li>
+          To get access to the API please see the
+          <a href="#Quickstart">quickstart section</a> or the
+          <a href="#Users">users</a> and
+          <a href="#Authentication">auth</a> resources.
+        </li>
+        <li>
+          Error handling and expected status codes are found in
+          <a href="#Error-Handling">error handling</a>.
+        </li>
+        <li>
+          Permissions. The api is implementet with permission based
+          authorization. Upon signup your user will be granted both read and
+          write access to most resources. Please behave nicely.
+        </li>
+        <li>
+          Optimistic concurrency control is applied to any records that can be
+          updated thought the version field. This way multile simultanious
+          requests to update a will fail with status code 409 conflict.
+        </li>
+      </ul>
+      <h3 id="resources">Resources</h3>
+      <p>Overview</p>
+      <ul>
+        <li><a href="#Healthcheck">Healthcheck</a></li>
+        <li><a href="#Movies">Movies</a></li>
+        <li><a href="#People">People</a></li>
+        <li><a href="#Casts">Casts</a></li>
+        <li><a href="#Jobs">Jobs</a></li>
+        <li><a href="#Categories">Categories</a></li>
+        <li><a href="#Movie-Keywords">Movie Keywords</a></li>
+        <li><a href="#Movie-Categories">Movie Categories</a></li>
+        <li><a href="#Movie-Links">Movie Links</a></li>
+        <li><a href="#People-Links">People Links</a></li>
+        <li><a href="#Trailers">Trailers</a></li>
+        <li><a href="#Images">Images</a></li>
+        <li><a href="#Users">Users</a></li>
+        <li><a href="#Authentication">Authentication</a></li>
+      </ul>
       <h4 id="healthcheck">Healthcheck</h4>
-      <p>GET /v1/healthcheck</p>
+      <pre class="shell"><code> GET /v1/healthcheck</code></pre>
       <ul>
         <li>Description: Check the health status of the API.</li>
         <li>Authentication: None</li>
       </ul>
       <h4 id="movies">Movies</h4>
+      <p>
+        The movies table include both movies, series and episodes. Series uses
+        the parent_id and series_id fields to form a hierarchy between top level
+        series, seasons and episodes.
+      </p>
       <ul>
         <li>Movie Response example:</li>
       </ul>
-      <div class="sourceCode" id="cb1">
+      <div class="sourceCode" id="cb8">
         <pre
           class="sourceCode json"
-        ><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="fu">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>  <span class="dt">&quot;parent_id&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>  <span class="dt">&quot;series_id&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Inception&quot;</span><span class="fu">,</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>  <span class="dt">&quot;date&quot;</span><span class="fu">:</span> <span class="st">&quot;2010-07-16T00:00:00Z&quot;</span><span class="fu">,</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>  <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;movie&quot;</span><span class="fu">,</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>  <span class="dt">&quot;runtime&quot;</span><span class="fu">:</span> <span class="dv">148</span><span class="fu">,</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>  <span class="dt">&quot;budget&quot;</span><span class="fu">:</span> <span class="dv">160000000</span><span class="fu">,</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a>  <span class="dt">&quot;revenue&quot;</span><span class="fu">:</span> <span class="dv">829895144</span><span class="fu">,</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>  <span class="dt">&quot;homepage&quot;</span><span class="fu">:</span> <span class="st">&quot;https://www.inceptionmovie.com&quot;</span><span class="fu">,</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>  <span class="dt">&quot;vote_average&quot;</span><span class="fu">:</span> <span class="fl">8.8</span><span class="fu">,</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a>  <span class="dt">&quot;vote_count&quot;</span><span class="fu">:</span> <span class="dv">210000</span><span class="fu">,</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a>  <span class="dt">&quot;abstract&quot;</span><span class="fu">:</span> <span class="st">&quot;A skilled thief is given a chance at redemption if he can successfully perform inception.&quot;</span><span class="fu">,</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a>  <span class="dt">&quot;version&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a><span class="fu">}</span><span class="er">,</span></span></code></pre>
+        ><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="fu">{</span></span>
+      <span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+      <span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>  <span class="dt">&quot;parent_id&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
+      <span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>  <span class="dt">&quot;series_id&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
+      <span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Inception&quot;</span><span class="fu">,</span></span>
+      <span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>  <span class="dt">&quot;date&quot;</span><span class="fu">:</span> <span class="st">&quot;2010-07-16T00:00:00Z&quot;</span><span class="fu">,</span></span>
+      <span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a>  <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;movie&quot;</span><span class="fu">,</span></span>
+      <span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>  <span class="dt">&quot;runtime&quot;</span><span class="fu">:</span> <span class="dv">148</span><span class="fu">,</span></span>
+      <span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a>  <span class="dt">&quot;budget&quot;</span><span class="fu">:</span> <span class="dv">160000000</span><span class="fu">,</span></span>
+      <span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a>  <span class="dt">&quot;revenue&quot;</span><span class="fu">:</span> <span class="dv">829895144</span><span class="fu">,</span></span>
+      <span id="cb8-11"><a href="#cb8-11" aria-hidden="true"></a>  <span class="dt">&quot;homepage&quot;</span><span class="fu">:</span> <span class="st">&quot;https://www.inceptionmovie.com&quot;</span><span class="fu">,</span></span>
+      <span id="cb8-12"><a href="#cb8-12" aria-hidden="true"></a>  <span class="dt">&quot;vote_average&quot;</span><span class="fu">:</span> <span class="fl">8.8</span><span class="fu">,</span></span>
+      <span id="cb8-13"><a href="#cb8-13" aria-hidden="true"></a>  <span class="dt">&quot;vote_count&quot;</span><span class="fu">:</span> <span class="dv">210000</span><span class="fu">,</span></span>
+      <span id="cb8-14"><a href="#cb8-14" aria-hidden="true"></a>  <span class="dt">&quot;abstract&quot;</span><span class="fu">:</span> <span class="st">&quot;A skilled thief is given a chance at redemption if he can successfully perform inception.&quot;</span><span class="fu">,</span></span>
+      <span id="cb8-15"><a href="#cb8-15" aria-hidden="true"></a>  <span class="dt">&quot;version&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
+      <span id="cb8-16"><a href="#cb8-16" aria-hidden="true"></a><span class="fu">}</span></span></code></pre>
       </div>
       <h5 id="get-v1movies">GET /v1/movies</h5>
       <ul>
-        <li>Description: Retrieve a list of movies.</li>
+        <li>
+          Description: Retrieve a list of movies. The endpoint allows full text
+          search thought query parameters.
+        </li>
+        <li>
+          Query parameters:
+          <ul>
+            <li>name: Full text search</li>
+            <li>kind: movie, series, season, episode, movieseries (enum)</li>
+            <li>page: default 1</li>
+            <li>page_size: number of record for each page</li>
+            <li>
+              sort: default “id”. Use “-” for descending order. Valid values
+              are: “id”, “name”, “date”, “runtime”, “-id”, “-name”, “-date”,
+              “-runtime”.
+            </li>
+          </ul>
+        </li>
         <li>Permission: movies:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer JZ5B4SABDN7PBKUFJROWAQM7DU&quot; &quot;https://moviemaze.torkelaannestad.com/v1/movies?name=dark%20knight&amp;kind=movie&amp;page=1&amp;page_size=2&amp;sort=id&quot;</code></pre>
+      <p>Example response:</p>
+      <div class="sourceCode" id="cb10">
+        <pre
+          class="sourceCode json"
+        ><code class="sourceCode json"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="fu">{</span></span>
+      <span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>  <span class="dt">&quot;metadata&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+      <span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>    <span class="dt">&quot;current_page&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+      <span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a>    <span class="dt">&quot;page_size&quot;</span><span class="fu">:</span> <span class="dv">2</span><span class="fu">,</span></span>
+      <span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>    <span class="dt">&quot;first_page&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+      <span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>    <span class="dt">&quot;last_page&quot;</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span></span>
+      <span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a>    <span class="dt">&quot;total_records&quot;</span><span class="fu">:</span> <span class="dv">5</span></span>
+      <span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a>  <span class="fu">},</span></span>
+      <span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a>  <span class="dt">&quot;movies&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+      <span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a>    <span class="fu">{</span></span>
+      <span id="cb10-11"><a href="#cb10-11" aria-hidden="true"></a>      <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="dv">155</span><span class="fu">,</span></span>
+      <span id="cb10-12"><a href="#cb10-12" aria-hidden="true"></a>      <span class="dt">&quot;parent_id&quot;</span><span class="fu">:</span> <span class="dv">158459</span><span class="fu">,</span></span>
+      <span id="cb10-13"><a href="#cb10-13" aria-hidden="true"></a>      <span class="dt">&quot;series_id&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
+      <span id="cb10-14"><a href="#cb10-14" aria-hidden="true"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The Dark Knight&quot;</span><span class="fu">,</span></span>
+      <span id="cb10-15"><a href="#cb10-15" aria-hidden="true"></a>      <span class="dt">&quot;date&quot;</span><span class="fu">:</span> <span class="st">&quot;2008-07-18T00:00:00Z&quot;</span><span class="fu">,</span></span>
+      <span id="cb10-16"><a href="#cb10-16" aria-hidden="true"></a>      <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;movie&quot;</span><span class="fu">,</span></span>
+      <span id="cb10-17"><a href="#cb10-17" aria-hidden="true"></a>      <span class="dt">&quot;runtime&quot;</span><span class="fu">:</span> <span class="dv">150</span><span class="fu">,</span></span>
+      <span id="cb10-18"><a href="#cb10-18" aria-hidden="true"></a>      <span class="dt">&quot;budget&quot;</span><span class="fu">:</span> <span class="dv">185000000</span><span class="fu">,</span></span>
+      <span id="cb10-19"><a href="#cb10-19" aria-hidden="true"></a>      <span class="dt">&quot;revenue&quot;</span><span class="fu">:</span> <span class="dv">970000000</span><span class="fu">,</span></span>
+      <span id="cb10-20"><a href="#cb10-20" aria-hidden="true"></a>      <span class="dt">&quot;homepage&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></span>
+      <span id="cb10-21"><a href="#cb10-21" aria-hidden="true"></a>      <span class="dt">&quot;vote_average&quot;</span><span class="fu">:</span> <span class="fl">6.9402985573</span><span class="fu">,</span></span>
+      <span id="cb10-22"><a href="#cb10-22" aria-hidden="true"></a>      <span class="dt">&quot;vote_count&quot;</span><span class="fu">:</span> <span class="dv">67</span><span class="fu">,</span></span>
+      <span id="cb10-23"><a href="#cb10-23" aria-hidden="true"></a>      <span class="dt">&quot;abstract&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></span>
+      <span id="cb10-24"><a href="#cb10-24" aria-hidden="true"></a>      <span class="dt">&quot;version&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
+      <span id="cb10-25"><a href="#cb10-25" aria-hidden="true"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+      <span id="cb10-26"><a href="#cb10-26" aria-hidden="true"></a>    <span class="fu">{</span></span>
+      <span id="cb10-27"><a href="#cb10-27" aria-hidden="true"></a>      <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="dv">32937</span><span class="fu">,</span></span>
+      <span id="cb10-28"><a href="#cb10-28" aria-hidden="true"></a>      <span class="dt">&quot;parent_id&quot;</span><span class="fu">:</span> <span class="dv">158459</span><span class="fu">,</span></span>
+      <span id="cb10-29"><a href="#cb10-29" aria-hidden="true"></a>      <span class="dt">&quot;series_id&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
+      <span id="cb10-30"><a href="#cb10-30" aria-hidden="true"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The Dark Knight Rises&quot;</span><span class="fu">,</span></span>
+      <span id="cb10-31"><a href="#cb10-31" aria-hidden="true"></a>      <span class="dt">&quot;date&quot;</span><span class="fu">:</span> <span class="st">&quot;2012-07-20T00:00:00Z&quot;</span><span class="fu">,</span></span>
+      <span id="cb10-32"><a href="#cb10-32" aria-hidden="true"></a>      <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;movie&quot;</span><span class="fu">,</span></span>
+      <span id="cb10-33"><a href="#cb10-33" aria-hidden="true"></a>      <span class="dt">&quot;runtime&quot;</span><span class="fu">:</span> <span class="dv">164</span><span class="fu">,</span></span>
+      <span id="cb10-34"><a href="#cb10-34" aria-hidden="true"></a>      <span class="dt">&quot;budget&quot;</span><span class="fu">:</span> <span class="dv">250000000</span><span class="fu">,</span></span>
+      <span id="cb10-35"><a href="#cb10-35" aria-hidden="true"></a>      <span class="dt">&quot;revenue&quot;</span><span class="fu">:</span> <span class="dv">576798000</span><span class="fu">,</span></span>
+      <span id="cb10-36"><a href="#cb10-36" aria-hidden="true"></a>      <span class="dt">&quot;homepage&quot;</span><span class="fu">:</span> <span class="st">&quot;http://www.thedarkknightrises.com/&quot;</span><span class="fu">,</span></span>
+      <span id="cb10-37"><a href="#cb10-37" aria-hidden="true"></a>      <span class="dt">&quot;vote_average&quot;</span><span class="fu">:</span> <span class="fl">6.125</span><span class="fu">,</span></span>
+      <span id="cb10-38"><a href="#cb10-38" aria-hidden="true"></a>      <span class="dt">&quot;vote_count&quot;</span><span class="fu">:</span> <span class="dv">8</span><span class="fu">,</span></span>
+      <span id="cb10-39"><a href="#cb10-39" aria-hidden="true"></a>      <span class="dt">&quot;abstract&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></span>
+      <span id="cb10-40"><a href="#cb10-40" aria-hidden="true"></a>      <span class="dt">&quot;version&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
+      <span id="cb10-41"><a href="#cb10-41" aria-hidden="true"></a>    <span class="fu">}</span></span>
+      <span id="cb10-42"><a href="#cb10-42" aria-hidden="true"></a>  <span class="ot">]</span></span>
+      <span id="cb10-43"><a href="#cb10-43" aria-hidden="true"></a><span class="fu">}</span></span></code></pre>
+      </div>
       <h5 id="post-v1movies">POST /v1/movies</h5>
       <ul>
         <li>Description: Create a new movie.</li>
+        <li>
+          Body: send a movie object as the body of the request. id and version
+          should not be included. Parent_id and series_id are nullable int64
+          types and can be omited.
+        </li>
         <li>Permission: movies:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;name&quot;:&quot;Go programming is awesome&quot;,&quot;date&quot;:&quot;2024-12-02T00:00:00Z&quot;, &quot;kind&quot;:&quot;movie&quot;, &quot;runtime&quot;:108,&quot;budget&quot;:0,&quot;revenue&quot;:0,&quot;homepage&quot;:&quot;&quot;, &quot;vote_average&quot;: 5.4, &quot;votes_count&quot;: 23, &quot;abstract&quot;: &quot;&quot;}&#39;
+       curl -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; localhost:4000/v1/movies</code></pre>
+      <p>Response</p>
+      <div class="sourceCode" id="cb12">
+        <pre
+          class="sourceCode json"
+        ><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="fu">{</span></span>
+      <span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a>  <span class="dt">&quot;movie&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+      <span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="dv">272776</span><span class="fu">,</span></span>
+      <span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>    <span class="dt">&quot;parent_id&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+      <span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>      <span class="dt">&quot;Int64&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+      <span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a>      <span class="dt">&quot;Valid&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+      <span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a>    <span class="fu">},</span></span>
+      <span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a>    <span class="dt">&quot;series_id&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+      <span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a>      <span class="dt">&quot;Int64&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+      <span id="cb12-10"><a href="#cb12-10" aria-hidden="true"></a>      <span class="dt">&quot;Valid&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+      <span id="cb12-11"><a href="#cb12-11" aria-hidden="true"></a>    <span class="fu">},</span></span>
+      <span id="cb12-12"><a href="#cb12-12" aria-hidden="true"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Go programming is awesome&quot;</span><span class="fu">,</span></span>
+      <span id="cb12-13"><a href="#cb12-13" aria-hidden="true"></a>    <span class="dt">&quot;date&quot;</span><span class="fu">:</span> <span class="st">&quot;2024-12-02T00:00:00Z&quot;</span><span class="fu">,</span></span>
+      <span id="cb12-14"><a href="#cb12-14" aria-hidden="true"></a>    <span class="dt">&quot;kind&quot;</span><span class="fu">:</span> <span class="st">&quot;movie&quot;</span><span class="fu">,</span></span>
+      <span id="cb12-15"><a href="#cb12-15" aria-hidden="true"></a>    <span class="dt">&quot;runtime&quot;</span><span class="fu">:</span> <span class="dv">108</span><span class="fu">,</span></span>
+      <span id="cb12-16"><a href="#cb12-16" aria-hidden="true"></a>    <span class="dt">&quot;budget&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+      <span id="cb12-17"><a href="#cb12-17" aria-hidden="true"></a>    <span class="dt">&quot;revenue&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+      <span id="cb12-18"><a href="#cb12-18" aria-hidden="true"></a>    <span class="dt">&quot;homepage&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></span>
+      <span id="cb12-19"><a href="#cb12-19" aria-hidden="true"></a>    <span class="dt">&quot;vote_average&quot;</span><span class="fu">:</span> <span class="fl">5.4</span><span class="fu">,</span></span>
+      <span id="cb12-20"><a href="#cb12-20" aria-hidden="true"></a>    <span class="dt">&quot;vote_count&quot;</span><span class="fu">:</span> <span class="dv">23</span><span class="fu">,</span></span>
+      <span id="cb12-21"><a href="#cb12-21" aria-hidden="true"></a>    <span class="dt">&quot;abstract&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span><span class="fu">,</span></span>
+      <span id="cb12-22"><a href="#cb12-22" aria-hidden="true"></a>    <span class="dt">&quot;version&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
+      <span id="cb12-23"><a href="#cb12-23" aria-hidden="true"></a>  <span class="fu">}</span></span>
+      <span id="cb12-24"><a href="#cb12-24" aria-hidden="true"></a><span class="fu">}</span></span></code></pre>
+      </div>
       <h5 id="get-v1moviesid">GET /v1/movies/:id</h5>
       <ul>
         <li>Description: Retrieve a specific movie by ID.</li>
+        <li>Query Parameter: id is a movie_id</li>
         <li>Permission: movies:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; localhost:4000/v1/movies/35819</code></pre>
+      <p>Response: same as create movie.</p>
       <h5 id="patch-v1moviesid">PATCH /v1/movies/:id</h5>
       <ul>
         <li>Description: Update a specific movie by ID.</li>
+        <li>Query Parameter: id is a movie_id</li>
+        <li>Body: fields that you want to update.</li>
         <li>Permission: movies:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{ &quot;vote_average&quot;: 5.6, &quot;votes_count&quot;: 25}&#39;
+       curl -X PATCH -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/movies/272775</code></pre>
       <h5 id="delete-v1moviesid">DELETE /v1/movies/:id</h5>
       <ul>
         <li>Description: Delete a specific movie by ID.</li>
+        <li>Query Parameter: id is a movie_id</li>
         <li>Permission: movies:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -X DELETE -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/movies/272775</code></pre>
       <h4 id="people">People</h4>
       <h5 id="get-v1people">GET /v1/people</h5>
       <ul>
-        <li>Description: Retrieve a list of people.</li>
+        <li>
+          Description: Retrieve a list of people. The endpoint supports
+          full-text search using query parameters.
+        </li>
+        <li>
+          Query Parameters:
+          <ul>
+            <li>name: Full text search by name.</li>
+            <li>page: Page number for pagination, default is 1.</li>
+            <li>page_size: Number of records for each page.</li>
+            <li>
+              sort: Default is “id”. Use “-” for descending order. Valid values
+              are: id, name, birthday, -id, -name, -birthday.
+            </li>
+          </ul>
+        </li>
         <li>Permission: people:read</li>
+        <li>Gender: 0=male, 1=female, 2=non-binary, 99=not spesified</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer YOUR_TOKEN&quot; &quot;http://localhost:4000/v1/people?name=john&amp;page=1&amp;page_size=5&amp;sort=id&quot;</code></pre>
       <h5 id="post-v1people">POST /v1/people</h5>
       <ul>
         <li>Description: Create a new person.</li>
+        <li>
+          Body: Send a person object as the body of the request. id and version
+          should not be included.
+        </li>
         <li>Permission: people:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;name&quot;:&quot;John Doe&quot;,&quot;birthday&quot;:&quot;1944-05-14T00:00:00Z&quot;,&quot;gender&quot;:&quot;0&quot;,&quot;aliases&quot;:[&quot;foo, bar&quot;]}&#39;
+       curl -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/people</code></pre>
       <h5 id="get-v1peopleid">GET /v1/people/:id</h5>
       <ul>
         <li>Description: Retrieve a specific person by ID.</li>
+        <li>Query Parameter: person id</li>
         <li>Permission: people: read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; localhost:4000/v1/people/311418</code></pre>
       <h5 id="patch-v1peopleid">PATCH /v1/people/:id</h5>
       <ul>
         <li>Description: Update a specific person by ID.</li>
+        <li>Path Parameter: id is the person_id.</li>
+        <li>Body: Fields that you want to update.</li>
         <li>Permission: people:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;name&quot;:&quot;John Doeski&quot;,&quot;gender&quot;:&quot;99&quot;&#39;
+       curl -X PPATCH -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/people</code></pre>
+      <p>Response: the updated user object.</p>
       <h5 id="delete-v1peopleid">DELETE /v1/people/:id</h5>
       <ul>
         <li>Description: Delete a specific person by ID.</li>
+        <li>Query Parameter: person id.</li>
         <li>Permission: people:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -X DELETE -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; localhost:4000/v1/people/311418</code></pre>
       <h4 id="casts">Casts</h4>
       <h5 id="post-v1casts">POST /v1/casts</h5>
       <ul>
         <li>Description: Create a new cast entry.</li>
+        <li>
+          Body: see field below. Position field is the position that the cast
+          will appear in the list. Meaning position 1 should be example be lead
+          actor.
+        </li>
         <li>Permission: casts:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;movie_id&quot;:35819,&quot;person_id&quot;:287,&quot;job_id&quot;:15,&quot;role&quot;:&quot;Very cool role&quot;,&quot;position&quot;:1}&#39;
+      curl -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/casts</code></pre>
       <h5 id="get-v1castsby-movie-idid">GET /v1/casts/by-movie-id/:id</h5>
       <ul>
         <li>
           Description: Retrieve casts associated with a specific movie by movie
           ID.
         </li>
+        <li>Query Parameter: movie id.</li>
         <li>Permission: casts:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; &quot;localhost:4000/v1/casts/by-movie-id/35819&quot;</code></pre>
+      <p>Reponse: list of casts</p>
       <h5 id="get-v1castsby-person-idid">GET /v1/casts/by-person-id/:id</h5>
       <ul>
         <li>
           Description: Retrieve casts associated with a specific person by
           person ID.
         </li>
+        <li>Query Parameter: person id.</li>
         <li>Permission: casts:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; &quot;localhost:4000/v1/casts/by-person-id/2524&quot;</code></pre>
+      <p>Reponse: list of casts</p>
       <h5 id="patch-v1castsid">PATCH /v1/casts/:id</h5>
       <ul>
         <li>Description: Update a specific cast entry by ID.</li>
+        <li>Query Parameter: cast id.</li>
+        <li>Body: Fields that you want to update.</li>
         <li>Permission: casts:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;role&quot;:&quot;Luke Skywalker&quot;,&quot;position&quot;:2}&#39;
+       curl -X PATCH -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/casts/1260480</code></pre>
       <h5 id="delete-v1castsid">DELETE /v1/casts/:id</h5>
       <ul>
         <li>Description: Delete a specific cast entry by ID.</li>
+        <li>Query Parameter: cast id.</li>
         <li>Permission: casts:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -X DELETE -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/casts/1260479</code></pre>
       <h4 id="jobs">Jobs</h4>
       <h5 id="post-v1jobs">POST /v1/jobs</h5>
       <ul>
-        <li>Description: Create a new job.</li>
+        <li>Description: Create a new job. Body: name of the job</li>
         <li>Permission: jobs:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;name&quot;:&quot;Executive Producer&quot;}&#39;
+       curl -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/jobs</code></pre>
       <h5 id="get-v1jobsid">GET /v1/jobs/:id</h5>
       <ul>
         <li>Description: Retrieve a specific job by ID.</li>
+        <li>Query Parameter: job id.</li>
         <li>Permission: jobs:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; &quot;localhost:4000/v1/jobs/1050&quot;</code></pre>
       <h5 id="patch-v1jobsid">PATCH /v1/jobs/:id</h5>
       <ul>
         <li>Description: Update a specific job by ID.</li>
+        <li>Query Parameter: job id.</li>
+        <li>Body: fields you want do update.</li>
         <li>Permission: jobs:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;name&quot;:&quot;Super Executive Producer&quot;}&#39;
+       curl -X PATCH -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/jobs/1050</code></pre>
       <h5 id="delete-v1jobsid">DELETE /v1/jobs/:id</h5>
       <ul>
         <li>Description: Delete a specific job by ID.</li>
+        <li>Query Parameter: job id.</li>
         <li>Permission: jobs:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -X DELETE -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/jobs/1050</code></pre>
       <h4 id="categories">Categories</h4>
       <h5 id="post-v1categories">POST /v1/categories</h5>
       <ul>
         <li>Description: Create a new category.</li>
+        <li>
+          Body: name of the category, parent_id, root_id are nullable int64
+          types. Use parent and root id to create sub-categories.
+        </li>
         <li>Permission: categories:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;name&quot;:&quot;Family Drama&quot;}&#39;
+       BODY=&#39;{&quot;name&quot;:&quot;Family Drama&quot;, &quot;parent_id&quot;:12,&quot;root_id&quot;:1}&#39;
+       curl -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/categories</code></pre>
       <h5 id="get-v1categoriesid">GET /v1/categories/:id</h5>
       <ul>
         <li>Description: Retrieve a specific category by ID.</li>
+        <li>Query Parameter: category id.</li>
         <li>Permission: categories:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; &quot;localhost:4000/v1/categories/20705&quot;</code></pre>
       <h5 id="patch-v1categoriesid">PATCH /v1/categories/:id</h5>
       <ul>
         <li>Description: Update a specific category by ID.</li>
+        <li>Query Parameter: category id.</li>
+        <li>Body: fields you want do update.</li>
         <li>Permission: categories:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;name&quot;:&quot;Genre Adventure Subcategory&quot;, &quot;parent_id&quot;:12,&quot;root_id&quot;:1}&#39;
+       curl -X PATCH -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; &quot;localhost:4000/v1/categories/20705&quot;</code></pre>
       <h5 id="delete-v1categoriesid">DELETE /v1/categories/:id</h5>
       <ul>
         <li>Description: Delete a specific category by ID.</li>
+        <li>Query Parameter: category id.</li>
         <li>Permission: categories:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -X DELETE -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/categories/20705</code></pre>
       <h4 id="movie-keywords">Movie Keywords</h4>
       <h5 id="post-v1movie-keywords">POST /v1/movie-keywords</h5>
       <ul>
         <li>Description: Add keywords to a movie.</li>
+        <li>Body: movie_id and category_id</li>
         <li>Permission: category-items:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;movie_id&quot;:35819,&quot;category_id&quot;: 10}&#39;
+       curl -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/movie-keywords</code></pre>
       <h5 id="get-v1movie-keywordsid">GET /v1/movie-keywords/:id</h5>
       <ul>
         <li>
           Description: Retrieve keywords associated with a movie by movie ID.
         </li>
+        <li>Query Parameter: movie_keyword id.</li>
         <li>Permission: category-items:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; &quot;localhost:4000/v1/movie-keywords/35819&quot;</code></pre>
       <h5 id="delete-v1movie-keywords">DELETE /v1/movie-keywords</h5>
       <ul>
         <li>Description: Delete keywords from a movie.</li>
+        <li>Body: movie_id and category_id</li>
         <li>Permission: category-items:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;movie_id&quot;:35819,&quot;category_id&quot;:10}&#39;
+       curl -X DELETE -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/movie-keywords</code></pre>
       <h4 id="movie-categories">Movie Categories</h4>
       <h5 id="post-v1movie-categories">POST /v1/movie-categories</h5>
       <ul>
         <li>Description: Add categories to a movie.</li>
+        <li>Body: movie_id and category_id</li>
         <li>Permission: category-items:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;movie_id&quot;:35819,&quot;category_id&quot;: 10}&#39;
+       curl -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/movie-categories</code></pre>
       <h5 id="get-v1movie-categoriesid">GET /v1/movie-categories/:id</h5>
       <ul>
         <li>
           Description: Retrieve categories associated with a movie by movie ID.
         </li>
+        <li>Query Parameter: movie_category id.</li>
         <li>Permission: category-items:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; &quot;localhost:4000/v1/movie-categories/35819&quot;</code></pre>
       <h5 id="delete-v1movie-categories">DELETE /v1/movie-categories</h5>
       <ul>
         <li>Description: Delete categories from a movie.</li>
+        <li>Body: movie_id and category_id</li>
         <li>Permission: category-items:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;movie_id&quot;:35819,&quot;category_id&quot;:10}&#39;
+       curl -X DELETE -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/movie-categories</code></pre>
       <h4 id="movie-links">Movie Links</h4>
       <h5 id="post-v1movie-links">POST /v1/movie-links</h5>
       <ul>
         <li>Description: Create a movie link.</li>
+        <li>
+          Body:
+          <ul>
+            <li>source: query parameter or id for the source.</li>
+            <li>key: must be: “wikidata”, “wikipedia”, “imdbperson”</li>
+            <li>
+              language: english is the only language used. When using xx as
+              value english is assumed.
+            </li>
+          </ul>
+        </li>
         <li>Permission: movie-links:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;source&quot;:&quot;Fight_Club&quot;,&quot;key&quot;:&quot;wikipedia&quot;,&quot;movie_id&quot;:550,&quot;language&quot;:&quot;xx&quot;}&#39;
+       curl -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/movie-links</code></pre>
       <h5 id="get-v1movie-linksid">GET /v1/movie-links/:id</h5>
       <ul>
         <li>
           Description: Retrieve links associated with a movie by movie ID.
         </li>
+        <li>Query Parameter: movie id.</li>
         <li>Permission: movie-links:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; &quot;localhost:4000/v1/movie-links/550&quot;</code></pre>
       <h5 id="delete-v1movie-linksid">DELETE /v1/movie-links/:id</h5>
       <ul>
         <li>Description: Delete a movie link by ID.</li>
+        <li>Query Parameter: movie-link id.</li>
         <li>Permission: movie-links:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -X DELETE -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/movie-links/348425</code></pre>
       <h4 id="people-links">People Links</h4>
       <h5 id="post-v1people-links">POST /v1/people-links</h5>
       <ul>
         <li>Description: Create a people link.</li>
+        <li>
+          Body:
+          <ul>
+            <li>source: query parameter or id for the source.</li>
+            <li>key: must be: “wikidata”, “wikipedia”, “imdbperson”</li>
+            <li>
+              language: english is the only language used. When using xx as
+              value english is assumed.
+            </li>
+          </ul>
+        </li>
         <li>Permission: people-links:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;source&quot;:&quot;Brad_Pitt&quot;,&quot;key&quot;:&quot;wikipedia&quot;,&quot;person_id&quot;:287,&quot;language&quot;:&quot;xx&quot;}&#39;
+       curl -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/people-links</code></pre>
       <h5 id="get-v1people-linksid">GET /v1/people-links/:id</h5>
       <ul>
         <li>
           Description: Retrieve links associated with a person by person ID.
         </li>
+        <li>Query Parameter: person link id.</li>
         <li>Permission: people-links:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; &quot;localhost:4000/v1/people-links/287&quot;</code></pre>
       <h5 id="delete-v1people-linksid">DELETE /v1/people-links/:id</h5>
       <ul>
         <li>Description: Delete a people link by ID.</li>
+        <li>Query Parameter: person-link id.</li>
         <li>Permission: people-links:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -X DELETE -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/people-links/213048</code></pre>
       <h4 id="trailers">Trailers</h4>
       <h5 id="post-v1trailers">POST /v1/trailers</h5>
       <ul>
         <li>Description: Add a trailer to a movie.</li>
+        <li>
+          Body:
+          <ul>
+            <li>key: id of the yotube or vimeo video</li>
+            <li>movie_id</li>
+            <li>language</li>
+            <li>source: “youtube” or “vimeo”</li>
+          </ul>
+        </li>
         <li>Permission: trailers:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;key&quot;:&quot;youtube-id-from-url&quot;,&quot;movie_id&quot;:35819,&quot;language&quot;:&quot;en&quot;,&quot;source&quot;:&quot;youtube&quot;}&#39;
+       curl -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/trailers</code></pre>
       <h5 id="get-v1trailersid">GET /v1/trailers/:id</h5>
       <ul>
         <li>
           Description: Retrieve trailers associated with a movie by movie ID.
         </li>
+        <li>Query Parameter: trailer id.</li>
         <li>Permission: trailers:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; &quot;localhost:4000/v1/trailers/35819&quot;</code></pre>
       <h5 id="delete-v1trailersid">DELETE /v1/trailers/:id</h5>
       <ul>
         <li>Description: Delete a trailer by ID.</li>
+        <li>Query Parameter: trailer id.</li>
         <li>Permission: trailers:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -X DELETE -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/trailers/10922</code></pre>
       <h4 id="images">Images</h4>
       <h5 id="post-v1images">POST /v1/images</h5>
       <ul>
         <li>Description: Upload an image.</li>
+        <li>
+          Body:
+          <ul>
+            <li>object_id: id of person, movie, job, category</li>
+            <li>object_type: “Movie”, “Person”, “Job”, “Category”</li>
+          </ul>
+        </li>
         <li>Permission: images:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;object_id&quot;:272775, &quot;object_type&quot;: &quot;Movie&quot;}&#39;
+       curl -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/images</code></pre>
       <h5 id="get-v1imagesid">GET /v1/images/:id</h5>
       <ul>
         <li>Description: Retrieve a specific image by ID.</li>
+        <li>Query Parameter: image id.</li>
         <li>Permission: images:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; &quot;localhost:4000/v1/images/60360&quot;</code></pre>
       <h5 id="get-v1images">GET /v1/images</h5>
       <ul>
         <li>Description: Retrieve images by object ID.</li>
+        <li>
+          Query Parameter:
+          <ul>
+            <li>object_id: id of person, movie, job, category</li>
+            <li>object_type: “Movie”, “Person”, “Job”, “Category”</li>
+          </ul>
+        </li>
         <li>Permission: images:read</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; &quot;localhost:4000/v1/images?object_id=272775&amp;object_type=Movie&quot;</code></pre>
       <h5 id="patch-v1imagesid">PATCH /v1/images/:id</h5>
       <ul>
         <li>Description: Update a specific image by ID.</li>
+        <li>
+          Body:
+          <ul>
+            <li>object_id: id of person, movie, job, category</li>
+            <li>object_type: “Movie”, “Person”, “Job”, “Category”</li>
+          </ul>
+        </li>
         <li>Permission: images:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> BODY=&#39;{&quot;object_id&quot;:272775, &quot;object_type&quot;: &quot;Movie&quot;}&#39;
+       curl -X PATCH -d &quot;$BODY&quot; -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/images/60360</code></pre>
       <h5 id="delete-v1imagesid">DELETE /v1/images/:id</h5>
       <ul>
         <li>Description: Delete a specific image by ID.</li>
+        <li>Query Parameter: image id.</li>
         <li>Permission: images:write</li>
       </ul>
+      <pre
+        class="shell"
+      ><code> curl -X DELETE -H &quot;Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE&quot; http://localhost:4000/v1/images/60360</code></pre>
       <h4 id="users">Users</h4>
       <h5 id="post-v1users">POST /v1/users</h5>
       <ul>
-        <li>Description: Register a new user. Authentication: None</li>
+        <li>Description: Register a new user.</li>
+        <li>Authentication: None</li>
       </ul>
+      <pre
+        class="shell"
+      ><code>  BODY=&#39;{&quot;name&quot;: &quot;Jake Perolta&quot;,&quot;email&quot;: &quot;jake.perolta@example.com&quot;, &quot;password&quot;: &quot;yourSecurePassword&quot;}&#39;
+        curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/users</code></pre>
       <h5 id="put-v1usersactivated">PUT /v1/users/activated</h5>
       <ul>
         <li>Description: Activate a registered user.</li>
+        <li>Body: token from email</li>
         <li>Authentication: None</li>
       </ul>
+      <pre
+        class="shell"
+      ><code>  BODY=&#39;{&quot;token&quot;: token-from-email}&#39;
+        curl -X PUT -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/users/activate</code></pre>
       <h4 id="authentication">Authentication</h4>
       <h5 id="post-v1authauthentication">POST /v1/auth/authentication</h5>
       <ul>
         <li>Description: Authenticate a user and obtain a token.</li>
+        <li>Body: email, password</li>
         <li>Authentication: None</li>
       </ul>
+      <pre
+        class="shell"
+      ><code>  BODY=&#39;{&quot;email&quot;: &quot;yourEmail@example.com&quot;, &quot;password&quot;: &quot;pa55word&quot;}&#39;
+        curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/auth/authentication</code></pre>
       <h3 id="error-handling">Error Handling</h3>
-      <p>
-        400 Bad Request: If any of the input validations fail. 404 Not Found: If
-        a movie with the specified ID does not exist. 409 Conflict: If there’s a
-        concurrency edit conflict (version mismatch). 405 Method Not Allowed: If
-        the method is not allowed on the specified route.
-      </p>
+      <ul>
+        <li>
+          400 Bad Request: General response when body or query params are
+          invalid.
+        </li>
+        <li>
+          422 Unprocessable Entity: Failed validations response. Fields are
+          errors are specified.
+        </li>
+        <li>404 Not Found: If a movie with the specified ID does not exist.</li>
+        <li>
+          409 Conflict: If there’s a concurrency edit conflict (version
+          mismatch).
+        </li>
+        <li>
+          405 Method Not Allowed: If the method is not allowed on the specified
+          route.
+        </li>
+        <li>429 Too Many Request: Failed due to rate limiting.</li>
+        <li>401 Unauthorized: any issue with auth token.</li>
+        <li>
+          403 Forbidden: When trying to access resources without respective
+          permission or account not active.
+        </li>
+        <li>500 Server error: General server error response</li>
+      </ul>
     </main>
   </body>
-  <footer>
-    <div align="center">
-        <sub>Built with ❤︎ by <a href="https://github.com/thetutlage">Harminder Virk</a>
-      </div>
-  </footer>
+  <footer></footer>
   <script>
     const themeSwitcher = {
       // Config
