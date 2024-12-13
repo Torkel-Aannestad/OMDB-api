@@ -115,6 +115,15 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	app.backgroundJob(func() {
+
+		err = app.mailer.Send(user.Email, "password-changed.tmpl", nil)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	})
+
 	err = app.writeJSON(w, http.StatusOK, envelope{"authentication_token": authToken}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
