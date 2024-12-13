@@ -103,6 +103,12 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	err = app.models.Tokens.DeleteAllForUser(database.ScopeAuthentication, user.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	authToken, err := app.models.Tokens.New(user.ID, time.Hour*24, database.ScopeAuthentication)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

@@ -805,6 +805,21 @@ Reponse: list of casts
   curl -d "$BODY" moviemaze.torkelaannestad.com/v1/auth/authentication
 ```
 
+Response: auth token
+
+##### POST /v1/auth/change-password
+
+- Description: Change user password and obtain a token. Auth token is regenerated and old sessions are invalidated.
+- Body: current_password and new_password
+- Authenticated
+
+```shell
+  BODY='{"current_password": "pa55word", "password": "NewStrongerpa55word"}'
+  curl -d "$BODY" localhost:4000/v1/auth/change-passord
+```
+
+Response: auth token
+
 ### Error Handling
 
 - 400 Bad Request: General response when body or query params are invalid.
