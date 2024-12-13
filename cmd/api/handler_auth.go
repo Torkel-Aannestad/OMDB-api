@@ -116,7 +116,6 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	app.backgroundJob(func() {
-
 		err = app.mailer.Send(user.Email, "password-changed.tmpl", nil)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
@@ -125,6 +124,32 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 	})
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"authentication_token": authToken}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
+}
+
+func (app *application) resetPasswordHandler(w http.ResponseWriter, r *http.Request) {
+	user := app.contextGetUser(r)
+	token, err := app.models.Tokens.New(user.ID, time.Hour*1, database.ScopePasswordReset)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.backgroundJob(func() {
+		data := map[string]any{
+			"passwordResetToken": token,
+		}
+		err = app.mailer.Send(user.Email, "password-reset.tmpl", data)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	})
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"message": "password reset token will be sendt to your email"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
