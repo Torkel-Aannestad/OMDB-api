@@ -118,7 +118,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 }
 
-func (app *application) protectedRoute(next http.HandlerFunc) http.HandlerFunc {
+func (app *application) protectedRoute(permissionCode string, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := app.contextGetUser(r)
 
@@ -132,23 +132,10 @@ func (app *application) protectedRoute(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		next.ServeHTTP(w, r)
-	})
-}
-func (app *application) protectedRoutePermission(permissionCode string, next http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user := app.contextGetUser(r)
-
-		if user.IsAnonymous() {
-			app.authenticationRequiredResponse(w, r)
+		if permissionCode == "" {
+			next.ServeHTTP(w, r)
 			return
 		}
-
-		if !user.Activated {
-			app.inactiveAccountResponse(w, r)
-			return
-		}
-
 		permissions, err := app.models.Permissions.GetAllForUser(user.ID)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
