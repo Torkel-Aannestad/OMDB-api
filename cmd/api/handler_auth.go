@@ -134,13 +134,17 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 }
 
 func (app *application) getResetPasswordTokenHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIDParam(r)
+	var input struct {
+		Email string `json:"email"`
+	}
+
+	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	user, err := app.models.Users.GetById(id)
+	user, err := app.models.Users.GetByEmail(input.Email)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			app.notFoundResponse(w, r)
