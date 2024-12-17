@@ -147,6 +147,56 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 
 }
 
+func (app *application) resendActionToken(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Email string `json:"email"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	user, err := app.models.Users.GetByEmail(input.Email)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	if user.Activated {
+		err = app.writeJSON(w, http.StatusOK, envelope{"message": "user already active, see auth/authenticate endpoint"}, nil)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	token, err := app.models.Tokens.New(user.ID, 3*24*time.Hour, database.ScopeActivation)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
+	app.backgroundJob(func() {
+		data := map[string]any{
+			"activationToken": token.Plaintext,
+			"userID":          user.ID,
+		}
+
+		err = app.mailer.Send(user.Email, "user_resend_activation.tmpl", data)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	})
+
+	err = app.writeJSON(w, http.StatusAccepted, envelope{"message": "sending new activation token to use with /users/activate endpoint"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
 func (app *application) addUserPermissionsHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {

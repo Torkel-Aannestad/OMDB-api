@@ -133,7 +133,7 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 	}
 }
 
-func (app *application) getResetPasswordTokenHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) sendResetPasswordTokenHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Email string `json:"email"`
 	}
@@ -271,7 +271,7 @@ func (app *application) deleteAllSessionsHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"message": "session tokens successfully deleted"}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "session tokens revoked"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

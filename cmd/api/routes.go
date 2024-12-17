@@ -70,12 +70,13 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activate", app.activateUserHandler)
+	router.HandlerFunc(http.MethodPost, "/v1/users/resend-activation-token", app.resendActionToken)
 
 	router.HandlerFunc(http.MethodPost, "/v1/auth/authentication", app.authenticateUserHandler)
-	router.HandlerFunc(http.MethodPost, "/v1/auth/change-password", app.protectedRoute("", app.changePasswordHandler))
-	router.HandlerFunc(http.MethodPost, "/v1/auth/reset-password-verify-email", app.getResetPasswordTokenHandler)
+	router.HandlerFunc(http.MethodPost, "/v1/auth/reset-password-verify-email", app.sendResetPasswordTokenHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/auth/reset-password", app.resetPasswordHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/auth/revoke-sessions", app.protectedRoute("", app.deleteAllSessionsHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/auth/change-password", app.protectedRoute("", app.changePasswordHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/auth/revoke", app.protectedRoute("", app.deleteAllSessionsHandler))
 
 	// router.Handler(http.MethodGet, "/metrics", expvar.Handler())
 
