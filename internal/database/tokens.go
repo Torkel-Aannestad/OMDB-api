@@ -21,8 +21,9 @@ type Token struct {
 	Plaintext string    `json:"token"`
 	Hash      []byte    `json:"-"`
 	UserId    int64     `json:"-"`
-	Expiry    time.Time `json:"expiry"`
 	Scope     string    `json:"-"`
+	Expiry    time.Time `json:"expiry"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func generateToken(userid int64, ttl time.Duration, scope string) (*Token, error) {
@@ -72,6 +73,7 @@ func (m *TokenModel) Insert(token *Token) error {
 	query := `
 		INSERT INTO tokens (hash, user_id, expiry, scope)
 		VALUES($1, $2, $3, $4)
+		RETURNING created_at
 	`
 
 	args := []any{token.Hash, token.UserId, token.Expiry, token.Scope}
@@ -79,8 +81,7 @@ func (m *TokenModel) Insert(token *Token) error {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
 
-	_, err := m.DB.ExecContext(ctx, query, args...)
-	return err
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&token.CreatedAt)
 }
 
 func (m *TokenModel) DeleteAllForUser(scope string, userID int64) error {
@@ -93,4 +94,8 @@ func (m *TokenModel) DeleteAllForUser(scope string, userID int64) error {
 
 	_, err := m.DB.ExecContext(ctx, query, scope, userID)
 	return err
+}
+
+func (m *TokenModel) CheckTokenAge(maxAge time.Duration, token *Token) bool {
+	return time.Since(token.CreatedAt) > maxAge
 }
