@@ -807,6 +807,8 @@ Response: json message confirmation.
 
 #### Authentication
 
+Authentication endpoint are protected with an additional rate limiter with a slow refill rate. This is to protect agains password sprays or other brute force methods agains the auth resources.
+
 ##### POST /v1/auth/authentication
 
 - Description: Authenticate a user and obtain a token.
