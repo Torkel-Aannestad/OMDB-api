@@ -29,7 +29,7 @@ db/psql:
 .PHONY: db/migrations/up
 db/migrations/up: confirm
 	@echo 'Running up migrations...'
-	@cd sql/schema && goose postgres ${MOVIE_MAZE_DB_DSN_DEV} up && cd ../..
+	@cd sql/migrations && goose postgres ${MOVIE_MAZE_DB_DSN_DEV} up && cd ../..
 
 ## db/import-data: imports OMDB dataset
 .PHONY: db/import-data
