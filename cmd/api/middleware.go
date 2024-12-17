@@ -88,7 +88,7 @@ func (app *application) authRateLimit(next http.HandlerFunc) http.HandlerFunc {
 			time.Sleep(time.Minute * 1)
 			mu.Lock()
 			for ip, client := range clients {
-				if time.Since(client.lastSeen) > time.Hour*2 {
+				if time.Since(client.lastSeen) > time.Hour*1 {
 					delete(clients, ip)
 				}
 			}
@@ -101,8 +101,10 @@ func (app *application) authRateLimit(next http.HandlerFunc) http.HandlerFunc {
 			ip := realip.FromRequest(r)
 
 			mu.Lock()
-			if _, client := clients[ip]; !client {
-				clients[ip].limiter = *rate.NewLimiter(rate.Limit(app.config.authLimiter.rps), app.config.authLimiter.burst)
+			if _, found := clients[ip]; !found {
+				clients[ip] = &client{
+					limiter: *rate.NewLimiter(rate.Limit(app.config.authLimiter.rps), app.config.authLimiter.burst),
+				}
 			}
 			clients[ip].lastSeen = time.Now()
 
