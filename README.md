@@ -792,6 +792,19 @@ Reponse: list of casts
   curl -X PUT -d "$BODY" moviemaze.torkelaannestad.com/v1/users/activate
 ```
 
+##### POST /v1/users/resend-activation-token
+
+- Description: Resend activate token to users email.
+- Body: email
+- Authentication: None
+
+```shell
+  BODY='{"email": yourEmail@example.com}'
+  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/users/resend-activation-token
+```
+
+Response: json message confirmation.
+
 #### Authentication
 
 ##### POST /v1/auth/authentication
@@ -819,6 +832,41 @@ Response: auth token
 ```
 
 Response: auth token
+
+##### POST v1/auth/password-reset-verify-email
+
+- Description: Reset user password. Send user email in body and receive verification code by email.
+- Body: email
+
+```shell
+ BODY='{"email": "yourEmail@example.com"}'
+ curl -d "$BODY" localhost:4000/v1/auth/password-reset-verify-email
+```
+
+Response: json message
+
+##### POST v1/auth/password-reset
+
+- Description: Reset user password. Send email verification token from email in body along with new password.
+- Body: token
+
+```shell
+  BODY='{"token": "ZAAKSYTB2CV2RU2OOQ2JA5K35Y", "new_password": "NewStrongerpa55word"}'
+  curl -d "$BODY" localhost:4000/v1/auth/reset-password
+```
+
+Response: new authentication token
+
+##### POST v1/auth/revoke
+
+- Description: Revokes all sessions for user.
+- Authentication: True
+
+```shell
+  curl -X POST -H "Authorization: Bearer W2LMNM6XED32GE3WW5GRFR7PMU" localhost:4000/v1/auth/revoke
+```
+
+Response: json message confirmation
 
 ### Error Handling
 

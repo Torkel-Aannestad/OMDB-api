@@ -178,6 +178,7 @@ func (app *application) sendResetPasswordTokenHandler(w http.ResponseWriter, r *
 	}
 
 }
+
 func (app *application) resetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		TokenPlaintext string `json:"token"`

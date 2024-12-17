@@ -10004,4 +10004,5 @@ var CommonPasswords = []string{
 	"eeeee1",
 	"eyphed",
 	"yourSecurePassword",
+	"NewStrongerpa55word",
 }
