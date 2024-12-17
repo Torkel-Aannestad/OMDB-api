@@ -33,6 +33,11 @@ type Config struct {
 		burst   int
 		enabled bool
 	}
+	authLimiter struct {
+		rps     float64
+		burst   int
+		enabled bool
+	}
 	smtp struct {
 		host     string
 		port     int
@@ -71,6 +76,11 @@ func main() {
 	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 2, "Rate limiter maximum requests per second")
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
+
+	//Auth Rate limiter
+	flag.Float64Var(&cfg.authLimiter.rps, "auth-limiter-rps", 0.0027778, "Rate limiter maximum requests per second for auth endpoints 10 req / hour / sec")
+	flag.IntVar(&cfg.authLimiter.burst, "auth-limiter-burst", 10, "Rate limiter maximum burst for auth endpoints")
+	flag.BoolVar(&cfg.authLimiter.enabled, "auth-limiter-enabled", true, "Enable auth rate limiter")
 
 	//Mailer sandbox.smtp.mailtrap.io live.smtp.mailtrap.io
 	flag.StringVar(&cfg.smtp.host, "smtp-host", "sandbox.smtp.mailtrap.io", "host")

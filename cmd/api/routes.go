@@ -69,13 +69,13 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodDelete, "/v1/images/:id", app.protectedRoute("images:write", app.deleteImageHandler))
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
-	router.HandlerFunc(http.MethodPut, "/v1/users/activate", app.activateUserHandler)
-	router.HandlerFunc(http.MethodPost, "/v1/users/resend-activation-token", app.resendActionToken)
+	router.HandlerFunc(http.MethodPut, "/v1/users/activate", app.authRateLimit(app.activateUserHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/users/resend-activation-token", app.authRateLimit(app.resendActionToken))
 
-	router.HandlerFunc(http.MethodPost, "/v1/auth/authentication", app.authenticateUserHandler)
-	router.HandlerFunc(http.MethodPost, "/v1/auth/reset-password-verify-email", app.sendResetPasswordTokenHandler)
-	router.HandlerFunc(http.MethodPost, "/v1/auth/reset-password", app.resetPasswordHandler)
-	router.HandlerFunc(http.MethodPost, "/v1/auth/change-password", app.protectedRoute("", app.changePasswordHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/auth/authentication", app.authRateLimit(app.authenticateUserHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/auth/reset-password-verify-email", app.authRateLimit(app.sendResetPasswordTokenHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/auth/reset-password", app.authRateLimit(app.resetPasswordHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/auth/change-password", app.authRateLimit(app.protectedRoute("", app.changePasswordHandler)))
 	router.HandlerFunc(http.MethodPost, "/v1/auth/revoke", app.protectedRoute("", app.deleteAllSessionsHandler))
 
 	// router.Handler(http.MethodGet, "/metrics", expvar.Handler())
