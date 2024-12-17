@@ -52,7 +52,6 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if app.config.limiter.enabled {
-
 			ip := realip.FromRequest(r)
 
 			mu.Lock()
@@ -73,6 +72,49 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (app *application) authRateLimit(next http.Handler) http.Handler {
+	type client struct {
+		limiter  rate.Limiter
+		lastSeen time.Time
+	}
+
+	var mu sync.Mutex
+	clients := make(map[string]*client)
+
+	go func() {
+		for {
+			time.Sleep(time.Minute * 1)
+			mu.Lock()
+			for ip, client := range clients {
+				if time.Since(client.lastSeen) > time.Hour*2 {
+					delete(clients, ip)
+				}
+			}
+			mu.Unlock()
+		}
+	}()
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ip := realip.FromRequest(r)
+
+		mu.Lock()
+		if _, client := clients[ip]; !client {
+			clients[ip].limiter = *rate.NewLimiter(rate.Limit(10.2), 10)
+		}
+		clients[ip].lastSeen = time.Now()
+
+		if !clients[ip].limiter.Allow() {
+			app.rateLimitExceededResponse(w, r)
+			mu.Unlock()
+			return
+		}
+		mu.Unlock()
+
+		next.ServeHTTP(w, r)
+	})
+
 }
 
 func (app *application) authenticate(next http.Handler) http.Handler {
