@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/sha256"
 	"errors"
+	"strings"
 
 	"net/http"
 	"time"
@@ -68,7 +70,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	token, err := app.models.Tokens.New(user.ID, 3*24*time.Hour, database.ScopeActivation)
+	token, err := app.models.Tokens.New(user.ID, 3*24*time.Hour, database.ScopeActivation, database.TokenData{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -172,7 +174,7 @@ func (app *application) resendActionToken(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	token, err := app.models.Tokens.New(user.ID, 3*24*time.Hour, database.ScopeActivation)
+	token, err := app.models.Tokens.New(user.ID, 3*24*time.Hour, database.ScopeActivation, database.TokenData{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -226,4 +228,143 @@ func (app *application) addUserPermissionsHandler(w http.ResponseWriter, r *http
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+}
+
+func (app *application) changeEmailHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		NewEmail string `json:"email"`
+	}
+	err := app.readJSON(w, r, input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	authorizationHeader := r.Header.Get("Authorization")
+	headerParts := strings.Split(authorizationHeader, " ")
+	hash := sha256.Sum256([]byte(headerParts[1]))
+	tokenHash := hash[:]
+
+	token, err := app.models.Tokens.GetByTokenHash(database.ScopeAuthentication, tokenHash)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	if !app.models.Tokens.ValidTokenAge(time.Hour*1, token) {
+		app.tokenExiredResponse(w, r)
+		return
+	}
+
+	v := validator.New()
+	database.ValidateEmail(v, input.NewEmail)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	user := app.contextGetUser(r)
+	emailVerificationToken, err := app.models.Tokens.New(user.ID, time.Hour*12, database.ScopeChangeEmail, database.TokenData{"email": input.NewEmail})
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.backgroundJob(func() {
+		data := map[string]any{
+			"verificationToken": emailVerificationToken.Plaintext,
+		}
+
+		err = app.mailer.Send(user.Email, "change-email-verification.tmpl", data)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	})
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "a verification token will be sent to your new email"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
+}
+
+func (app *application) changeEmailVerifyTokenHandler(w http.ResponseWriter, r *http.Request) {
+	var Input struct {
+		TokenPlaintext string `json:"token"`
+	}
+
+	err := app.readJSON(w, r, &Input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+	database.ValidateTokenPlaintext(v, Input.TokenPlaintext)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	user, err := app.models.Users.GetForToken(database.ScopeChangeEmail, Input.TokenPlaintext)
+	if err != nil {
+		if errors.Is(err, database.ErrRecordNotFound) {
+			v.AddError("token", "invalid or expired email verification token")
+			app.failedValidationResponse(w, r, v.Errors)
+		} else {
+
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+	userCurrentEmail := user.Email
+
+	inputTokenHash := sha256.Sum256([]byte(Input.TokenPlaintext))
+	emailVerificationTokenHash := inputTokenHash[:]
+	token, err := app.models.Tokens.GetByTokenHash(database.ScopeChangeEmail, emailVerificationTokenHash)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	newEmail, ok := token.Data["email"].(string)
+	if !ok {
+		app.logger.Error("changeEmailVerification", "message", "could not assert newEmail to string from token")
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	user.Email = newEmail
+	err = app.models.Users.Update(user)
+	if err != nil {
+		if errors.Is(err, database.ErrEditConflict) {
+			app.editConflictResponse(w, r)
+		} else {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = app.models.Tokens.DeleteAllForUser(database.ScopeChangeEmail, user.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.backgroundJob(func() {
+		data := map[string]any{
+			"newEmail": newEmail,
+		}
+
+		err = app.mailer.Send(userCurrentEmail, "email-changed.tmpl", data)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	})
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
 }
