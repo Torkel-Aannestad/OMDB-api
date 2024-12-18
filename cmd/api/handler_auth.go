@@ -38,6 +38,7 @@ func (app *application) authenticateUserHandler(w http.ResponseWriter, r *http.R
 		} else {
 			app.serverErrorResponse(w, r, err)
 		}
+		return
 	}
 
 	match, err := auth.PasswordMatches(input.Password, user.PasswordHash)
