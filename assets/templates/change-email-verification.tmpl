@@ -1,0 +1,40 @@
+{{define "subject"}}Email verification for MovieMaze!{{ end }}
+
+{{define "plainBody"}}
+Hi. To change your email do the following request. PUT
+https://moviemaze.torkelaannestad.com/v1/users/change-email-verify {"token": "{{.verificationToken
+
+
+}}"}. Please note that this is a one-time use token and it will expire in 12
+hour. For further information please see the API documentation at
+moviemaze.torkelaannestad.com/api-docs Thanks, The MovieMaze Team
+{{ end }}
+
+{{define "htmlBody"}}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  </head>
+
+  <body>
+    <p>To change you email do the following request</p>
+
+    <pre>
+      <code>PUT https://moviemaze.torkelaannestad.com/v1/users/change-email-verify</code>
+      <code>{"token": "{{.verificationToken}}""}</code>
+    </pre>
+    <p>
+      Please note that this is a one-time use token and it will expire in 12
+      hour.
+    </p>
+    <p>
+      For further information please see the API documentation at
+      <code> moviemaze.torkelaannestad.com</code>
+    </p>
+    <p>Thanks,</p>
+    <p>The MovieMaze Team</p>
+  </body>
+</html>
+{{ end }}
