@@ -234,7 +234,7 @@ func (app *application) changeEmailHandler(w http.ResponseWriter, r *http.Reques
 	var input struct {
 		NewEmail string `json:"email"`
 	}
-	err := app.readJSON(w, r, input)
+	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return

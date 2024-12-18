@@ -117,7 +117,7 @@ func (m *TokenModel) DeleteAllForUser(scope string, userID int64) error {
 }
 
 func (m *TokenModel) ValidTokenAge(maxAge time.Duration, token *Token) bool {
-	return time.Since(token.CreatedAt) > maxAge
+	return time.Since(token.CreatedAt) < maxAge
 }
 
 func (m *TokenModel) GetByTokenHash(scope string, tokenHash []byte) (*Token, error) {
