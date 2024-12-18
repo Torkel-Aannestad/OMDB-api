@@ -1,0 +1,25 @@
+{{define "subject"}}Email changed on MovieMaze{{ end }}
+
+{{define "plainBody"}} The email was recently changed for your account on
+MovieMaze. Contact support if this was not you. Thanks, The MovieMaze Team
+{{ end }}
+
+{{define "htmlBody"}}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  </head>
+
+  <body>
+    <p>
+      The email was recently changed to "{{.newEmail}}"" for your account.
+      Contact support if this was not you.
+    </p>
+
+    <p>Thanks,</p>
+    <p>The MovieMaze Team</p>
+  </body>
+</html>
+{{ end }}
