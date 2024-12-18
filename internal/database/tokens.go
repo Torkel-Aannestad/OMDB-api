@@ -5,7 +5,10 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"database/sql"
+	"database/sql/driver"
 	"encoding/base32"
+	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
@@ -15,6 +18,7 @@ const (
 	ScopeActivation     = "activation"
 	ScopeAuthentication = "authentication"
 	ScopePasswordReset  = "password-reset"
+	ScopeChangeEmail    = "change-email"
 )
 
 type Token struct {
@@ -24,13 +28,29 @@ type Token struct {
 	Scope     string    `json:"-"`
 	Expiry    time.Time `json:"expiry"`
 	CreatedAt time.Time `json:"created_at"`
+	Data      TokenData `json:"-"`
 }
 
-func generateToken(userid int64, ttl time.Duration, scope string) (*Token, error) {
+type TokenData map[string]any
+
+func (d TokenData) Value() (driver.Value, error) {
+	return json.Marshal(d)
+}
+
+func (d *TokenData) Scan(value any) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+	return json.Unmarshal(b, &d)
+}
+
+func generateToken(userid int64, ttl time.Duration, scope string, tokenData TokenData) (*Token, error) {
 	token := Token{
 		UserId: userid,
 		Expiry: time.Now().Add(ttl),
 		Scope:  scope,
+		Data:   tokenData,
 	}
 
 	randomBytes := make([]byte, 16)
@@ -56,8 +76,8 @@ type TokenModel struct {
 	DB *sql.DB
 }
 
-func (m *TokenModel) New(userid int64, ttl time.Duration, scope string) (*Token, error) {
-	token, err := generateToken(userid, ttl, scope)
+func (m *TokenModel) New(userid int64, ttl time.Duration, scope string, tokenData TokenData) (*Token, error) {
+	token, err := generateToken(userid, ttl, scope, tokenData)
 	if err != nil {
 		return nil, err
 	}
@@ -71,12 +91,12 @@ func (m *TokenModel) New(userid int64, ttl time.Duration, scope string) (*Token,
 
 func (m *TokenModel) Insert(token *Token) error {
 	query := `
-		INSERT INTO tokens (hash, user_id, expiry, scope)
-		VALUES($1, $2, $3, $4)
+		INSERT INTO tokens (hash, user_id, expiry, scope, data)
+		VALUES($1, $2, $3, $4, $5)
 		RETURNING created_at
 	`
 
-	args := []any{token.Hash, token.UserId, token.Expiry, token.Scope}
+	args := []any{token.Hash, token.UserId, token.Expiry, token.Scope, token.Data}
 
 	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
@@ -96,6 +116,29 @@ func (m *TokenModel) DeleteAllForUser(scope string, userID int64) error {
 	return err
 }
 
-func (m *TokenModel) CheckTokenAge(maxAge time.Duration, token *Token) bool {
+func (m *TokenModel) ValidTokenAge(maxAge time.Duration, token *Token) bool {
 	return time.Since(token.CreatedAt) > maxAge
+}
+
+func (m *TokenModel) GetByTokenHash(scope string, tokenHash []byte) (*Token, error) {
+	query := `
+		SELECT hash, user_id, scope, expiry, created_at, data FROM tokens
+		WHERE scope = $1 AND hash = $2
+	`
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	defer cancel()
+
+	token := Token{}
+	err := m.DB.QueryRowContext(ctx, query, scope, tokenHash).Scan(
+		&token.Hash,
+		&token.UserId,
+		&token.Scope,
+		&token.Expiry,
+		&token.CreatedAt,
+		&token.Data,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &token, nil
 }

@@ -50,7 +50,7 @@ func (app *application) authenticateUserHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	authToken, err := app.models.Tokens.New(user.ID, time.Hour*24, database.ScopeAuthentication)
+	authToken, err := app.models.Tokens.New(user.ID, time.Hour*24, database.ScopeAuthentication, database.TokenData{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -113,7 +113,7 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	authToken, err := app.models.Tokens.New(user.ID, time.Hour*24, database.ScopeAuthentication)
+	authToken, err := app.models.Tokens.New(user.ID, time.Hour*24, database.ScopeAuthentication, database.TokenData{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -155,7 +155,7 @@ func (app *application) sendResetPasswordTokenHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	token, err := app.models.Tokens.New(user.ID, time.Hour*1, database.ScopePasswordReset)
+	token, err := app.models.Tokens.New(user.ID, time.Hour*1, database.ScopePasswordReset, database.TokenData{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -232,7 +232,7 @@ func (app *application) resetPasswordHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	authToken, err := app.models.Tokens.New(user.ID, time.Hour*24, database.ScopeAuthentication)
+	authToken, err := app.models.Tokens.New(user.ID, time.Hour*24, database.ScopeAuthentication, database.TokenData{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
