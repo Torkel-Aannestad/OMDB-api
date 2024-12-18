@@ -88,3 +88,8 @@ func (app *application) notPermittedResponse(w http.ResponseWriter, r *http.Requ
 	message := "your user account doesn't have the necessary permissions to access this resource"
 	app.errorResponse(w, r, http.StatusForbidden, message)
 }
+
+func (app *application) tokenExiredResponse(w http.ResponseWriter, r *http.Request) {
+	message := "this request requires a recent login, please reauthenticate"
+	app.errorResponse(w, r, http.StatusForbidden, message)
+}
