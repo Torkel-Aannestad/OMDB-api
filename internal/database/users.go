@@ -21,7 +21,7 @@ type User struct {
 	CreatedAt    time.Time `json:"created_at"`
 	Name         string    `json:"name"`
 	Email        string    `json:"email"`
-	PasswordHash []byte    `json:"-"`
+	PasswordHash string    `json:"-"`
 	Activated    bool      `json:"activated"`
 	Version      int       `json:"-"`
 }
@@ -176,7 +176,7 @@ func ValidateUser(v *validator.Validator, user *User) {
 
 	ValidateEmail(v, user.Email)
 
-	if user.PasswordHash == nil {
+	if user.PasswordHash == "" {
 		panic("missing password hash for user")
 	}
 }
