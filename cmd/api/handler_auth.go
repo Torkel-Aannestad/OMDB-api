@@ -92,7 +92,7 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	newPasswordHash, err := auth.GenerateFromPassword(input.NewPassword, auth.DefaultParamsArgon2)
+	newPasswordHash, err := auth.GenerateFromPassword(input.NewPassword, auth.DefaultParams)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -211,7 +211,7 @@ func (app *application) resetPasswordHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	newPasswordHash, err := auth.GenerateFromPassword(input.NewPassword, auth.DefaultParamsArgon2)
+	newPasswordHash, err := auth.GenerateFromPassword(input.NewPassword, auth.DefaultParams)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

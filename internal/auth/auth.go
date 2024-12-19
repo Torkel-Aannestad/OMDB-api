@@ -43,7 +43,7 @@ func PasswordMatches(plaintextPassword string, hashedPassord []byte) (bool, erro
 	return true, nil
 }
 
-type ParamsArgon2 struct {
+type Params struct {
 	Memory      uint32
 	Iterations  uint32
 	Parallelism uint8
@@ -51,7 +51,7 @@ type ParamsArgon2 struct {
 	KeyLength   uint32
 }
 
-var DefaultParamsArgon2 = &ParamsArgon2{
+var DefaultParams = &Params{
 	Memory:      64 * 1024,
 	Iterations:  2,
 	Parallelism: 1,
@@ -74,7 +74,7 @@ func generateRandomBytes(n uint32) ([]byte, error) {
 	return b, nil
 }
 
-func GenerateFromPassword(password string, p *ParamsArgon2) (encodedHash string, err error) {
+func GenerateFromPassword(password string, p *Params) (encodedHash string, err error) {
 	salt, err := generateRandomBytes(p.SaltLength)
 	if err != nil {
 		return "", err
@@ -106,7 +106,7 @@ func ComparePasswordAndHash(password, encodedHash string) (match bool, err error
 
 }
 
-func decodeHash(encodedHash string) (p *ParamsArgon2, salt, hash []byte, err error) {
+func decodeHash(encodedHash string) (p *Params, salt, hash []byte, err error) {
 	parts := strings.Split(encodedHash, "$")
 	if len(parts) != 6 {
 		return nil, nil, nil, ErrInvalidHash
@@ -121,7 +121,7 @@ func decodeHash(encodedHash string) (p *ParamsArgon2, salt, hash []byte, err err
 		return nil, nil, nil, ErrIncompatibleVersion
 	}
 
-	p = &ParamsArgon2{}
+	p = &Params{}
 	_, err = fmt.Sscanf(parts[3], "m=%d,t=%d,p=%d", &p.Memory, &p.Iterations, &p.Parallelism)
 	if err != nil {
 		return nil, nil, nil, err
