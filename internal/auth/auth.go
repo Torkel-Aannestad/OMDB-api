@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
 	"golang.org/x/crypto/argon2"
@@ -57,6 +58,11 @@ var DefaultParamsArgon2 = &ParamsArgon2{
 	KeyLength:   32,
 }
 
+var (
+	ErrInvalidHash         = errors.New("the encoded hash is not in the correct format")
+	ErrIncompatibleVersion = errors.New("incompatible version of argon2")
+)
+
 func generateRandomBytes(n uint32) ([]byte, error) {
 	b := make([]byte, n)
 	_, err := rand.Read(b)
@@ -81,4 +87,40 @@ func GenerateFromPassword(password string, p *ParamsArgon2) (encodedHash string,
 	encodedHash = fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s", argon2.Version, p.Memory, p.Iterations, p.Parallelism, base64Salt, base64Hash)
 
 	return encodedHash, nil
+}
+
+func decodeHash(encodedHash string) (p *ParamsArgon2, salt, hash []byte, err error) {
+	parts := strings.Split(encodedHash, "$")
+	if len(parts) != 6 {
+		return nil, nil, nil, ErrInvalidHash
+	}
+
+	var version int
+	_, err = fmt.Sscanf(parts[2], "v=%d", &version)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	if version != argon2.Version {
+		return nil, nil, nil, ErrIncompatibleVersion
+	}
+
+	p = &ParamsArgon2{}
+	_, err = fmt.Sscanf(parts[3], "m=%d,t=%d,p=%d", &p.Memory, &p.Iterations, &p.Parallelism)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	salt, err = base64.RawStdEncoding.Strict().DecodeString(parts[4])
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	p.SaltLength = uint32(len(salt))
+
+	hash, err = base64.RawStdEncoding.Strict().DecodeString(parts[5])
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	p.KeyLength = uint32(len(hash))
+
+	return p, salt, hash, nil
 }
