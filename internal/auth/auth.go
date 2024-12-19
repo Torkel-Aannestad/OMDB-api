@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"crypto/rand"
 	"errors"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
@@ -35,4 +36,14 @@ func PasswordMatches(plaintextPassword string, hashedPassord []byte) (bool, erro
 	}
 
 	return true, nil
+}
+
+func generateRandomBytes(n uint32) ([]byte, error) {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
 }
