@@ -2,6 +2,7 @@ package auth
 
 import (
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -87,6 +88,22 @@ func GenerateFromPassword(password string, p *ParamsArgon2) (encodedHash string,
 	encodedHash = fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s", argon2.Version, p.Memory, p.Iterations, p.Parallelism, base64Salt, base64Hash)
 
 	return encodedHash, nil
+}
+
+func ComparePasswordHash(password, encodedHash string) (match bool, err error) {
+	p, salt, hash, err := decodeHash(encodedHash)
+	if err != nil {
+		return false, err
+	}
+
+	inputHash := argon2.IDKey([]byte(password), []byte(salt), p.Iterations, p.Memory, p.Parallelism, p.KeyLength)
+
+	if subtle.ConstantTimeCompare(hash, inputHash) == 1 {
+		return true, nil
+	} else {
+		return false, nil
+	}
+
 }
 
 func decodeHash(encodedHash string) (p *ParamsArgon2, salt, hash []byte, err error) {
