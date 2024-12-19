@@ -211,7 +211,7 @@ func (app *application) resetPasswordHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	newPasswordHash, err := auth.GenerateHashFromPlaintext(input.NewPassword)
+	newPasswordHash, err := auth.GenerateFromPassword(input.NewPassword, auth.DefaultParamsArgon2)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
