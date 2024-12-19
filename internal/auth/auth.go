@@ -38,6 +38,22 @@ func PasswordMatches(plaintextPassword string, hashedPassord []byte) (bool, erro
 	return true, nil
 }
 
+type ParamsArgon2 struct {
+	Memory      uint32
+	Iterations  uint32
+	Parallelism uint8
+	SaltLength  uint32
+	KeyLength   uint32
+}
+
+var DefaultParamsArgon2 = &ParamsArgon2{
+	Memory:      64 * 1024,
+	Iterations:  2,
+	Parallelism: 1,
+	SaltLength:  16,
+	KeyLength:   32,
+}
+
 func generateRandomBytes(n uint32) ([]byte, error) {
 	b := make([]byte, n)
 	_, err := rand.Read(b)
