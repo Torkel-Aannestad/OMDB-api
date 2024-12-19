@@ -134,7 +134,7 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 	}
 }
 
-func (app *application) sendResetPasswordTokenHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) resetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Email string `json:"email"`
 	}
@@ -180,7 +180,7 @@ func (app *application) sendResetPasswordTokenHandler(w http.ResponseWriter, r *
 
 }
 
-func (app *application) resetPasswordHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) resetPasswordVerifyHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		TokenPlaintext string `json:"token"`
 		NewPassword    string `json:"new_password"`

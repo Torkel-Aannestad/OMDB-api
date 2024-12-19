@@ -75,8 +75,8 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPut, "/v1/users/change-email-verify", app.authRateLimit(app.protectedRoute("", app.changeEmailVerifyTokenHandler)))
 
 	router.HandlerFunc(http.MethodPost, "/v1/auth/authentication", app.authRateLimit(app.authenticateUserHandler))
-	router.HandlerFunc(http.MethodPost, "/v1/auth/reset-password-verify-email", app.authRateLimit(app.sendResetPasswordTokenHandler))
 	router.HandlerFunc(http.MethodPost, "/v1/auth/reset-password", app.authRateLimit(app.resetPasswordHandler))
+	router.HandlerFunc(http.MethodPost, "/v1/auth/reset-password-verify", app.authRateLimit(app.resetPasswordVerifyHandler))
 	router.HandlerFunc(http.MethodPost, "/v1/auth/change-password", app.authRateLimit(app.protectedRoute("", app.changePasswordHandler)))
 	router.HandlerFunc(http.MethodPost, "/v1/auth/revoke", app.protectedRoute("", app.deleteAllSessionsHandler))
 

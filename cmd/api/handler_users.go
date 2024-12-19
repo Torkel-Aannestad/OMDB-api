@@ -38,7 +38,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
-	hash, err := auth.GenerateFromPassword(input.Password, auth.DefaultParamsArgon2)
+	hash, err := auth.GenerateFromPassword(input.Password, auth.DefaultParams)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
