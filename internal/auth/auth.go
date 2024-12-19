@@ -16,7 +16,7 @@ import (
 func ValidatePlaintextPassword(v *validator.Validator, password string) {
 	v.Check(password != "", "password", "can't be blank")
 	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
-	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
+	v.Check(len(password) <= 256, "password", "must not be more than 256 characters long")
 	v.Check(validator.NotIn(password, CommonPasswords...), "password", "password is commonly used and will not be accepted")
 }
 
