@@ -159,6 +159,8 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		}
 		r = app.contextSetUser(r, user)
 
+		r.UserAgent()
+
 		next.ServeHTTP(w, r)
 	})
 

@@ -41,7 +41,7 @@ func (app *application) authenticateUserHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	match, err := auth.PasswordMatches(input.Password, user.PasswordHash)
+	match, err := auth.ComparePasswordHash(input.Password, user.PasswordHash)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
