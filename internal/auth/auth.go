@@ -2,9 +2,12 @@ package auth
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"errors"
+	"fmt"
 
 	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
+	"golang.org/x/crypto/argon2"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -62,4 +65,20 @@ func generateRandomBytes(n uint32) ([]byte, error) {
 	}
 
 	return b, nil
+}
+
+func GenerateFromPassword(password string, p *ParamsArgon2) (encodedHash string, err error) {
+	salt, err := generateRandomBytes(p.SaltLength)
+	if err != nil {
+		return "", err
+	}
+
+	hash := argon2.IDKey([]byte(password), []byte(salt), p.Iterations, p.Memory, p.Parallelism, p.KeyLength)
+
+	base64Salt := base64.RawStdEncoding.EncodeToString(salt)
+	base64Hash := base64.RawStdEncoding.EncodeToString(hash)
+
+	encodedHash = fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s", argon2.Version, p.Memory, p.Iterations, p.Parallelism, base64Salt, base64Hash)
+
+	return encodedHash, nil
 }
