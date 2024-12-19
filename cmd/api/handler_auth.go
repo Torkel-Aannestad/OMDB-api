@@ -41,7 +41,7 @@ func (app *application) authenticateUserHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	match, err := auth.ComparePasswordHash(input.Password, user.PasswordHash)
+	match, err := auth.ComparePasswordAndHash(input.Password, user.PasswordHash)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -82,7 +82,7 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 	user := app.contextGetUser(r)
-	match, err := auth.PasswordMatches(input.CurrentPassword, user.PasswordHash)
+	match, err := auth.ComparePasswordAndHash(input.CurrentPassword, user.PasswordHash)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -92,7 +92,7 @@ func (app *application) changePasswordHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	newPasswordHash, err := auth.GenerateHashFromPlaintext(input.NewPassword)
+	newPasswordHash, err := auth.GenerateFromPassword(input.NewPassword, auth.DefaultParamsArgon2)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

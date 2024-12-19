@@ -90,7 +90,7 @@ func GenerateFromPassword(password string, p *ParamsArgon2) (encodedHash string,
 	return encodedHash, nil
 }
 
-func ComparePasswordHash(password, encodedHash string) (match bool, err error) {
+func ComparePasswordAndHash(password, encodedHash string) (match bool, err error) {
 	p, salt, hash, err := decodeHash(encodedHash)
 	if err != nil {
 		return false, err
