@@ -9,7 +9,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
     />
-    <title>OMDB Documentation</title>
+    <title>MovieMaze Documentation</title>
   </head>
   <body>
     <header class="container">
@@ -30,14 +30,14 @@
       </nav>
     </header>
     <main class="container">
-      <h1 id="omdb">OMDB</h1>
+      <h1 id="moviemaze">MovieMaze</h1>
       <p>
-        This project is a personal learning project. OMDB is a movie and series
-        database presented as a JSON-api and later a React-based user interface.
-        The data is downloaded from
-        <a href="https://www.omdb.org">OMDB.org</a> which is a free community
-        driven database for film media. The goal of the project has been to
-        create a full featured ideomatic Go JSON API, which uses few
+        This project is a personal learning project. MovieMaze is a movie and
+        series database presented as a JSON-api and later a React-based user
+        interface. The data is downloaded from
+        <a href="https://www.moviemaze.org">OMDB.org</a> which is a free
+        community driven database for film media. The goal of the project has
+        been to create a full featured ideomatic Go JSON API, which uses few
         dependencies and abstractions.
       </p>
       <p>Stack:</p>
@@ -83,14 +83,14 @@
       </ol>
       <h3 id="user-signup">1. User Signup</h3>
       <ul>
-        <li>Base url: omdb.torkelaannestad.com</li>
+        <li>Base url: moviemaze.torkelaannestad.com</li>
         <li>Endpoint: POST /v1/users</li>
         <li>Body: name, email, password</li>
       </ul>
       <pre
         class="shell"
       ><code>  BODY=&#39;{&quot;name&quot;: &quot;Jake Perolta&quot;,&quot;email&quot;: &quot;jake.perolta@example.com&quot;, &quot;password&quot;: &quot;yourSecurePassword&quot;}&#39;
-        curl -d &quot;$BODY&quot; omdb.torkelaannestad.com/v1/users</code></pre>
+        curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/users</code></pre>
       <h3 id="user-activation">2. User Activation</h3>
       <p>
         An email is sent to your email with activation token. Send the following
@@ -103,7 +103,7 @@
       <pre
         class="shell"
       ><code>  BODY=&#39;{&quot;token&quot;: token-from-email}&#39;
-        curl -X PUT -d &quot;$BODY&quot; omdb.torkelaannestad.com/v1/users/activate</code></pre>
+        curl -X PUT -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/users/activate</code></pre>
       <p>Reponse: a user object with updated “activated” value.</p>
       <h3 id="get-auth-token">3. Get Auth Token</h3>
       <ul>
@@ -113,7 +113,7 @@
       <pre
         class="shell"
       ><code>  BODY=&#39;{&quot;email&quot;: &quot;yourEmail@example.com&quot;, &quot;password&quot;: &quot;pa55word&quot;}&#39;
-        curl -d &quot;$BODY&quot; omdb.torkelaannestad.com/v1/auth/authentication</code></pre>
+        curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/auth/authentication</code></pre>
       <p>Response:</p>
       <div class="sourceCode" id="cb4">
         <pre
@@ -129,7 +129,7 @@
       </ul>
       <pre
         class="shell"
-      ><code>  curl -H &quot;Authorization: Bearer G5TU7Y46GRENMNUDZP2T75QGNE&quot; omdb.torkelaannestad.com/v1/movies/35819</code></pre>
+      ><code>  curl -H &quot;Authorization: Bearer G5TU7Y46GRENMNUDZP2T75QGNE&quot; moviemaze.torkelaannestad.com/v1/movies/35819</code></pre>
       <p>
         <br />
         ## Database and Model design
@@ -212,7 +212,7 @@
       <p>Base URL and example endpoint:</p>
       <pre
         class="shell"
-      ><code> omdb.torkelaannestad.com/v1/healthcheck</code></pre>
+      ><code> moviemaze.torkelaannestad.com/v1/healthcheck</code></pre>
       <ul>
         <li>
           To get access to the API please see the
@@ -312,7 +312,7 @@
       </ul>
       <pre
         class="shell"
-      ><code> curl -H &quot;Authorization: Bearer JZ5B4SABDN7PBKUFJROWAQM7DU&quot; &quot;https://omdb.torkelaannestad.com/v1/movies?name=dark%20knight&amp;kind=movie&amp;page=1&amp;page_size=2&amp;sort=id&quot;</code></pre>
+      ><code> curl -H &quot;Authorization: Bearer JZ5B4SABDN7PBKUFJROWAQM7DU&quot; &quot;https://moviemaze.torkelaannestad.com/v1/movies?name=dark%20knight&amp;kind=movie&amp;page=1&amp;page_size=2&amp;sort=id&quot;</code></pre>
       <p>Example response:</p>
       <div class="sourceCode" id="cb10">
         <pre
@@ -906,7 +906,7 @@
       <pre
         class="shell"
       ><code>  BODY=&#39;{&quot;name&quot;: &quot;Jake Perolta&quot;,&quot;email&quot;: &quot;jake.perolta@example.com&quot;, &quot;password&quot;: &quot;yourSecurePassword&quot;}&#39;
-        curl -d &quot;$BODY&quot; omdb.torkelaannestad.com/v1/users</code></pre>
+        curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/users</code></pre>
       <h5 id="put-v1usersactivated">PUT /v1/users/activated</h5>
       <ul>
         <li>Description: Activate a registered user.</li>
@@ -916,7 +916,7 @@
       <pre
         class="shell"
       ><code>  BODY=&#39;{&quot;token&quot;: token-from-email}&#39;
-        curl -X PUT -d &quot;$BODY&quot; omdb.torkelaannestad.com/v1/users/activate</code></pre>
+        curl -X PUT -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/users/activate</code></pre>
       <h4 id="authentication">Authentication</h4>
       <h5 id="post-v1authauthentication">POST /v1/auth/authentication</h5>
       <ul>
@@ -927,7 +927,7 @@
       <pre
         class="shell"
       ><code>  BODY=&#39;{&quot;email&quot;: &quot;yourEmail@example.com&quot;, &quot;password&quot;: &quot;pa55word&quot;}&#39;
-        curl -d &quot;$BODY&quot; omdb.torkelaannestad.com/v1/auth/authentication</code></pre>
+        curl -d &quot;$BODY&quot; moviemaze.torkelaannestad.com/v1/auth/authentication</code></pre>
       <h3 id="error-handling">Error Handling</h3>
       <ul>
         <li>
