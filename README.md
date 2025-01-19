@@ -1,6 +1,6 @@
-# OMDB
+# MovieMaze
 
-This project is a personal learning project. OMDB is a movie and series database presented as a JSON-api and later a React-based user interface. The data is downloaded from [OMDB](https://www.omdb.org) which is a free community driven database for film media. The goal of the project has been to create a full featured ideomatic Go JSON API, which uses few dependencies and abstractions.
+This project is a personal learning project. MovieMaze is a movie and series database presented as a JSON-api. The data is downloaded from [OMDB](https://www.moviemaze.org) which is a free community driven database for film media. The goal of the project has been to create a full featured ideomatic Go JSON API, which uses few dependencies and abstractions.
 
 Stack:
 
@@ -34,13 +34,13 @@ You'll get access with 3 steps:
 
 ### 1. User Signup
 
-- Base url: omdb.torkelaannestad.com
+- Base url: moviemaze.torkelaannestad.com
 - Endpoint: POST /v1/users
 - Body: name, email, password
 
 ```shell
   BODY='{"name": "Jake Perolta","email": "jake.perolta@example.com", "password": "yourSecurePassword"}'
-  curl -d "$BODY" omdb.torkelaannestad.com/v1/users
+  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/users
 ```
 
 ### 2. User Activation
@@ -52,7 +52,7 @@ An email is sent to your email with activation token. Send the following request
 
 ```shell
   BODY='{"token": token-from-email}'
-  curl -X PUT -d "$BODY" omdb.torkelaannestad.com/v1/users/activate
+  curl -X PUT -d "$BODY" moviemaze.torkelaannestad.com/v1/users/activate
 ```
 
 Reponse: a user object with updated "activated" value.
@@ -64,7 +64,7 @@ Reponse: a user object with updated "activated" value.
 
 ```shell
   BODY='{"email": "yourEmail@example.com", "password": "pa55word"}'
-  curl -d "$BODY" omdb.torkelaannestad.com/v1/auth/authentication
+  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/auth/authentication
 ```
 
 Response:
@@ -79,7 +79,7 @@ Response:
 - Endpoint: GET /v1/movies/:id
 
 ```shell
-  curl -H "Authorization: Bearer G5TU7Y46GRENMNUDZP2T75QGNE" omdb.torkelaannestad.com/v1/movies/35819
+  curl -H "Authorization: Bearer G5TU7Y46GRENMNUDZP2T75QGNE" moviemaze.torkelaannestad.com/v1/movies/35819
 ```
 
 <br/>
@@ -122,7 +122,7 @@ Response:
 Base URL and example endpoint:
 
 ```shell
- omdb.torkelaannestad.com/v1/healthcheck
+ moviemaze.torkelaannestad.com/v1/healthcheck
 ```
 
 - To get access to the API please see the [quickstart section](#Quickstart) or the [users](#Users) and [auth](#Authentication) resources.
@@ -195,7 +195,7 @@ The movies table include both movies, series and episodes. Series uses the paren
 - Permission: movies:read
 
 ```shell
- curl -H "Authorization: Bearer JZ5B4SABDN7PBKUFJROWAQM7DU" "https://omdb.torkelaannestad.com/v1/movies?name=dark%20knight&kind=movie&page=1&page_size=2&sort=id"
+ curl -H "Authorization: Bearer JZ5B4SABDN7PBKUFJROWAQM7DU" "https://moviemaze.torkelaannestad.com/v1/movies?name=dark%20knight&kind=movie&page=1&page_size=2&sort=id"
 ```
 
 Example response:
@@ -779,7 +779,7 @@ Reponse: list of casts
 
 ```shell
   BODY='{"name": "Jake Perolta","email": "jake.perolta@example.com", "password": "yourSecurePassword"}'
-  curl -d "$BODY" omdb.torkelaannestad.com/v1/users
+  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/users
 ```
 
 ##### PUT /v1/users/activated
@@ -790,7 +790,7 @@ Reponse: list of casts
 
 ```shell
   BODY='{"token": token-from-email}'
-  curl -X PUT -d "$BODY" omdb.torkelaannestad.com/v1/users/activate
+  curl -X PUT -d "$BODY" moviemaze.torkelaannestad.com/v1/users/activate
 ```
 
 ##### POST /v1/users/resend-activation-token
@@ -801,7 +801,7 @@ Reponse: list of casts
 
 ```shell
   BODY='{"email": yourEmail@example.com}'
-  curl -d "$BODY" omdb.torkelaannestad.com/v1/users/resend-activation-token
+  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/users/resend-activation-token
 ```
 
 Response: json message confirmation.
@@ -818,7 +818,7 @@ Authentication endpoint are protected with an additional rate limiter with a slo
 
 ```shell
   BODY='{"email": "yourEmail@example.com", "password": "pa55word"}'
-  curl -d "$BODY" omdb.torkelaannestad.com/v1/auth/authentication
+  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/auth/authentication
 ```
 
 Response: auth token
