@@ -83,6 +83,7 @@ Response:
 ```
 
 <br/>
+
 ## Database and Model design
 
 - OMDB is imported from CSV files. An import SQL script is created to set up the data model in a good starting state. See /sql/data-import/run.sql for all the set up steps.
