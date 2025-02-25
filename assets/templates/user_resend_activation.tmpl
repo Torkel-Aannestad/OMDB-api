@@ -1,15 +1,16 @@
-{{define "subject"}}Activate your MovieMaze account!{{ end }}
+{{define "subject"}}Activate your OMDB API account!{{ end }}
 
 {{define "plainBody"}}
 Hi. To activate your account send a PUT request to the endpoint below with a the
 provided activation token as the body. PUT
-https://moviemaze.torkelaannestad.com/v1/users/activate {"token": "{{.activationToken
+https://omdb-api.torkelaannestad.com/v1/users/activate {"token": "{{.activationToken
+
 
 
 
 }}"}. Please note that this is a one-time use token and it will expire in 3
 days. For further information please see the API documentation at
-moviemaze.torkelaannestad.com/api-docs Thanks, The MovieMaze Team
+omdb-api.torkelaannestad.com/api-docs Thanks, The OMDB API Team
 {{ end }}
 
 {{define "htmlBody"}}
@@ -28,7 +29,7 @@ moviemaze.torkelaannestad.com/api-docs Thanks, The MovieMaze Team
     </p>
 
     <pre>
-      <code>PUT https://moviemaze.torkelaannestad.com/v1/users/activate</code>
+      <code>PUT https://omdb-api.torkelaannestad.com/v1/users/activate</code>
       <code>{"token": "{{.activationToken}}"}</code>
     </pre>
     <p>
@@ -37,10 +38,10 @@ moviemaze.torkelaannestad.com/api-docs Thanks, The MovieMaze Team
     </p>
     <p>
       For further information please see the API documentation at
-      <code> moviemaze.torkelaannestad.com</code>
+      <code> omdb-api.torkelaannestad.com</code>
     </p>
     <p>Thanks,</p>
-    <p>The MovieMaze Team</p>
+    <p>The OMDB API Team</p>
   </body>
 </html>
 {{ end }}

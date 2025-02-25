@@ -1,6 +1,6 @@
-# MovieMaze
+# OMDB API
 
-This project is a personal learning project. MovieMaze is a movie and series database presented as a JSON-api. The data is downloaded from [OMDB](https://www.moviemaze.org) which is a free community driven database for film media. The goal of the project has been to create a full featured ideomatic Go JSON API, which uses few dependencies and abstractions.
+This project is a personal learning project. OMDB API is a movie and series database presented as a JSON-api. The data is downloaded from [OMDB](https://www.omdb.org) which is a free community driven database for film media. The goal of the project has been to create a full featured ideomatic Go JSON API, which uses few dependencies and abstractions.
 
 Stack:
 
@@ -10,14 +10,14 @@ Stack:
 - Auth and user management built from cratch
 - Mailer implemented with Go-mail and Mailtrap SMTP relay
 - Makefile for automations
-- Hosting from a Ubuntu VM with Caddy reverse proxy and rsync for file transfer and shell scripts
+- Hosting from a Ubuntu VM with Nginx reverse proxy and rsync for file transfer and shell scripts
 
 Sentral to the design of the application is Alex Edwards' books [Let's Go](https://lets-go.alexedwards.net/) and [Let's Go Further](https://lets-go-further.alexedwards.net/). You can read more about the technology stack and design desitions taken in the project below.
 
 <strong>Created by Torkel Aannestad</strong>
 
-- [torkelaannestad.com](torkelaannestad.com)
-- [Github](github.com/Torkel-Aannestad/)
+- [torkelaannestad.com](https://torkelaannestad.com)
+- [Github](https://github.com/Torkel-Aannestad)
 
 Jump to the API-documentation:
 [API documentation](#api-documentaion)
@@ -34,13 +34,13 @@ You'll get access with 3 steps:
 
 ### 1. User Signup
 
-- Base url: moviemaze.torkelaannestad.com
+- Base url: https://omdb-api.torkelaannestad.com
 - Endpoint: POST /v1/users
 - Body: name, email, password
 
 ```shell
   BODY='{"name": "Jake Perolta","email": "jake.perolta@example.com", "password": "yourSecurePassword"}'
-  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/users
+  curl -d "$BODY" https://omdb-api.torkelaannestad.com/v1/users
 ```
 
 ### 2. User Activation
@@ -52,7 +52,7 @@ An email is sent to your email with activation token. Send the following request
 
 ```shell
   BODY='{"token": token-from-email}'
-  curl -X PUT -d "$BODY" moviemaze.torkelaannestad.com/v1/users/activate
+  curl -X PUT -d "$BODY" https://omdb-api.torkelaannestad.com/v1/users/activate
 ```
 
 Reponse: a user object with updated "activated" value.
@@ -64,13 +64,13 @@ Reponse: a user object with updated "activated" value.
 
 ```shell
   BODY='{"email": "yourEmail@example.com", "password": "pa55word"}'
-  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/auth/authentication
+  curl -d "$BODY" https://omdb-api.torkelaannestad.com/v1/auth/authentication
 ```
 
 Response:
 
 ```JSON
-{"authentication_token":{"token":"JZ5B4SABDN7PBKUFKROWAQM7DU","expiry":"2024-12-13T09:16:07.9290901Z"}}
+{"authentication_token":{"token":"yourTokenHere","expiry":"2024-12-13T09:16:07.9290901Z"}}
 ```
 
 <br/>
@@ -79,7 +79,7 @@ Response:
 - Endpoint: GET /v1/movies/:id
 
 ```shell
-  curl -H "Authorization: Bearer G5TU7Y46GRENMNUDZP2T75QGNE" moviemaze.torkelaannestad.com/v1/movies/35819
+  curl -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/movies/35819
 ```
 
 <br/>
@@ -122,7 +122,7 @@ Response:
 Base URL and example endpoint:
 
 ```shell
- moviemaze.torkelaannestad.com/v1/healthcheck
+ https://omdb-api.torkelaannestad.com/v1/healthcheck
 ```
 
 - To get access to the API please see the [quickstart section](#Quickstart) or the [users](#Users) and [auth](#Authentication) resources.
@@ -195,7 +195,7 @@ The movies table include both movies, series and episodes. Series uses the paren
 - Permission: movies:read
 
 ```shell
- curl -H "Authorization: Bearer JZ5B4SABDN7PBKUFJROWAQM7DU" "https://moviemaze.torkelaannestad.com/v1/movies?name=dark%20knight&kind=movie&page=1&page_size=2&sort=id"
+ curl -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/movies?name=dark%20knight&kind=movie&page=1&page_size=2&sort=id"
 ```
 
 Example response:
@@ -254,7 +254,7 @@ Example response:
 
 ```shell
  BODY='{"name":"Go programming is awesome","date":"2024-12-02T00:00:00Z", "kind":"movie", "runtime":108,"budget":0,"revenue":0,"homepage":"", "vote_average": 5.4, "votes_count": 23, "abstract": ""}'
- curl -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" localhost:4000/v1/movies
+ curl -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/movies
 ```
 
 Response
@@ -294,7 +294,7 @@ Response
 - Permission: movies:read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" localhost:4000/v1/movies/35819
+ curl -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/movies/35819
 ```
 
 Response: same as create movie.
@@ -308,7 +308,7 @@ Response: same as create movie.
 
 ```shell
  BODY='{ "vote_average": 5.6, "votes_count": 25}'
- curl -X PATCH -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/movies/272775
+ curl -X PATCH -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/movies/272775
 ```
 
 ##### DELETE /v1/movies/:id
@@ -318,7 +318,7 @@ Response: same as create movie.
 - Permission: movies:write
 
 ```shell
- curl -X DELETE -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/movies/272775
+ curl -X DELETE -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/movies/272775
 ```
 
 #### People
@@ -335,7 +335,7 @@ Response: same as create movie.
 - Gender: 0=male, 1=female, 2=non-binary, 99=not spesified
 
 ```shell
- curl -H "Authorization: Bearer YOUR_TOKEN" "http://localhost:4000/v1/people?name=john&page=1&page_size=5&sort=id"
+ curl -H "Authorization: Bearer YOUR_TOKEN" "https://omdb-api.torkelaannestad.com/v1/people?name=john&page=1&page_size=5&sort=id"
 ```
 
 ##### POST /v1/people
@@ -346,7 +346,7 @@ Response: same as create movie.
 
 ```shell
  BODY='{"name":"John Doe","birthday":"1944-05-14T00:00:00Z","gender":"0","aliases":["foo, bar"]}'
- curl -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/people
+ curl -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/people
 ```
 
 ##### GET /v1/people/:id
@@ -356,7 +356,7 @@ Response: same as create movie.
 - Permission: people: read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" localhost:4000/v1/people/311418
+ curl -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/people/311418
 ```
 
 ##### PATCH /v1/people/:id
@@ -368,7 +368,7 @@ Response: same as create movie.
 
 ```shell
  BODY='{"name":"John Doeski","gender":"99"'
- curl -X PPATCH -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/people
+ curl -X PPATCH -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/people
 ```
 
 Response: the updated user object.
@@ -380,7 +380,7 @@ Response: the updated user object.
 - Permission: people:write
 
 ```shell
- curl -X DELETE -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" localhost:4000/v1/people/311418
+ curl -X DELETE -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/people/311418
 ```
 
 #### Casts
@@ -393,7 +393,7 @@ Response: the updated user object.
 
 ```shell
  BODY='{"movie_id":35819,"person_id":287,"job_id":15,"role":"Very cool role","position":1}'
-curl -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/casts
+curl -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/casts
 ```
 
 ##### GET /v1/casts/by-movie-id/:id
@@ -403,7 +403,7 @@ curl -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://loc
 - Permission: casts:read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" "localhost:4000/v1/casts/by-movie-id/35819"
+ curl -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/casts/by-movie-id/35819"
 ```
 
 Reponse: list of casts
@@ -415,7 +415,7 @@ Reponse: list of casts
 - Permission: casts:read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" "localhost:4000/v1/casts/by-person-id/2524"
+ curl -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/casts/by-person-id/2524"
 ```
 
 Reponse: list of casts
@@ -429,7 +429,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"role":"Luke Skywalker","position":2}'
- curl -X PATCH -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/casts/1260480
+ curl -X PATCH -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/casts/1260480
 ```
 
 ##### DELETE /v1/casts/:id
@@ -439,7 +439,7 @@ Reponse: list of casts
 - Permission: casts:write
 
 ```shell
- curl -X DELETE -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/casts/1260479
+ curl -X DELETE -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/casts/1260479
 ```
 
 #### Jobs
@@ -452,7 +452,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"name":"Executive Producer"}'
- curl -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/jobs
+ curl -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/jobs
 ```
 
 ##### GET /v1/jobs/:id
@@ -462,7 +462,7 @@ Reponse: list of casts
 - Permission: jobs:read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" "localhost:4000/v1/jobs/1050"
+ curl -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/jobs/1050"
 ```
 
 ##### PATCH /v1/jobs/:id
@@ -474,7 +474,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"name":"Super Executive Producer"}'
- curl -X PATCH -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/jobs/1050
+ curl -X PATCH -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/jobs/1050
 ```
 
 ##### DELETE /v1/jobs/:id
@@ -484,7 +484,7 @@ Reponse: list of casts
 - Permission: jobs:write
 
 ```shell
- curl -X DELETE -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/jobs/1050
+ curl -X DELETE -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/jobs/1050
 ```
 
 #### Categories
@@ -498,7 +498,7 @@ Reponse: list of casts
 ```shell
  BODY='{"name":"Family Drama"}'
  BODY='{"name":"Family Drama", "parent_id":12,"root_id":1}'
- curl -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/categories
+ curl -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/categories
 ```
 
 ##### GET /v1/categories/:id
@@ -508,7 +508,7 @@ Reponse: list of casts
 - Permission: categories:read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" "localhost:4000/v1/categories/20705"
+ curl -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/categories/20705"
 ```
 
 ##### PATCH /v1/categories/:id
@@ -520,7 +520,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"name":"Genre Adventure Subcategory", "parent_id":12,"root_id":1}'
- curl -X PATCH -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" "localhost:4000/v1/categories/20705"
+ curl -X PATCH -d "$BODY" -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/categories/20705"
 ```
 
 ##### DELETE /v1/categories/:id
@@ -530,7 +530,7 @@ Reponse: list of casts
 - Permission: categories:write
 
 ```shell
- curl -X DELETE -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/categories/20705
+ curl -X DELETE -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/categories/20705
 ```
 
 #### Movie Keywords
@@ -543,7 +543,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"movie_id":35819,"category_id": 10}'
- curl -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/movie-keywords
+ curl -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/movie-keywords
 ```
 
 ##### GET /v1/movie-keywords/:id
@@ -553,7 +553,7 @@ Reponse: list of casts
 - Permission: category-items:read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" "localhost:4000/v1/movie-keywords/35819"
+ curl -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/movie-keywords/35819"
 ```
 
 ##### DELETE /v1/movie-keywords
@@ -564,7 +564,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"movie_id":35819,"category_id":10}'
- curl -X DELETE -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/movie-keywords
+ curl -X DELETE -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/movie-keywords
 ```
 
 #### Movie Categories
@@ -577,7 +577,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"movie_id":35819,"category_id": 10}'
- curl -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/movie-categories
+ curl -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/movie-categories
 ```
 
 ##### GET /v1/movie-categories/:id
@@ -587,7 +587,7 @@ Reponse: list of casts
 - Permission: category-items:read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" "localhost:4000/v1/movie-categories/35819"
+ curl -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/movie-categories/35819"
 ```
 
 ##### DELETE /v1/movie-categories
@@ -598,7 +598,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"movie_id":35819,"category_id":10}'
- curl -X DELETE -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/movie-categories
+ curl -X DELETE -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/movie-categories
 ```
 
 #### Movie Links
@@ -614,7 +614,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"source":"Fight_Club","key":"wikipedia","movie_id":550,"language":"xx"}'
- curl -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/movie-links
+ curl -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/movie-links
 ```
 
 ##### GET /v1/movie-links/:id
@@ -624,7 +624,7 @@ Reponse: list of casts
 - Permission: movie-links:read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" "localhost:4000/v1/movie-links/550"
+ curl -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/movie-links/550"
 ```
 
 ##### DELETE /v1/movie-links/:id
@@ -634,7 +634,7 @@ Reponse: list of casts
 - Permission: movie-links:write
 
 ```shell
- curl -X DELETE -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/movie-links/348425
+ curl -X DELETE -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/movie-links/348425
 ```
 
 #### People Links
@@ -650,7 +650,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"source":"Brad_Pitt","key":"wikipedia","person_id":287,"language":"xx"}'
- curl -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/people-links
+ curl -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/people-links
 ```
 
 ##### GET /v1/people-links/:id
@@ -660,7 +660,7 @@ Reponse: list of casts
 - Permission: people-links:read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" "localhost:4000/v1/people-links/287"
+ curl -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/people-links/287"
 ```
 
 ##### DELETE /v1/people-links/:id
@@ -670,7 +670,7 @@ Reponse: list of casts
 - Permission: people-links:write
 
 ```shell
- curl -X DELETE -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/people-links/213048
+ curl -X DELETE -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/people-links/213048
 ```
 
 #### Trailers
@@ -687,7 +687,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"key":"youtube-id-from-url","movie_id":35819,"language":"en","source":"youtube"}'
- curl -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/trailers
+ curl -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/trailers
 ```
 
 ##### GET /v1/trailers/:id
@@ -697,7 +697,7 @@ Reponse: list of casts
 - Permission: trailers:read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" "localhost:4000/v1/trailers/35819"
+ curl -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/trailers/35819"
 ```
 
 ##### DELETE /v1/trailers/:id
@@ -707,7 +707,7 @@ Reponse: list of casts
 - Permission: trailers:write
 
 ```shell
- curl -X DELETE -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/trailers/10922
+ curl -X DELETE -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/trailers/10922
 ```
 
 #### Images
@@ -722,7 +722,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"object_id":272775, "object_type": "Movie"}'
- curl -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/images
+ curl -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/images
 ```
 
 ##### GET /v1/images/:id
@@ -732,7 +732,7 @@ Reponse: list of casts
 - Permission: images:read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" "localhost:4000/v1/images/60360"
+ curl -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/images/60360"
 ```
 
 ##### GET /v1/images
@@ -744,7 +744,7 @@ Reponse: list of casts
 - Permission: images:read
 
 ```shell
- curl -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" "localhost:4000/v1/images?object_id=272775&object_type=Movie"
+ curl -H "Authorization: Bearer yourTokenHere" "https://omdb-api.torkelaannestad.com/v1/images?object_id=272775&object_type=Movie"
 ```
 
 ##### PATCH /v1/images/:id
@@ -757,7 +757,7 @@ Reponse: list of casts
 
 ```shell
  BODY='{"object_id":272775, "object_type": "Movie"}'
- curl -X PATCH -d "$BODY" -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/images/60360
+ curl -X PATCH -d "$BODY" -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/images/60360
 ```
 
 ##### DELETE /v1/images/:id
@@ -767,7 +767,7 @@ Reponse: list of casts
 - Permission: images:write
 
 ```shell
- curl -X DELETE -H "Authorization: Bearer 2FEPZTRMM6WDQXEX7SLO47RJFE" http://localhost:4000/v1/images/60360
+ curl -X DELETE -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/images/60360
 ```
 
 #### Users
@@ -779,7 +779,7 @@ Reponse: list of casts
 
 ```shell
   BODY='{"name": "Jake Perolta","email": "jake.perolta@example.com", "password": "yourSecurePassword"}'
-  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/users
+  curl -d "$BODY" https://omdb-api.torkelaannestad.com/v1/users
 ```
 
 ##### PUT /v1/users/activated
@@ -790,7 +790,7 @@ Reponse: list of casts
 
 ```shell
   BODY='{"token": token-from-email}'
-  curl -X PUT -d "$BODY" moviemaze.torkelaannestad.com/v1/users/activate
+  curl -X PUT -d "$BODY" https://omdb-api.torkelaannestad.com/v1/users/activate
 ```
 
 ##### POST /v1/users/resend-activation-token
@@ -801,7 +801,7 @@ Reponse: list of casts
 
 ```shell
   BODY='{"email": yourEmail@example.com}'
-  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/users/resend-activation-token
+  curl -d "$BODY" https://omdb-api.torkelaannestad.com/v1/users/resend-activation-token
 ```
 
 Response: json message confirmation.
@@ -818,7 +818,7 @@ Authentication endpoint are protected with an additional rate limiter with a slo
 
 ```shell
   BODY='{"email": "yourEmail@example.com", "password": "pa55word"}'
-  curl -d "$BODY" moviemaze.torkelaannestad.com/v1/auth/authentication
+  curl -d "$BODY" https://omdb-api.torkelaannestad.com/v1/auth/authentication
 ```
 
 Response: auth token
@@ -831,7 +831,7 @@ Response: auth token
 
 ```shell
   BODY='{"current_password": "pa55word", "password": "NewStrongerpa55word"}'
-  curl -d "$BODY" localhost:4000/v1/auth/change-passord
+  curl -d "$BODY" https://omdb-api.torkelaannestad.com/v1/auth/change-passord
 ```
 
 Response: auth token
@@ -843,7 +843,7 @@ Response: auth token
 
 ```shell
  BODY='{"email": "yourEmail@example.com"}'
- curl -d "$BODY" localhost:4000/v1/auth/password-reset-verify-email
+ curl -d "$BODY" https://omdb-api.torkelaannestad.com/v1/auth/password-reset-verify-email
 ```
 
 Response: json message
@@ -855,7 +855,7 @@ Response: json message
 
 ```shell
   BODY='{"token": "ZAAKSYTB2CV2RU2OOQ2JA5K35Y", "new_password": "NewStrongerpa55word"}'
-  curl -d "$BODY" localhost:4000/v1/auth/reset-password
+  curl -d "$BODY" https://omdb-api.torkelaannestad.com/v1/auth/reset-password
 ```
 
 Response: new authentication token
@@ -866,7 +866,7 @@ Response: new authentication token
 - Authentication: True
 
 ```shell
-  curl -X POST -H "Authorization: Bearer W2LMNM6XED32GE3WW5GRFR7PMU" localhost:4000/v1/auth/revoke
+  curl -X POST -H "Authorization: Bearer yourTokenHere" https://omdb-api.torkelaannestad.com/v1/auth/revoke
 ```
 
 Response: json message confirmation
