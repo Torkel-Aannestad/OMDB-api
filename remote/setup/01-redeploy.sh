@@ -1,6 +1,11 @@
 #!/bin/bash
 set -eu
 
+# Force all output to be presented in en_US for the duration of this script. This avoids  
+# any "setting locale failed" errors while this script is running, before we have 
+# installed support for all locales. Do not change this setting!
+export LC_ALL=en_US.UTF-8 
+
 # ==================================================================================== #
 # VARIABLES
 # ==================================================================================== #
@@ -10,14 +15,11 @@ USERNAME=omdb-api
 
 # Prompt to enter a password for the PostgreSQL moviemaze user (rather than hard-coding
 # a password in this script).
-read -p "Enter DB_PASSWORD: " DB_PASSWORD
-read -p "Enter mailtrap user: " MAILTRAP_USERNAME
-read -p "Enter password for mailtrap user: " MAILTRAP_PASSWORD
+read -p "DB_PASSWORD: " DB_PASSWORD
+read -p "Mailtrap user: " MAILTRAP_USERNAME
+read -p "Password for mailtrap user: " MAILTRAP_PASSWORD
 
-# Force all output to be presented in en_US for the duration of this script. This avoids  
-# any "setting locale failed" errors while this script is running, before we have 
-# installed support for all locales. Do not change this setting!
-export LC_ALL=en_US.UTF-8 
+
 
 # ==================================================================================== #
 # SCRIPT LOGIC

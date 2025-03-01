@@ -25,6 +25,14 @@ live/server:
 db/psql:
 	psql ${OMDB_API_DB_DSN_DEV}
 
+## db/create-dev-database: create local database
+.PHONY: db/create-dev-database
+db/create-dev-database:
+	@echo 'Creating dev database...'
+	sudo -i -u postgres psql -c "CREATE DATABASE ${DB_NAME}"
+	sudo -i -u postgres psql -d ${DB_NAME} -c "CREATE EXTENSION IF NOT EXISTS citext"
+	sudo -i -u postgres psql -d ${DB_NAME} -c "CREATE ROLE ${DB_NAME} WITH LOGIN PASSWORD '${DB_PASSWORD_DEV}'"
+
 ## db/migrations/up: apply all up database migrations
 .PHONY: db/migrations/up
 db/migrations/up: confirm
