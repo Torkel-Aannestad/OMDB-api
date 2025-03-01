@@ -13,7 +13,7 @@ confirm:
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	go run ./cmd/api -db-dsn=${MOVIE_MAZE_DB_DSN_DEV} 
+	go run ./cmd/api -db-dsn=${OMDB_API_DB_DSN_DEV} 
 
 ## live/server: run air
 .PHONY: live/server
@@ -23,19 +23,19 @@ live/server:
 ## db/psql: connect to the database using psql
 .PHONY: db/psql
 db/psql:
-	psql ${MOVIE_MAZE_DB_DSN_DEV}
+	psql ${OMDB_API_DB_DSN_DEV}
 
 ## db/migrations/up: apply all up database migrations
 .PHONY: db/migrations/up
 db/migrations/up: confirm
 	@echo 'Running up migrations...'
-	@cd sql/migrations && goose postgres ${MOVIE_MAZE_DB_DSN_DEV} up && cd ../..
+	@cd sql/migrations && goose postgres ${OMDB_API_DB_DSN_DEV} up && cd ../..
 
 ## db/import-data: imports OMDB dataset
 .PHONY: db/import-data
 db/import-data:
 	@echo 'Importing OMDB data...'
-	@psql -v ON_ERROR_STOP=1 -d "${MOVIE_MAZE_DB_DSN_DEV}" -c "\i sql/data-import/run.sql"
+	@psql -v ON_ERROR_STOP=1 -d "${OMDB_API_DB_DSN_DEV}" -c "\i sql/data-import/run.sql"
 
 ## db/data-download: downloads new OMDB CSV files
 .PHONY: db/data-download
@@ -46,7 +46,7 @@ db/data-download:
 ## db/pg_dump/schema: slqc generates go types from database schema and queries
 .PHONY: db/pg_dump/schema
 db/pg_dump/schema:
-	pg_dump "${MOVIE_MAZE_DB_DSN_DEV}" --schema-only > sql/schema/moviemaze_schema.sql
+	pg_dump "${OMDB_API_DB_DSN_DEV}" --schema-only > sql/schema/moviemaze_schema.sql
 
 ## db/sqlc/generate: slqc generates go types from database schema and queries
 .PHONY: db/sqlc/generate
@@ -92,8 +92,8 @@ vendor:
 .PHONY: build/api
 build/api:
 	@echo 'Building cmd/api...'
-	go build -ldflags='-s' -o=./bin/moviemaze-app ./cmd/api
-	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./bin/linux_amd64/moviemaze-app ./cmd/api
+	go build -ldflags='-s' -o=./bin/omdb-api ./cmd/api
+	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./bin/linux_amd64/omdb-api ./cmd/api
 
 
 # ==================================================================================== #
@@ -103,20 +103,20 @@ build/api:
 ## production/connect: connect to the production server
 .PHONY: production/connect
 production/connect:
-	ssh moviemaze@${PRODUCTION_HOST_IP}
+	ssh omdb-api@${PRODUCTION_HOST_IP}
 
 ## production/deploy/api: deploy the api to production
 .PHONY: production/deploy/app
 production/deploy/app:
-	rsync -P ./bin/linux_amd64/moviemaze-app moviemaze@${PRODUCTION_HOST_IP}:~/moviemaze
-	rsync -rP --delete ./sql/schema/ moviemaze@${PRODUCTION_HOST_IP}:~/moviemaze/sql/schema
-	rsync -rP --delete ./sql/migrations/ moviemaze@${PRODUCTION_HOST_IP}:~/moviemaze/sql/migrations
-	ssh -t moviemaze@${PRODUCTION_HOST_IP} 'cd moviemaze/sql/migrations && goose postgres ${MOVIE_MAZE_DB_DSN_PROD} up'
-	rsync -P ./remote/production/moviemaze.service moviemaze@${PRODUCTION_HOST_IP}:~/moviemaze
-	ssh -t moviemaze@${PRODUCTION_HOST_IP} '\
-		sudo mv ~/moviemaze/moviemaze.service /etc/systemd/system/ \
-		&& sudo systemctl enable moviemaze \
-		&& sudo systemctl restart moviemaze \
+	rsync -P ./bin/linux_amd64/omdb-api omdb-api@${PRODUCTION_HOST_IP}:~/api
+	rsync -rP --delete ./sql/schema/ omdb-api@${PRODUCTION_HOST_IP}:~/api/sql/schema
+	rsync -rP --delete ./sql/migrations/ omdb-api@${PRODUCTION_HOST_IP}:~/api/sql/migrations
+	ssh -t omdb-api@${PRODUCTION_HOST_IP} 'cd api/sql/migrations && goose postgres ${OMDB_API_DB_DSN_PROD} up'
+	rsync -P ./remote/production/omdb-api.service omdb-api@${PRODUCTION_HOST_IP}:~/api
+	ssh -t omdb-api@${PRODUCTION_HOST_IP} '\
+		sudo mv ~/api/omdb-api.service /etc/systemd/system/ \
+		&& sudo systemctl enable omdb-api \
+		&& sudo systemctl restart omdb-api \
 		'
 	@echo "deployment complete..."
 
@@ -124,13 +124,13 @@ production/deploy/app:
 ## production/import-data/transfer: transfer data to prod
 .PHONY: production/import-data/transfer
 production/import-data/transfer:
-	rsync -rP --delete ./sql/data-import/ moviemaze@${PRODUCTION_HOST_IP}:~/sql/data-import
+	rsync -rP --delete ./sql/data-import/ omdb-api@${PRODUCTION_HOST_IP}:~/sql/data-import
 
 ## production/import-data/run: run import to prod database
 .PHONY: production/import-data/run
 production/import-data/run:
-	ssh -t moviemaze@${PRODUCTION_HOST_IP} '\
-		psql -v ON_ERROR_STOP=1 -d "${MOVIE_MAZE_DB_DSN_PROD}" -c "\i sql/data-import/run.sql"\
+	ssh -t omdb-api@${PRODUCTION_HOST_IP} '\
+		psql -v ON_ERROR_STOP=1 -d "${OMDB_API_DB_DSN_PROD}" -c "\i sql/data-import/run.sql"\
 		'
 	@echo "data import complete..."
 
