@@ -45,7 +45,7 @@ movie_content_updates
 "
 
 for f in $FILES; do
-  wget --no-verbose --mirror -P sql/data-import/data --no-host-directories "$BASE$f.csv.bz2"
+  wget --no-verbose --mirror -P sql/data-import/ --no-host-directories "$BASE$f.csv.bz2"
 done
 
-bunzip2 --keep --force sql/data-import/data/*.bz2
+bunzip2 --force sql/data-import/data/*.bz2

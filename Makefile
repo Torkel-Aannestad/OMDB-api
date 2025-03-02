@@ -32,6 +32,22 @@ db/create-dev-database:
 	sudo -i -u postgres psql -c "CREATE DATABASE ${DB_NAME}"
 	sudo -i -u postgres psql -d ${DB_NAME} -c "CREATE EXTENSION IF NOT EXISTS citext"
 	sudo -i -u postgres psql -d ${DB_NAME} -c "CREATE ROLE ${DB_NAME} WITH LOGIN PASSWORD '${DB_PASSWORD_DEV}'"
+	sudo -i -u postgres psql -d ${DB_NAME} -c "GRANT ALL ON SCHEMA public TO ${DB_NAME}"
+
+## db/data-download: downloads new OMDB CSV files
+.PHONY: db/data-download
+db/data-download:
+	@echo 'Downloading OMDB CSVs...'
+	@./sql/data-import/download.sh
+	@echo 'OMDB data downloaded and unziped...'
+
+
+## db/import-data: imports OMDB dataset
+.PHONY: db/import-data
+db/import-data:
+	@echo 'Importing OMDB data...'
+	@psql -v ON_ERROR_STOP=1 -d "${OMDB_API_DB_DSN_DEV}" -c "\i sql/data-import/run.sql"
+	@echo 'Import done...'
 
 ## db/migrations/up: apply all up database migrations
 .PHONY: db/migrations/up
@@ -39,22 +55,10 @@ db/migrations/up: confirm
 	@echo 'Running up migrations...'
 	@cd sql/migrations && goose postgres ${OMDB_API_DB_DSN_DEV} up && cd ../..
 
-## db/import-data: imports OMDB dataset
-.PHONY: db/import-data
-db/import-data:
-	@echo 'Importing OMDB data...'
-	@psql -v ON_ERROR_STOP=1 -d "${OMDB_API_DB_DSN_DEV}" -c "\i sql/data-import/run.sql"
-
-## db/data-download: downloads new OMDB CSV files
-.PHONY: db/data-download
-db/data-download:
-	@echo 'Downloading OMDB CSVs...'
-	@./sql/data-import/download.sh
-
 ## db/pg_dump/schema: slqc generates go types from database schema and queries
 .PHONY: db/pg_dump/schema
 db/pg_dump/schema:
-	pg_dump "${OMDB_API_DB_DSN_DEV}" --schema-only > sql/schema/moviemaze_schema.sql
+	pg_dump "${OMDB_API_DB_DSN_DEV}" --schema-only > sql/schema/omdb_api_schema.sql
 
 ## db/sqlc/generate: slqc generates go types from database schema and queries
 .PHONY: db/sqlc/generate
@@ -65,7 +69,7 @@ db/sqlc/generate:
 .PHONY: db/init
 db/init:
 	@docker run -e POSTGRES_PASSWORD=${DOCKER_POSTGRES_PW} --name=${DOCKER_POSTGRES_CONTAINER_NAME} --rm -d -p 5432:5432 postgres && sleep 3
-	@docker exec -u postgres -it pg-moviemaze psql -c "CREATE DATABASE moviemaze;"
+	@docker exec -u postgres -it pg-omdb-api psql -c "CREATE DATABASE omdb_api;"
 
 
 # ==================================================================================== #
@@ -116,10 +120,14 @@ production/connect:
 ## production/deploy/api: deploy the api to production
 .PHONY: production/deploy/app
 production/deploy/app:
+	ssh -t omdb-api@${PRODUCTION_HOST_IP} 'mkdir -p api/sql/{schema,migrations}'
+
 	rsync -P ./bin/linux_amd64/omdb-api omdb-api@${PRODUCTION_HOST_IP}:~/api
 	rsync -rP --delete ./sql/schema/ omdb-api@${PRODUCTION_HOST_IP}:~/api/sql/schema
+	
 	rsync -rP --delete ./sql/migrations/ omdb-api@${PRODUCTION_HOST_IP}:~/api/sql/migrations
 	ssh -t omdb-api@${PRODUCTION_HOST_IP} 'cd api/sql/migrations && goose postgres ${OMDB_API_DB_DSN_PROD} up'
+	
 	rsync -P ./remote/production/omdb-api.service omdb-api@${PRODUCTION_HOST_IP}:~/api
 	ssh -t omdb-api@${PRODUCTION_HOST_IP} '\
 		sudo mv ~/api/omdb-api.service /etc/systemd/system/ \
@@ -128,10 +136,10 @@ production/deploy/app:
 		'
 	@echo "deployment complete..."
 
-
 ## production/import-data/transfer: transfer data to prod
 .PHONY: production/import-data/transfer
 production/import-data/transfer:
+	ssh -t omdb-api@${PRODUCTION_HOST_IP} 'mkdir -p sql/data-import/'
 	rsync -rP --delete ./sql/data-import/ omdb-api@${PRODUCTION_HOST_IP}:~/sql/data-import
 
 ## production/import-data/run: run import to prod database
@@ -141,4 +149,3 @@ production/import-data/run:
 		psql -v ON_ERROR_STOP=1 -d "${OMDB_API_DB_DSN_PROD}" -c "\i sql/data-import/run.sql"\
 		'
 	@echo "data import complete..."
-

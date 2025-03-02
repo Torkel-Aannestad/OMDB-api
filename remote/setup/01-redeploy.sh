@@ -15,6 +15,7 @@ USERNAME=omdb-api
 
 # Prompt to enter a password for the PostgreSQL moviemaze user (rather than hard-coding
 # a password in this script).
+DB_NAME=omdb_api
 read -p "DB_PASSWORD: " DB_PASSWORD
 read -p "Mailtrap user: " MAILTRAP_USERNAME
 read -p "Password for mailtrap user: " MAILTRAP_PASSWORD
@@ -55,10 +56,11 @@ curl -fsSL \
 # Install PostgreSQL.
 apt --yes install postgresql
 
-# Set up the moviemaze DB and create a user account with the password entered earlier.
-sudo -i -u postgres psql -c "CREATE DATABASE omdb_api"
-sudo -i -u postgres psql -d omdb_api -c "CREATE EXTENSION IF NOT EXISTS citext"
-sudo -i -u postgres psql -d omdb_api -c "CREATE ROLE omdb_api WITH LOGIN PASSWORD '${DB_PASSWORD}'"
+# Set up the DB and create a user account with the password.
+sudo -i -u postgres psql -c "CREATE DATABASE ${DB_NAME}"
+sudo -i -u postgres psql -d ${DB_NAME} -c "CREATE EXTENSION IF NOT EXISTS citext"
+sudo -i -u postgres psql -d ${DB_NAME} -c "CREATE ROLE ${DB_NAME} WITH LOGIN PASSWORD '${DB_PASSWORD}'"
+sudo -i -u postgres psql -d ${DB_NAME} -c "GRANT ALL ON SCHEMA public TO ${DB_NAME}"
 
 # Add a DSN and mailtrap to the system-wide environment variables in the /etc/environment file.
 echo "OMDB_API_DB_DSN_PROD='postgres://omdb_api:${DB_PASSWORD}@localhost/omdb_api'" >> /etc/environment

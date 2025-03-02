@@ -17,6 +17,6 @@ VACUUM;
 \i :base_path/029_add_alter_columns.sql
 \i :base_path/030_add_identity_for_id.sql
 ANALYZE;
--- \i :base_path/031_purge_dirty_categories.sql
+\i :base_path/031_purge_dirty_categories.sql
 
 \i :base_path/040_add_indexes.sql
