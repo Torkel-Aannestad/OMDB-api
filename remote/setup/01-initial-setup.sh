@@ -1,6 +1,11 @@
 #!/bin/bash
 set -eu
 
+# Force all output to be presented in en_US for the duration of this script. This avoids  
+# any "setting locale failed" errors while this script is running, before we have 
+# installed support for all locales. Do not change this setting!
+export LC_ALL=en_US.UTF-8 
+
 # ==================================================================================== #
 # VARIABLES
 # ==================================================================================== #
@@ -10,14 +15,12 @@ USERNAME=omdb-api
 
 # Prompt to enter a password for the PostgreSQL moviemaze user (rather than hard-coding
 # a password in this script).
-read -p "Enter password for DB user: " DB_PASSWORD
-read -p "Enter mailtrap user: " MAILTRAP_USERNAME
-read -p "Enter password for mailtrap user: " MAILTRAP_PASSWORD
+DB_NAME=omdb_api
+read -p "DB_PASSWORD: " DB_PASSWORD
+read -p "Mailtrap user: " MAILTRAP_USERNAME
+read -p "Password for mailtrap user: " MAILTRAP_PASSWORD
 
-# Force all output to be presented in en_US for the duration of this script. This avoids  
-# any "setting locale failed" errors while this script is running, before we have 
-# installed support for all locales. Do not change this setting!
-export LC_ALL=en_US.UTF-8 
+
 
 # ==================================================================================== #
 # SCRIPT LOGIC
@@ -29,24 +32,21 @@ add-apt-repository --yes universe
 # Update all software packages.
 apt update
 
-# Add the new user (and give them sudo privileges).
-useradd --create-home --shell "/bin/bash" --groups sudo "${USERNAME}"
+if id "${USERNAME}" &>/dev/null; then
+    echo "User ${USERNAME} already exists."
+else
+    # Add the new user and give them sudo privileges
+    sudo useradd --create-home --shell "/bin/bash" --groups sudo "${USERNAME}"
 
-# Force a password to be set for the new user the first time they log in.
-passwd --delete "${USERNAME}"
-chage --lastday 0 "${USERNAME}"
+    # Force a password to be set for the new user the first time they log in.
+    sudo passwd --delete "${USERNAME}"
+    sudo chage --lastday 0 "${USERNAME}"
 
-# Copy the SSH keys from the template-user to the new user.
-rsync --archive --chown=${USERNAME}:${USERNAME} /home/ew-user/.ssh /home/${USERNAME}
-
-# Configure the firewall to allow SSH, HTTP and HTTPS traffic.
-ufw allow 22
-ufw allow 80/tcp
-ufw allow 443/tcp
-ufw --force enable
-
-# Install fail2ban.
-apt --yes install fail2ban
+    # Copy the SSH keys from the template-user to the new user.
+    sudo rsync --archive --chown=${USERNAME}:${USERNAME} /home/ew-user/.ssh /home/${USERNAME}
+    
+    echo "User ${USERNAME} created"
+fi
 
 # Install the goose db migration CLI tool. https://pressly.github.io/goose/installation/
 curl -fsSL \
@@ -56,15 +56,16 @@ curl -fsSL \
 # Install PostgreSQL.
 apt --yes install postgresql
 
-# Set up the moviemaze DB and create a user account with the password entered earlier.
-sudo -i -u postgres psql -c "CREATE DATABASE moviemaze"
-sudo -i -u postgres psql -d moviemaze -c "CREATE EXTENSION IF NOT EXISTS citext"
-sudo -i -u postgres psql -d moviemaze -c "CREATE ROLE moviemaze WITH LOGIN PASSWORD '${DB_PASSWORD}'"
+# Set up the DB and create a user account with the password.
+sudo -i -u postgres psql -c "CREATE DATABASE ${DB_NAME}"
+sudo -i -u postgres psql -d ${DB_NAME} -c "CREATE EXTENSION IF NOT EXISTS citext"
+sudo -i -u postgres psql -d ${DB_NAME} -c "CREATE ROLE ${DB_NAME} WITH LOGIN PASSWORD '${DB_PASSWORD}'"
+sudo -i -u postgres psql -d ${DB_NAME} -c "GRANT ALL ON SCHEMA public TO ${DB_NAME}"
 
 # Add a DSN and mailtrap to the system-wide environment variables in the /etc/environment file.
-echo "MOVIE_MAZE_DB_DSN='postgres://moviemaze:${DB_PASSWORD}@localhost/moviemaze'" >> /etc/environment
-echo "MAILTRAP_USERNAME='${MAILTRAP_USERNAME}'" >> /etc/environment
-echo "MAILTRAP_PASSWORD='${MAILTRAP_PASSWORD}'" >> /etc/environment
+echo "OMDB_API_DB_DSN_PROD='postgres://omdb_api:${DB_PASSWORD}@localhost/omdb_api'" >> /etc/environment
+echo "MAILTRAP_USERNAME_PROD='${MAILTRAP_USERNAME}'" >> /etc/environment
+echo "MAILTRAP_PASSWORD_PROD='${MAILTRAP_PASSWORD}'" >> /etc/environment
 
 # Install Caddy (see https://caddyserver.com/docs/install#debian-ubuntu-raspbian).
 # apt install -y debian-keyring debian-archive-keyring apt-transport-https

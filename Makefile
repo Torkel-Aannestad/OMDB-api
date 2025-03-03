@@ -136,16 +136,24 @@ production/deploy/app:
 		'
 	@echo "deployment complete..."
 
-## production/import-data/transfer: transfer data to prod
+## production/deploy/initial-setup: initial setup of api. Next: production/import-data/transfer
+.PHONY: production/deploy/initial-setup
+production/deploy/initial-setup:
+	rsync -P ./remote/setup/01-initial-setup.sh omdb-api@${PRODUCTION_HOST_IP}:~/
+	ssh -t omdb-api@${PRODUCTION_HOST_IP} 'sudo ./01-initial-setup.sh'
+	@echo "Initial Setup complete..."
+
+## production/import-data/transfer: transfer data to prod. Next: production/import-data/run
 .PHONY: production/import-data/transfer
 production/import-data/transfer:
 	ssh -t omdb-api@${PRODUCTION_HOST_IP} 'mkdir -p sql/data-import/'
 	rsync -rP --delete ./sql/data-import/ omdb-api@${PRODUCTION_HOST_IP}:~/sql/data-import
 
-## production/import-data/run: run import to prod database
+## production/import-data/run: run import to prod database. Next: production/deploy/app
 .PHONY: production/import-data/run
 production/import-data/run:
 	ssh -t omdb-api@${PRODUCTION_HOST_IP} '\
 		psql -v ON_ERROR_STOP=1 -d "${OMDB_API_DB_DSN_PROD}" -c "\i sql/data-import/run.sql"\
 		'
 	@echo "data import complete..."
+ 
