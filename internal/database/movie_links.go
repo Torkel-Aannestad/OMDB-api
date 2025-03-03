@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/validator"
 )
 
 type MovieLink struct {

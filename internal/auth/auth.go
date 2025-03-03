@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/validator"
 	"golang.org/x/crypto/argon2"
 	"golang.org/x/crypto/bcrypt"
 )

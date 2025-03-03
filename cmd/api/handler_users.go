@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Torkel-Aannestad/MovieMaze/internal/auth"
-	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
-	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/auth"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/database"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/validator"
 )
 
 func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {

@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/Torkel-Aannestad/MovieMaze/assets"
+	"github.com/Torkel-Aannestad/OMDB-api/assets"
 )
 
 func (app *application) getDocs(w http.ResponseWriter, r *http.Request) {

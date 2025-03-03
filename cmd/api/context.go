@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/database"
 )
 
 type contextKey string

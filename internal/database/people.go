@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/validator"
 	"github.com/lib/pq"
 )
 

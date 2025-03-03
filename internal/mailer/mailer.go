@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"time"
 
-	"github.com/Torkel-Aannestad/MovieMaze/assets"
+	"github.com/Torkel-Aannestad/OMDB-api/assets"
 	"github.com/go-mail/mail/v2"
 )
 

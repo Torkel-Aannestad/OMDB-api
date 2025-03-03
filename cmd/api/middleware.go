@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
-	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/database"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/validator"
 	"github.com/tomasen/realip"
 	"golang.org/x/time/rate"
 )

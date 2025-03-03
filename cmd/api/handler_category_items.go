@@ -5,7 +5,7 @@ import (
 
 	"net/http"
 
-	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/database"
 )
 
 func (app *application) createMovieKeywordsHandler(w http.ResponseWriter, r *http.Request) {

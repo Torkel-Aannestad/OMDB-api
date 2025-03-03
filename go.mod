@@ -1,4 +1,4 @@
-module github.com/Torkel-Aannestad/MovieMaze
+module github.com/Torkel-Aannestad/OMDB-api
 
 go 1.22.3
 

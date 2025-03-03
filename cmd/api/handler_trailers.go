@@ -6,8 +6,8 @@ import (
 
 	"net/http"
 
-	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
-	"github.com/Torkel-Aannestad/MovieMaze/internal/validator"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/database"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/validator"
 )
 
 func (app *application) createTrailerHandler(w http.ResponseWriter, r *http.Request) {

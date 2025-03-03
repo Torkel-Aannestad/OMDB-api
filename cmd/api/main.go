@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Torkel-Aannestad/MovieMaze/internal/database"
-	"github.com/Torkel-Aannestad/MovieMaze/internal/mailer"
-	"github.com/Torkel-Aannestad/MovieMaze/internal/vcs"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/database"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/mailer"
+	"github.com/Torkel-Aannestad/OMDB-api/internal/vcs"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -59,7 +59,7 @@ func main() {
 	var cfg Config
 
 	godotenv.Load()
-	dsn := os.Getenv("MOVIE_MAZE_DB_DSN_DEV")
+	dsn := os.Getenv("OMDB_API_DB_DSN_DEV")
 	mailtrapUsername := os.Getenv("MAILTRAP_USERNAME_DEV")
 	mailtrapPassword := os.Getenv("MAILTRAP_PASSWORD_DEV")
 
@@ -87,7 +87,7 @@ func main() {
 	flag.IntVar(&cfg.smtp.port, "smtp-port", 587, "port")
 	flag.StringVar(&cfg.smtp.username, "smtp-username", mailtrapUsername, "username")
 	flag.StringVar(&cfg.smtp.password, "smtp-password", mailtrapPassword, "password")
-	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "MovieMaze <no-reply@torkelaannestad.com>", "sender")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "OMDB <no-reply@torkelaannestad.com>", "sender")
 
 	displayVersion := flag.Bool("version", false, "Display version and exit")
 
