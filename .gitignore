@@ -2,7 +2,7 @@ bin
 .env
 tmp
 tasks.md
-# sql/data-import/data
+sql/data-import/data
 
 sqlc_generated
 test-commands.md

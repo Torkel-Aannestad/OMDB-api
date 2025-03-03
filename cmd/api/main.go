@@ -98,7 +98,14 @@ func main() {
 		os.Exit(0)
 	}
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil)) //change for json later
+	loggerOptons := &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}
+	if cfg.env == "production" {
+		loggerOptons.AddSource = true
+	}
+
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, loggerOptons))
 
 	db, err := database.OpenDB(cfg.db.dsn, cfg.db.maxOpenConns, cfg.db.maxIdleConns, cfg.db.maxIdleTime)
 	if err != nil {
